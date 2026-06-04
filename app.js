@@ -262,7 +262,7 @@ async function loadFuturesData() {
     
     try {
         statusText.textContent = "正在检测数据...";
-        const response = await fetch('./data/futures_data.json');
+        const response = await fetch('./data/futures_data.json?v=' + new Date().getTime());
         if (!response.ok) throw new Error('File not found');
         const data = await response.json();
         
