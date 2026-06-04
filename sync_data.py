@@ -122,11 +122,16 @@ def screen_commodity(ak, pd, code, start_date):
         curr_oi       = int(df.iloc[-1]['hold'])
         data_start    = str(df['date'].min())
         data_rows     = len(df)
+        
+        data_start_dt = pd.to_datetime(data_start)
+        last_date_dt  = pd.to_datetime(str(df.iloc[-1]['date']))
+        years_history = (last_date_dt - data_start_dt).days / 365.25
 
         ratio = curr_oi / hist_max_oi if hist_max_oi > 0 else 0
+        
         if curr_oi > hist_max_oi and hist_max_oi > 0:
             alert = 'new_high'
-        elif ratio >= NEAR_HIGH_THRESH and hist_max_oi > 0:
+        elif ratio >= NEAR_HIGH_THRESH and hist_max_oi > 0 and years_history >= 3.0:
             alert = 'near_high'
         else:
             alert = 'normal'
