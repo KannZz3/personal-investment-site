@@ -71,7 +71,7 @@ ALL_CFG = {
     'TA': {'name':'PTA',     'realtime':'PTA',      'exch':'CZCE', 'mult':5,   'margin':0.08,'unit':'吨'},
     'MA': {'name':'甲醇',    'realtime':'甲醇',     'exch':'CZCE', 'mult':10,  'margin':0.08,'unit':'吨'},
     'FG': {'name':'玻璃',    'realtime':'玻璃',     'exch':'CZCE', 'mult':20,  'margin':0.08,'unit':'吨'},
-    'OI': {'name':'菜油',    'realtime':'菜籽油',   'exch':'CZCE', 'mult':10,  'margin':0.07,'unit':'吨'},
+    'OI': {'name':'菜油',    'realtime':'菜油',     'exch':'CZCE', 'mult':10,  'margin':0.07,'unit':'吨'},
     'RM': {'name':'菜粕',    'realtime':'菜粕',     'exch':'CZCE', 'mult':10,  'margin':0.07,'unit':'吨'},
     'SA': {'name':'纯碱',    'realtime':'纯碱',     'exch':'CZCE', 'mult':20,  'margin':0.09,'unit':'吨'},
     'ZC': {'name':'动力煤',  'realtime':'动力煤',   'exch':'CZCE', 'mult':100, 'margin':0.10,'unit':'吨'},
@@ -184,23 +184,27 @@ def find_main_contract(ak, pd, code, realtime_name):
     Query futures_zh_realtime to find the contract with highest open interest.
     Returns (contract_symbol, oi, price) or (None, 0, 0).
     """
-    try:
-        df = ak.futures_zh_realtime(symbol=realtime_name)
-        if df is None or df.empty:
-            return None, 0, 0.0
-        df_real = df[~df['symbol'].str.endswith('0')].copy()
-        df_real = df_real[df_real['symbol'].str.contains(r'\d', regex=True)]
-        if df_real.empty:
-            return None, 0, 0.0
-        df_real['position'] = pd.to_numeric(df_real['position'], errors='coerce').fillna(0)
-        row = df_real.loc[df_real['position'].idxmax()]
-        sym   = str(row['symbol']).upper()
-        oi    = int(row['position'])
-        price = float(row.get('trade', row.get('close', 0)))
-        if sym.startswith(code.upper()) and oi > 0:
-            return sym, oi, price
-    except Exception:
-        pass
+    import time
+    for attempt in range(3):
+        try:
+            df = ak.futures_zh_realtime(symbol=realtime_name)
+            if df is None or df.empty:
+                time.sleep(1)
+                continue
+            df_real = df[~df['symbol'].str.endswith('0')].copy()
+            df_real = df_real[df_real['symbol'].str.contains(r'\d', regex=True)]
+            if df_real.empty:
+                time.sleep(1)
+                continue
+            df_real['position'] = pd.to_numeric(df_real['position'], errors='coerce').fillna(0)
+            row = df_real.loc[df_real['position'].idxmax()]
+            sym   = str(row['symbol']).upper()
+            oi    = int(row['position'])
+            price = float(row.get('trade', row.get('close', 0)))
+            if sym.startswith(code.upper()) and oi > 0:
+                return sym, oi, price
+        except Exception:
+            time.sleep(1)
     return None, 0, 0.0
 
 
