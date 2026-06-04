@@ -4,21 +4,23 @@
 
 
 // Global Application State
+// Uses base commodity codes (AU, CU, RB, SC, SR, TA) as keys throughout.
+// Actual contract symbols (e.g. AU2608) are loaded from JSON metadata dynamically.
 const state = {
     theme: 'dark',
     activeTab: 'dashboard',
     contracts: {
-        'AU2606': { name: '沪金主力', symbol: 'AU2606', exchange: 'SHFE', basePrice: 550, multiplier: 1000, marginRate: 0.08, unit: '克' },
-        'CU2607': { name: '沪铜主力', symbol: 'CU2607', exchange: 'SHFE', basePrice: 72000, multiplier: 5, marginRate: 0.10, unit: '吨' },
-        'RB2610': { name: '螺纹钢主力', symbol: 'RB2610', exchange: 'SHFE', basePrice: 3400, multiplier: 10, marginRate: 0.09, unit: '吨' },
-        'SC2607': { name: '原油主力', symbol: 'SC2607', exchange: 'INE', basePrice: 600, multiplier: 1000, marginRate: 0.11, unit: '桶' },
-        'SR2609': { name: '白糖主力', symbol: 'SR2609', exchange: 'CZCE', basePrice: 6200, multiplier: 10, marginRate: 0.07, unit: '吨' },
-        'TA2609': { name: 'PTA主力', symbol: 'TA2609', exchange: 'CZCE', basePrice: 5800, multiplier: 5, marginRate: 0.08, unit: '吨' }
+        'AU': { name: '沪金主力',   symbol: 'AU',  exchange: 'SHFE', basePrice: 980,   multiplier: 1000, marginRate: 0.08, unit: '克' },
+        'CU': { name: '沪铜主力',   symbol: 'CU',  exchange: 'SHFE', basePrice: 106000,multiplier: 5,    marginRate: 0.10, unit: '吨' },
+        'RB': { name: '螺纹钢主力', symbol: 'RB',  exchange: 'SHFE', basePrice: 3150,  multiplier: 10,   marginRate: 0.09, unit: '吨' },
+        'SC': { name: '原油主力',   symbol: 'SC',  exchange: 'INE',  basePrice: 595,   multiplier: 1000, marginRate: 0.11, unit: '桶' },
+        'SR': { name: '白糖主力',   symbol: 'SR',  exchange: 'CZCE', basePrice: 5350,  multiplier: 10,   marginRate: 0.07, unit: '吨' },
+        'TA': { name: 'PTA主力',    symbol: 'TA',  exchange: 'CZCE', basePrice: 6180,  multiplier: 5,    marginRate: 0.08, unit: '吨' }
     },
-    activeContract: 'CU2607',
+    activeContract: 'CU',
     chartPeriod: 'D', // 'D' (日K), 'W' (周K), '15M' (15分钟)
     isDataReal: false,
-    futuresData: {}, // Holds real or simulated data for each contract
+    futuresData: {}, // Holds real or simulated data for each base commodity code
     realDataLoadError: false
 };
 
@@ -260,37 +262,55 @@ async function loadFuturesData() {
     
     try {
         statusText.textContent = "正在检测数据...";
-        // Try fetching synced data from the local data directory
         const response = await fetch('./data/futures_data.json');
-        if (!response.ok) {
-            throw new Error("File not found");
-        }
+        if (!response.ok) throw new Error('File not found');
         const data = await response.json();
         
-        // Data parsed successfully! Update state
+        // -------------------------------------------------------
+        // 动态更新 state.contracts 中的合约信息（月份/持仓量）
+        // 来源：sync_data.py 按真实持仓量自动选取后写入 metadata
+        // -------------------------------------------------------
+        if (data.metadata && data.metadata.contracts) {
+            const metaContracts = data.metadata.contracts;
+            Object.keys(state.contracts).forEach(baseCode => {
+                if (metaContracts[baseCode]) {
+                    const m = metaContracts[baseCode];
+                    state.contracts[baseCode].symbol      = m.symbol      || baseCode;
+                    state.contracts[baseCode].name        = m.name        || state.contracts[baseCode].name;
+                    state.contracts[baseCode].exchange    = m.exchange    || state.contracts[baseCode].exchange;
+                    state.contracts[baseCode].multiplier  = m.multiplier  || state.contracts[baseCode].multiplier;
+                    state.contracts[baseCode].marginRate  = m.marginRate  || state.contracts[baseCode].marginRate;
+                    state.contracts[baseCode].unit        = m.unit        || state.contracts[baseCode].unit;
+                    state.contracts[baseCode].openInterest= m.openInterest|| 0;
+                }
+            });
+        }
+        
+        // 将 JSON 数据以 baseCode 为 key 存入 state.futuresData
+        Object.keys(state.contracts).forEach(baseCode => {
+            if (data[baseCode]) {
+                state.futuresData[baseCode] = data[baseCode];
+            }
+        });
+        
         state.isDataReal = true;
-        state.futuresData = data;
-        
         statusDot.className = 'status-dot synced';
-        statusText.textContent = "真实数据同步";
+        statusText.textContent = '真实数据同步 ✓';
         
-        // Show sync time
         if (data.metadata && data.metadata.sync_time) {
             const date = new Date(data.metadata.sync_time);
-            syncTimeText.textContent = `数据更新时间: ${date.toLocaleString()}`;
+            syncTimeText.textContent = `数据更新: ${date.toLocaleString()} | 主力合约按持仓量自动确认`;
         }
         
     } catch (err) {
-        console.warn("未检测到真实同步的期货数据文件 (data/futures_data.json) 或读取失败，将启用高仿真行情演算系统。", err);
-        // Fallback to simulation mode
+        console.warn('未检测到真实数据文件，启用高仿真演算模式。', err);
         state.isDataReal = false;
         generateMockData();
         
         statusDot.className = 'status-dot active';
-        statusText.textContent = "行情模拟模式";
-        syncTimeText.textContent = "数据已同步接入实时行情演算器";
+        statusText.textContent = '行情模拟模式';
+        syncTimeText.textContent = '数据已同步接入实时行情演算器';
         
-        // Start real-time simulated price tick variations
         startLiveTickerTimer();
     }
     
@@ -304,11 +324,11 @@ async function loadFuturesData() {
 function generateMockData() {
     const today = new Date();
     
-    Object.keys(state.contracts).forEach(symbol => {
-        const contract = state.contracts[symbol];
+    Object.keys(state.contracts).forEach(baseCode => {
+        const contract = state.contracts[baseCode];
         const dataList = [];
         let price = contract.basePrice;
-        const volatility = symbol.startsWith('AU') ? 0.006 : symbol.startsWith('CU') ? 0.009 : 0.012; // Gold has lower vol than rebar/sugar
+        const volatility = baseCode === 'AU' ? 0.006 : baseCode === 'CU' ? 0.009 : 0.012; // Gold has lower vol than rebar/sugar
         
         // Generate 120 historical days
         for (let i = 120; i >= 0; i--) {
@@ -344,7 +364,7 @@ function generateMockData() {
             });
         }
         
-        state.futuresData[symbol] = {
+        state.futuresData[baseCode] = {
             daily: dataList,
             // 15 Minutes (generate 40 bars for intraday)
             min15: generateMinuteData(price, volatility * 0.4, 40)
@@ -388,11 +408,12 @@ function buildDashboardUI() {
     
     scrollContainer.innerHTML = '';
     
-    Object.keys(state.contracts).forEach(symbol => {
-        const contract = state.contracts[symbol];
-        const data = state.futuresData[symbol].daily;
-        if (!data || !data.length) return;
+    Object.keys(state.contracts).forEach(baseCode => {
+        const contract = state.contracts[baseCode];
+        const dataContainer = state.futuresData[baseCode];
+        if (!dataContainer || !dataContainer.daily || !dataContainer.daily.length) return;
         
+        const data = dataContainer.daily;
         const lastDay = data[data.length - 1];
         const prevDay = data[data.length - 2] || lastDay;
         
@@ -403,26 +424,29 @@ function buildDashboardUI() {
         const colorClass = isUp ? 'price-up' : 'price-down';
         const sign = isUp ? '+' : '';
         
+        // Display the actual contract month symbol (e.g. AU2608) from metadata, or base code
+        const displaySym = contract.symbol || baseCode;
+        
         const card = document.createElement('div');
-        card.className = `ticker-card ${symbol === state.activeContract ? 'active' : ''}`;
-        card.id = `ticker-${symbol}`;
+        card.className = `ticker-card ${baseCode === state.activeContract ? 'active' : ''}`;
+        card.id = `ticker-${baseCode}`;
         card.innerHTML = `
             <div class="ticker-card-header">
                 <div>
                     <span class="ticker-name">${contract.name}</span>
-                    <span class="ticker-symbol">${symbol}</span>
+                    <span class="ticker-symbol">${displaySym}</span>
                 </div>
                 <span class="ticker-exchange">${contract.exchange}</span>
             </div>
-            <div class="ticker-price ${colorClass}" id="price-${symbol}">${lastDay.close.toFixed(1)}</div>
-            <div class="ticker-change ${colorClass}" id="change-${symbol}">
+            <div class="ticker-price ${colorClass}" id="price-${baseCode}">${lastDay.close.toFixed(1)}</div>
+            <div class="ticker-change ${colorClass}" id="change-${baseCode}">
                 <span>${sign}${dailyChange.toFixed(1)}</span>
                 <span>${sign}${dailyChangePct.toFixed(2)}%</span>
             </div>
         `;
         
         card.addEventListener('click', () => {
-            selectContract(symbol);
+            selectContract(baseCode);
         });
         
         scrollContainer.appendChild(card);
@@ -430,16 +454,16 @@ function buildDashboardUI() {
 }
 
 // Update Active Contract Selection
-function selectContract(symbol) {
-    if (state.activeContract === symbol) return;
+function selectContract(baseCode) {
+    if (state.activeContract === baseCode) return;
     
     // Toggle active classes in ticker list
     const prevActiveCard = document.getElementById(`ticker-${state.activeContract}`);
     if (prevActiveCard) prevActiveCard.classList.remove('active');
     
-    state.activeContract = symbol;
+    state.activeContract = baseCode;
     
-    const activeCard = document.getElementById(`ticker-${symbol}`);
+    const activeCard = document.getElementById(`ticker-${baseCode}`);
     if (activeCard) activeCard.classList.add('active');
     
     // Rerender Chart & stats panels
@@ -499,8 +523,11 @@ function initializeChartComponent() {
 function updateChartData() {
     if (!window.activeChart) return;
     
-    const contract = state.contracts[state.activeContract];
-    const dataContainer = state.futuresData[state.activeContract];
+    const baseCode = state.activeContract;
+    const contract = state.contracts[baseCode];
+    const dataContainer = state.futuresData[baseCode];
+    
+    if (!dataContainer) return;
     
     let dataset = [];
     if (state.chartPeriod === 'D') {
@@ -508,13 +535,14 @@ function updateChartData() {
     } else if (state.chartPeriod === '15M') {
         dataset = dataContainer.min15;
     } else if (state.chartPeriod === 'W') {
-        // Group daily into weekly candles
         dataset = compressToWeekly(dataContainer.daily);
     }
     
-    // Set title info on chart UI
-    document.getElementById('chartActiveTitle').textContent = `${contract.name} (${contract.symbol})`;
-    document.getElementById('chartActiveSubtitle').textContent = `${contract.exchange} · 乘数: ${contract.multiplier} ${contract.unit}/手 · 保证金: ${(contract.marginRate*100).toFixed(0)}%`;
+    // Display actual contract symbol (from metadata, e.g. CU2609) or base code
+    const displaySym = contract.symbol || baseCode;
+    const oiInfo = contract.openInterest ? ` | 持仓量: ${(contract.openInterest/10000).toFixed(1)}万手` : '';
+    document.getElementById('chartActiveTitle').textContent = `${contract.name} (${displaySym})`;
+    document.getElementById('chartActiveSubtitle').textContent = `${contract.exchange} · 乘数: ${contract.multiplier} ${contract.unit}/手 · 保证金: ${(contract.marginRate*100).toFixed(0)}%${oiInfo}`;
     
     window.activeChart.setData(dataset);
 }
@@ -580,9 +608,11 @@ function getWeekNumber(d) {
 
 // Update Analysis and Stats Sidebar Panels
 function updateSidebarWidget() {
-    const symbol = state.activeContract;
-    const contract = state.contracts[symbol];
-    const dataList = state.futuresData[symbol].daily;
+    const baseCode = state.activeContract;
+    const contract = state.contracts[baseCode];
+    const dataContainer = state.futuresData[baseCode];
+    if (!dataContainer) return;
+    const dataList = dataContainer.daily;
     if (!dataList || !dataList.length) return;
     
     const last = dataList[dataList.length - 1];
@@ -604,8 +634,8 @@ function updateSidebarWidget() {
         const base = last.close;
         const labels = ['07合约', '09合约(主)', '11合约', '01合约'];
         
-        // Define if it is Contango (ascending) or Backwardation (descending) based on symbol seed
-        const isBack = symbol.charCodeAt(0) % 2 === 0; 
+        // Define if it is Contango (ascending) or Backwardation (descending) based on base code seed
+        const isBack = baseCode.charCodeAt(0) % 2 === 0; 
         const slope = isBack ? -0.015 : 0.012;
         
         labels.forEach((lbl, idx) => {
@@ -660,11 +690,11 @@ function startLiveTickerTimer() {
         if (state.activeTab !== 'dashboard') return;
         
         // Randomly choose 1-2 contracts to update on this tick
-        const symbols = Object.keys(state.contracts);
+        const baseCodes = Object.keys(state.contracts);
         const countToUpdate = Math.floor(Math.random() * 2) + 1;
         
         for (let k = 0; k < countToUpdate; k++) {
-            const sym = symbols[Math.floor(Math.random() * symbols.length)];
+            const sym = baseCodes[Math.floor(Math.random() * baseCodes.length)];
             const contract = state.contracts[sym];
             const dataContainer = state.futuresData[sym];
             
@@ -676,7 +706,7 @@ function startLiveTickerTimer() {
             const last = daily[lastIdx];
             const prev = daily[lastIdx - 1] || last;
             
-            const volatility = sym.startsWith('AU') ? 0.0006 : sym.startsWith('CU') ? 0.001 : 0.0015;
+            const volatility = sym === 'AU' ? 0.0006 : sym === 'CU' ? 0.001 : 0.0015;
             const tickChange = (Math.random() - 0.5) * 2 * volatility;
             
             // Apply price limits (approx. index tracking limits)
@@ -697,7 +727,7 @@ function startLiveTickerTimer() {
                 lastMin.volume += Math.round(Math.random() * 10);
             }
             
-            // Update Card Tickers UI values
+            // Update Card Tickers UI values (by base code)
             const priceEl = document.getElementById(`price-${sym}`);
             const changeEl = document.getElementById(`change-${sym}`);
             

@@ -1,0 +1,55 @@
+name: 自动同步商品期货主力合约数据
+
+on:
+  # 定时触发: 每个工作日 08:00 UTC (北京时间 16:00，日盘收盘后约1小时)
+  schedule:
+    - cron: '0 8 * * 1-5'
+  # 支持在 GitHub 网页上手动触发
+  workflow_dispatch:
+
+# 授予工作流向仓库写入（提交、推送）的权限
+permissions:
+  contents: write
+
+jobs:
+  sync-futures-data:
+    name: 同步期货主力合约行情
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码仓库
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 配置 Python 3.11 环境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: 安装依赖库 (akshare, pandas)
+        run: |
+          pip install --upgrade pip
+          pip install akshare pandas
+
+      - name: 运行数据同步脚本 (按持仓量确定主力合约)
+        run: python sync_data.py
+
+      - name: 检查数据是否有更新
+        id: check_changes
+        run: |
+          git diff --quiet data/futures_data.json && echo "changed=false" >> $GITHUB_OUTPUT || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: 提交并推送最新行情数据
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          git config --local user.name  "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/futures_data.json
+          git commit -m "data: auto-sync main contracts by OI $(date -u '+%Y-%m-%d %H:%M') UTC [skip ci]"
+          git push
+
+      - name: 数据无变化，跳过推送
+        if: steps.check_changes.outputs.changed == 'false'
+        run: echo "数据文件无变化，无需提交。"
