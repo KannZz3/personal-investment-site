@@ -572,7 +572,7 @@ function updateChartData() {
     // Display actual contract symbol (from metadata, e.g. CU2609) or base code
     const displaySym = contract.symbol || baseCode;
     const oiInfo = contract.oiAnalysis ? `当下持仓量: ${(contract.oiAnalysis.currentOI/10000).toFixed(1)}万手 · 峰值持仓量: ${(contract.oiAnalysis.historicalMaxOI/10000).toFixed(1)}万手` : (contract.openInterest ? `持仓量: ${(contract.openInterest/10000).toFixed(1)}万手` : '');
-    document.getElementById('chartActiveTitle').textContent = `${contract.name} (${displaySym})`;
+    document.getElementById('chartActiveTitle').innerHTML = `${contract.name}<br><span style="font-size: 0.95rem; color: var(--text-secondary); font-weight: 500;">(${displaySym})</span>`;
     document.getElementById('chartActiveSubtitle').textContent = oiInfo;
     
     window.activeChart.setData(dataset);
