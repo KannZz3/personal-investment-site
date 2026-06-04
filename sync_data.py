@@ -43,6 +43,8 @@ ALL_CFG = {
     'RU': {'name':'橡胶',    'realtime':'天然橡胶', 'exch':'SHFE', 'mult':10,  'margin':0.09,'unit':'吨'},
     'SP': {'name':'纸浆',    'realtime':'纸浆',     'exch':'SHFE', 'mult':10,  'margin':0.10,'unit':'吨'},
     'EB': {'name':'苯乙烯',  'realtime':'苯乙烯',   'exch':'SHFE', 'mult':5,   'margin':0.09,'unit':'吨'},
+    'BR': {'name':'合成橡胶','realtime':'丁二烯橡胶','exch':'SHFE','mult':5,   'margin':0.10,'unit':'吨'},
+    'AO': {'name':'氧化铝',  'realtime':'氧化铝',   'exch':'SHFE','mult':20,  'margin':0.09,'unit':'吨'},
     # ── DCE 大商所 ──────────────────────────────────
     'I':  {'name':'铁矿石',  'realtime':'铁矿石',   'exch':'DCE',  'mult':100, 'margin':0.09,'unit':'吨'},
     'JM': {'name':'焦煤',    'realtime':'焦煤',     'exch':'DCE',  'mult':60,  'margin':0.10,'unit':'吨'},
@@ -60,6 +62,8 @@ ALL_CFG = {
     'PG': {'name':'液化气',  'realtime':'液化石油气','exch':'DCE', 'mult':20,  'margin':0.08,'unit':'吨'},
     'JD': {'name':'鸡蛋',    'realtime':'鸡蛋',     'exch':'DCE',  'mult':10,  'margin':0.08,'unit':'500kg'},
     'LH': {'name':'生猪',    'realtime':'生猪',     'exch':'DCE',  'mult':16,  'margin':0.15,'unit':'吨'},
+    'RR': {'name':'粳木',    'realtime':'粳木',     'exch':'DCE',  'mult':10,  'margin':0.10,'unit':'吨'},
+    'B':  {'name':'豆二',    'realtime':'黄大豆二号','exch':'DCE',  'mult':10,  'margin':0.06,'unit':'吨'},
     # ── CZCE 郑商所 ──────────────────────────────────
     'SR': {'name':'白糖',    'realtime':'白糖',     'exch':'CZCE', 'mult':10,  'margin':0.07,'unit':'吨'},
     'CF': {'name':'棉花',    'realtime':'棉花',     'exch':'CZCE', 'mult':5,   'margin':0.07,'unit':'吨'},
@@ -76,10 +80,15 @@ ALL_CFG = {
     'PK': {'name':'花生',    'realtime':'花生',     'exch':'CZCE', 'mult':5,   'margin':0.10,'unit':'吨'},
     'SF': {'name':'硅铁',    'realtime':'硅铁',     'exch':'CZCE', 'mult':5,   'margin':0.10,'unit':'吨'},
     'SM': {'name':'锰硅',    'realtime':'锰硅',     'exch':'CZCE', 'mult':5,   'margin':0.10,'unit':'吨'},
+    'PX': {'name':'对二甲苯','realtime':'对二甲苯', 'exch':'CZCE','mult':5,   'margin':0.08,'unit':'吨'},
+    'SH': {'name':'烧碱',    'realtime':'烧碱',     'exch':'CZCE','mult':30,  'margin':0.09,'unit':'吨'},
+    'PR': {'name':'瓶片',    'realtime':'瓶片',     'exch':'CZCE','mult':15,  'margin':0.08,'unit':'吨'},
     # ── INE 上期能源 ──────────────────────────────────
     'SC': {'name':'原油',    'realtime':'原油',     'exch':'INE',  'mult':1000,'margin':0.11,'unit':'桶'},
     'LU': {'name':'低硫油',  'realtime':'低硫燃料油','exch':'INE', 'mult':10,  'margin':0.10,'unit':'吨'},
     'NR': {'name':'20号胶',  'realtime':'20号胶',   'exch':'INE',  'mult':10,  'margin':0.10,'unit':'吨'},
+    'BC': {'name':'国际铜',  'realtime':'国际铜',   'exch':'INE',  'mult':5,   'margin':0.10,'unit':'吨'},
+    'EC': {'name':'欧线集运','realtime':'集运指数', 'exch':'INE',  'mult':50,  'margin':0.15,'unit':'点'},
     # ── GFEX 广期所 ──────────────────────────────────
     'SI': {'name':'工业硅',  'realtime':'工业硅',   'exch':'GFEX', 'mult':5,   'margin':0.12,'unit':'吨'},
     'LC': {'name':'碳酸锂',  'realtime':'碳酸锂',   'exch':'GFEX', 'mult':1,   'margin':0.12,'unit':'吨'},
@@ -117,8 +126,14 @@ def screen_commodity(ak, pd, code, start_date):
         if df_nz.empty:
             return None
 
-        hist_max_oi   = int(df_nz['hold'].max())
-        hist_max_date = str(df.loc[df['hold'].idxmax(), 'date'])
+        if len(df_nz) > 1:
+            past_df = df_nz.iloc[:-1]
+            hist_max_oi_past = int(past_df['hold'].max())
+            hist_max_date = str(past_df.loc[past_df['hold'].idxmax(), 'date'])
+        else:
+            hist_max_oi_past = 0
+            hist_max_date = ''
+            
         curr_oi       = int(df.iloc[-1]['hold'])
         data_start    = str(df['date'].min())
         data_rows     = len(df)
@@ -127,22 +142,26 @@ def screen_commodity(ak, pd, code, start_date):
         last_date_dt  = pd.to_datetime(str(df.iloc[-1]['date']))
         years_history = (last_date_dt - data_start_dt).days / 365.25
 
-        ratio = curr_oi / hist_max_oi if hist_max_oi > 0 else 0
+        ratio = curr_oi / hist_max_oi_past if hist_max_oi_past > 0 else 0
         
-        if curr_oi > hist_max_oi and hist_max_oi > 0:
-            alert = 'new_high'
-        elif ratio >= NEAR_HIGH_THRESH and hist_max_oi > 0 and years_history >= 3.0:
-            alert = 'near_high'
-        else:
-            alert = 'normal'
+        alert = 'normal'
+        if years_history >= 1.0:
+            if curr_oi > hist_max_oi_past and hist_max_oi_past > 0:
+                alert = 'new_high'
+            elif years_history >= 3.0 and hist_max_oi_past > 0 and ratio >= NEAR_HIGH_THRESH:
+                alert = 'near_high'
+                
+        # For display
+        display_hist_max = max(hist_max_oi_past, curr_oi)
+        display_hist_date = str(df.loc[df['hold'].idxmax(), 'date'])
 
         return {
             'code':            code,
             'name':            cfg['name'],
             'exchange':        cfg['exch'],
             'currentOI':       curr_oi,
-            'historicalMaxOI': hist_max_oi,
-            'historicalMaxDate': hist_max_date,
+            'historicalMaxOI': display_hist_max,
+            'historicalMaxDate': display_hist_date,
             'dataStart':       data_start,
             'dataRows':        data_rows,
             'oiRatio':         round(ratio, 4),

@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "sync_time": "2026-06-05T06:35:07.117899",
+    "sync_time": "2026-06-05T06:43:39.339787",
     "version": "4.0",
     "description": "Full market OI screen | watchlist + anomaly K-line data",
     "historyYears": 10,
@@ -195,8 +195,8 @@
         "historicalMaxDate": "2026-06-04",
         "dataStart": "2018-11-27",
         "dataRows": 1821,
-        "oiRatio": 1.0,
-        "alert": "near_high"
+        "oiRatio": 1.0224,
+        "alert": "new_high"
       },
       "EB": {
         "code": "EB",
@@ -208,6 +208,30 @@
         "dataStart": "2019-09-26",
         "dataRows": 1618,
         "oiRatio": 0.8124,
+        "alert": "normal"
+      },
+      "BR": {
+        "code": "BR",
+        "name": "合成橡胶",
+        "exchange": "SHFE",
+        "currentOI": 47781,
+        "historicalMaxOI": 136399,
+        "historicalMaxDate": "2023-09-07",
+        "dataStart": "2023-07-28",
+        "dataRows": 689,
+        "oiRatio": 0.3503,
+        "alert": "normal"
+      },
+      "AO": {
+        "code": "AO",
+        "name": "氧化铝",
+        "exchange": "SHFE",
+        "currentOI": 322129,
+        "historicalMaxOI": 555607,
+        "historicalMaxDate": "2026-01-08",
+        "dataStart": "2023-06-19",
+        "dataRows": 716,
+        "oiRatio": 0.5798,
         "alert": "normal"
       },
       "I": {
@@ -402,6 +426,30 @@
         "oiRatio": 0.8155,
         "alert": "normal"
       },
+      "RR": {
+        "code": "RR",
+        "name": "粳木",
+        "exchange": "DCE",
+        "currentOI": 29975,
+        "historicalMaxOI": 49845,
+        "historicalMaxDate": "2023-12-29",
+        "dataStart": "2019-08-16",
+        "dataRows": 1646,
+        "oiRatio": 0.6014,
+        "alert": "normal"
+      },
+      "B": {
+        "code": "B",
+        "name": "豆二",
+        "exchange": "DCE",
+        "currentOI": 146332,
+        "historicalMaxOI": 371420,
+        "historicalMaxDate": "2019-12-18",
+        "dataStart": "2016-06-08",
+        "dataRows": 2352,
+        "oiRatio": 0.394,
+        "alert": "normal"
+      },
       "SR": {
         "code": "SR",
         "name": "白糖",
@@ -582,6 +630,42 @@
         "oiRatio": 0.3768,
         "alert": "normal"
       },
+      "PX": {
+        "code": "PX",
+        "name": "对二甲苯",
+        "exchange": "CZCE",
+        "currentOI": 142268,
+        "historicalMaxOI": 284299,
+        "historicalMaxDate": "2025-12-22",
+        "dataStart": "2023-09-15",
+        "dataRows": 654,
+        "oiRatio": 0.5004,
+        "alert": "normal"
+      },
+      "SH": {
+        "code": "SH",
+        "name": "烧碱",
+        "exchange": "CZCE",
+        "currentOI": 266101,
+        "historicalMaxOI": 318135,
+        "historicalMaxDate": "2025-02-06",
+        "dataStart": "2023-09-15",
+        "dataRows": 654,
+        "oiRatio": 0.8364,
+        "alert": "normal"
+      },
+      "PR": {
+        "code": "PR",
+        "name": "瓶片",
+        "exchange": "CZCE",
+        "currentOI": 36180,
+        "historicalMaxOI": 63054,
+        "historicalMaxDate": "2024-09-11",
+        "dataStart": "2024-08-30",
+        "dataRows": 423,
+        "oiRatio": 0.5738,
+        "alert": "normal"
+      },
       "SC": {
         "code": "SC",
         "name": "原油",
@@ -616,6 +700,30 @@
         "dataStart": "2019-08-12",
         "dataRows": 1650,
         "oiRatio": 0.6142,
+        "alert": "normal"
+      },
+      "BC": {
+        "code": "BC",
+        "name": "国际铜",
+        "exchange": "INE",
+        "currentOI": 11187,
+        "historicalMaxOI": 55687,
+        "historicalMaxDate": "2023-07-26",
+        "dataStart": "2020-11-19",
+        "dataRows": 1342,
+        "oiRatio": 0.2009,
+        "alert": "normal"
+      },
+      "EC": {
+        "code": "EC",
+        "name": "欧线集运",
+        "exchange": "INE",
+        "currentOI": 21913,
+        "historicalMaxOI": 134931,
+        "historicalMaxDate": "2023-12-21",
+        "dataStart": "2023-08-18",
+        "dataRows": 674,
+        "oiRatio": 0.1624,
         "alert": "normal"
       },
       "SI": {
@@ -682,8 +790,8 @@
           "historicalMaxOI": 450995,
           "historicalMaxDate": "2026-06-04",
           "dataStart": "2018-11-27",
-          "oiRatio": 1.0,
-          "alert": "near_high"
+          "oiRatio": 1.0224,
+          "alert": "new_high"
         }
       },
       "AU": {
