@@ -2,7 +2,7 @@
    HIGH-PERFORMANCE INTERACTIVE CANVAS K-LINE CHART (personal-investment-site/chart.js)
    ========================================================================== */
 
-export class FuturesChart {
+class FuturesChart {
     constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
         if (!this.canvas) {
