@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "sync_time": "2026-06-05T06:43:39.339787",
+    "sync_time": "2026-06-05T06:50:25.910040",
     "version": "4.0",
     "description": "Full market OI screen | watchlist + anomaly K-line data",
     "historyYears": 10,
@@ -450,6 +450,18 @@
         "oiRatio": 0.394,
         "alert": "normal"
       },
+      "FB": {
+        "code": "FB",
+        "name": "纤维板",
+        "exchange": "DCE",
+        "currentOI": 4123,
+        "historicalMaxOI": 33300,
+        "historicalMaxDate": "2024-01-11",
+        "dataStart": "2016-06-30",
+        "dataRows": 2141,
+        "oiRatio": 0.1238,
+        "alert": "normal"
+      },
       "SR": {
         "code": "SR",
         "name": "白糖",
@@ -664,6 +676,90 @@
         "dataStart": "2024-08-30",
         "dataRows": 423,
         "oiRatio": 0.5738,
+        "alert": "normal"
+      },
+      "RS": {
+        "code": "RS",
+        "name": "油菜籽",
+        "exchange": "CZCE",
+        "currentOI": 72,
+        "historicalMaxOI": 2992,
+        "historicalMaxDate": "2019-06-18",
+        "dataStart": "2016-06-07",
+        "dataRows": 1884,
+        "oiRatio": 0.0241,
+        "alert": "normal"
+      },
+      "WH": {
+        "code": "WH",
+        "name": "强麦",
+        "exchange": "CZCE",
+        "currentOI": 0,
+        "historicalMaxOI": 17818,
+        "historicalMaxDate": "2017-03-02",
+        "dataStart": "2016-06-07",
+        "dataRows": 1419,
+        "oiRatio": 0.0,
+        "alert": "normal"
+      },
+      "JR": {
+        "code": "JR",
+        "name": "粳稻",
+        "exchange": "CZCE",
+        "currentOI": 0,
+        "historicalMaxOI": 910,
+        "historicalMaxDate": "2018-08-07",
+        "dataStart": "2016-06-30",
+        "dataRows": 832,
+        "oiRatio": 0.0,
+        "alert": "normal"
+      },
+      "RI": {
+        "code": "RI",
+        "name": "早籼稻",
+        "exchange": "CZCE",
+        "currentOI": 0,
+        "historicalMaxOI": 2234,
+        "historicalMaxDate": "2018-08-06",
+        "dataStart": "2016-06-07",
+        "dataRows": 712,
+        "oiRatio": 0.0,
+        "alert": "normal"
+      },
+      "LR": {
+        "code": "LR",
+        "name": "晚籼稻",
+        "exchange": "CZCE",
+        "currentOI": 1,
+        "historicalMaxOI": 15110,
+        "historicalMaxDate": "2018-08-15",
+        "dataStart": "2016-06-07",
+        "dataRows": 612,
+        "oiRatio": 0.0001,
+        "alert": "normal"
+      },
+      "CY": {
+        "code": "CY",
+        "name": "棉纱",
+        "exchange": "CZCE",
+        "currentOI": 9255,
+        "historicalMaxOI": 32080,
+        "historicalMaxDate": "2019-10-17",
+        "dataStart": "2017-08-23",
+        "dataRows": 2096,
+        "oiRatio": 0.2885,
+        "alert": "normal"
+      },
+      "PF": {
+        "code": "PF",
+        "name": "短纤",
+        "exchange": "CZCE",
+        "currentOI": 137864,
+        "historicalMaxOI": 588713,
+        "historicalMaxDate": "2023-09-12",
+        "dataStart": "2020-10-12",
+        "dataRows": 1370,
+        "oiRatio": 0.2342,
         "alert": "normal"
       },
       "SC": {
