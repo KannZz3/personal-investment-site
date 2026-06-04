@@ -1,5 +1,7 @@
 # 墨子投资小站 | Quantum Nest Investment Portal
 
+> 🌐 **在线演示地址 (GitHub Pages)**: [https://kannzz3.github.io/personal-investment-site/](https://kannzz3.github.io/personal-investment-site/)
+
 一个专为个人投资者、大宗商品及量化交易爱好者设计的个人投资思考与期货数据分析网站。本站具有视觉精美、简约优美的深色（终端）风格，并提供了对中国商品期货市场的全套行情可视化及资金管理工具。
 
 ## 🌟 核心功能
@@ -82,7 +84,7 @@
    - 在 **Build and deployment** 下的 Source 处选择 **Deploy from a branch**。
    - Branch 选择 `main` 分支和 `/ (root)` 路径，点击 **Save**。
 4. **访问您的站点**:
-   稍等 1-2 分钟，GitHub 将会为您生成专属访问链接（例如：`https://您的用户名.github.io/您的仓库名/`）。
+   稍等 1-2 分钟，GitHub 部署成功后，您即可直接访问：[https://kannzz3.github.io/personal-investment-site/](https://kannzz3.github.io/personal-investment-site/)。
 
 ---
 
