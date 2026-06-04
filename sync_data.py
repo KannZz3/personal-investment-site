@@ -64,6 +64,7 @@ ALL_CFG = {
     'LH': {'name':'生猪',    'realtime':'生猪',     'exch':'DCE',  'mult':16,  'margin':0.15,'unit':'吨'},
     'RR': {'name':'粳木',    'realtime':'粳木',     'exch':'DCE',  'mult':10,  'margin':0.10,'unit':'吨'},
     'B':  {'name':'豆二',    'realtime':'黄大豆二号','exch':'DCE',  'mult':10,  'margin':0.06,'unit':'吨'},
+    'FB': {'name':'纤维板',  'realtime':'纤维板',   'exch':'DCE',  'mult':10,  'margin':0.10,'unit':'立方米'},
     # ── CZCE 郑商所 ──────────────────────────────────
     'SR': {'name':'白糖',    'realtime':'白糖',     'exch':'CZCE', 'mult':10,  'margin':0.07,'unit':'吨'},
     'CF': {'name':'棉花',    'realtime':'棉花',     'exch':'CZCE', 'mult':5,   'margin':0.07,'unit':'吨'},
@@ -83,6 +84,13 @@ ALL_CFG = {
     'PX': {'name':'对二甲苯','realtime':'对二甲苯', 'exch':'CZCE','mult':5,   'margin':0.08,'unit':'吨'},
     'SH': {'name':'烧碱',    'realtime':'烧碱',     'exch':'CZCE','mult':30,  'margin':0.09,'unit':'吨'},
     'PR': {'name':'瓶片',    'realtime':'瓶片',     'exch':'CZCE','mult':15,  'margin':0.08,'unit':'吨'},
+    'RS': {'name':'油菜籽',  'realtime':'油菜籽',   'exch':'CZCE','mult':10,  'margin':0.10,'unit':'吨'},
+    'WH': {'name':'强麦',    'realtime':'强麦',     'exch':'CZCE','mult':20,  'margin':0.10,'unit':'吨'},
+    'JR': {'name':'粳稻',    'realtime':'粳稻',     'exch':'CZCE','mult':20,  'margin':0.10,'unit':'吨'},
+    'RI': {'name':'早籼稻',  'realtime':'早籼稻',   'exch':'CZCE','mult':20,  'margin':0.10,'unit':'吨'},
+    'LR': {'name':'晚籼稻',  'realtime':'晚籼稻',   'exch':'CZCE','mult':20,  'margin':0.10,'unit':'吨'},
+    'CY': {'name':'棉纱',    'realtime':'棉纱',     'exch':'CZCE','mult':5,   'margin':0.10,'unit':'吨'},
+    'PF': {'name':'短纤',    'realtime':'短纤',     'exch':'CZCE','mult':5,   'margin':0.10,'unit':'吨'},
     # ── INE 上期能源 ──────────────────────────────────
     'SC': {'name':'原油',    'realtime':'原油',     'exch':'INE',  'mult':1000,'margin':0.11,'unit':'桶'},
     'LU': {'name':'低硫油',  'realtime':'低硫燃料油','exch':'INE', 'mult':10,  'margin':0.10,'unit':'吨'},
