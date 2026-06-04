@@ -1326,3 +1326,508 @@ footer {
         margin-top: 1rem;
     }
 }
+
+/* ==========================================================================
+   OI ALERT BADGES (on ticker cards and screening table)
+   ========================================================================== */
+
+.oi-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 20px;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+}
+
+.oi-badge-new-high {
+    background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(220,38,38,0.1));
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.2);
+    animation: pulseRed 2s infinite;
+}
+
+.oi-badge-near-high {
+    background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(217,119,6,0.1));
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+@keyframes pulseRed {
+    0%, 100% { box-shadow: 0 0 8px rgba(239,68,68,0.2); }
+    50% { box-shadow: 0 0 16px rgba(239,68,68,0.45); }
+}
+
+/* Ticker card OI badge wrapper */
+.ticker-card-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-top: 0.4rem;
+}
+
+.ticker-card.anomaly-new-high {
+    border-color: rgba(239, 68, 68, 0.5) !important;
+    box-shadow: 0 0 16px rgba(239, 68, 68, 0.12) !important;
+}
+.ticker-card.anomaly-near-high {
+    border-color: rgba(245, 158, 11, 0.45) !important;
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.1) !important;
+}
+
+.ticker-oi-mini {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: 0.2rem;
+}
+
+/* ==========================================================================
+   TECHNICAL ANOMALY SECTION
+   ========================================================================== */
+
+/* ── Section Header ── */
+.tech-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tech-header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.tech-header-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(168,85,247,0.15));
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    flex-shrink: 0;
+}
+
+.tech-header h1 {
+    font-size: 1.6rem;
+    margin-bottom: 0.15rem;
+}
+
+.tech-header p {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+}
+
+/* ── Scan Status Badge ── */
+.tech-scan-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 1rem;
+    border-radius: 30px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.radar-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--primary);
+    flex-shrink: 0;
+    animation: radarPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes radarPulse {
+    0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(59,130,246,0.4); }
+    50% { transform: scale(1.1); opacity: 0.9; box-shadow: 0 0 0 5px rgba(59,130,246,0); }
+}
+
+/* ── Legend ── */
+.tech-legend {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1.75rem;
+    padding: 0.9rem 1.25rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+}
+
+.tech-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+/* ── Panel Title ── */
+.tech-panel-title {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.tech-panel-title svg {
+    width: 16px;
+    height: 16px;
+    color: var(--primary);
+}
+
+.tech-panel-subtitle {
+    font-weight: 400;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    margin-left: 0.25rem;
+}
+
+/* ── Screening Overview Table ── */
+.tech-screening-panel {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.tech-screening-table-wrap {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.tech-screening-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.83rem;
+}
+
+.tech-screening-table thead th {
+    background: var(--bg-app);
+    color: var(--text-muted);
+    font-weight: 600;
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+}
+
+.tech-screening-table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+    transition: background var(--transition-fast);
+}
+
+.tech-screening-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.tech-screening-table tbody tr:hover {
+    background: var(--bg-surface-hover);
+}
+
+.tech-screening-table tbody td {
+    padding: 0.55rem 0.8rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.tech-screening-table tbody tr.row-anomaly td {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.tech-screening-table tbody tr.row-new-high {
+    background: rgba(239, 68, 68, 0.04);
+}
+
+.tech-screening-table tbody tr.row-near-high {
+    background: rgba(245, 158, 11, 0.04);
+}
+
+.tech-table-loading {
+    text-align: center;
+    padding: 2rem !important;
+    color: var(--text-muted) !important;
+}
+
+/* ── OI Ratio Bar in table ── */
+.ratio-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ratio-bar-bg {
+    width: 60px;
+    height: 5px;
+    background: var(--border-color);
+    border-radius: 3px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.ratio-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.6s ease;
+}
+
+/* ── Anomaly Section ── */
+.tech-anomaly-section {
+    margin-top: 1rem;
+}
+
+/* ── Empty State (no anomalies today) ── */
+.tech-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    text-align: center;
+    background: var(--bg-surface);
+    border: 1px dashed var(--border-color);
+    border-radius: 14px;
+    color: var(--text-muted);
+    gap: 1rem;
+}
+
+.tech-empty-radar {
+    position: relative;
+    width: 60px;
+    height: 60px;
+}
+
+.tech-empty-radar::before,
+.tech-empty-radar::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.tech-empty-radar::before {
+    width: 100%; height: 100%;
+    animation: radarRing 2.5s ease-out infinite;
+}
+
+.tech-empty-radar::after {
+    width: 60%; height: 60%;
+    animation: radarRing 2.5s ease-out 0.6s infinite;
+}
+
+.tech-empty-radar-dot {
+    position: absolute;
+    width: 10px; height: 10px;
+    background: var(--primary);
+    border-radius: 50%;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes radarRing {
+    0%   { width: 10px; height: 10px; opacity: 0.8; }
+    100% { width: 60px; height: 60px; opacity: 0; }
+}
+
+.tech-empty-state h3 {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.tech-empty-state p {
+    font-size: 0.85rem;
+    max-width: 380px;
+    line-height: 1.6;
+}
+
+/* ── Anomaly Contract Cards ── */
+.anomaly-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 1.5rem;
+    margin-top: 0.5rem;
+}
+
+.anomaly-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: all var(--transition-normal);
+}
+
+.anomaly-card.card-new-high {
+    border-color: rgba(239, 68, 68, 0.35);
+}
+
+.anomaly-card.card-near-high {
+    border-color: rgba(245, 158, 11, 0.35);
+}
+
+.anomaly-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.anomaly-card-header {
+    padding: 1.25rem 1.5rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.anomaly-card-header-left h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.anomaly-card-header-left .card-meta {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 0.15rem;
+}
+
+.anomaly-card-stats {
+    padding: 1rem 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem 1.5rem;
+}
+
+.anomaly-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.anomaly-stat-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.anomaly-stat-value {
+    font-size: 0.95rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+}
+
+/* OI ratio progress bar inside card */
+.anomaly-oi-bar {
+    padding: 0 1.5rem 1rem;
+}
+
+.anomaly-oi-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+}
+
+.anomaly-oi-bar-bg {
+    height: 6px;
+    background: var(--border-color);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.anomaly-oi-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 1s ease;
+}
+
+.anomaly-oi-bar-fill.fill-new-high {
+    background: linear-gradient(90deg, #ef4444, #f87171);
+}
+
+.anomaly-oi-bar-fill.fill-near-high {
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+
+/* ── Analysis Placeholder Modules ── */
+.anomaly-analysis-placeholder {
+    margin: 0 1rem 1rem;
+    padding: 0.9rem 1rem;
+    background: var(--bg-app);
+    border: 1px dashed var(--border-color);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+}
+
+.anomaly-analysis-placeholder svg {
+    flex-shrink: 0;
+    opacity: 0.5;
+}
+
+.anomaly-placeholder-coming {
+    font-size: 0.7rem;
+    background: var(--border-color);
+    color: var(--text-muted);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+/* ── View Chart Button on Anomaly Card ── */
+.anomaly-card-footer {
+    padding: 0.75rem 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.btn-view-chart {
+    width: 100%;
+    padding: 0.6rem;
+    border-radius: 8px;
+    background: var(--primary-glow);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    color: var(--primary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+}
+
+.btn-view-chart:hover {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}

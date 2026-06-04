@@ -1,211 +1,350 @@
 # -*- coding: utf-8 -*-
 """
 ==========================================================================
-SMART FUTURES DATA SYNC PIPELINE  (personal-investment-site/sync_data.py)
+FULL MARKET OI SCREENER + DATA SYNC (sync_data.py v4.0)
 ==========================================================================
-核心逻辑:
-1. 使用 ak.futures_zh_realtime 查询每个品种所有活跃合约的实时持仓量。
-2. 自动选取持仓量最大的合约作为「主力合约」（排除连续合约"0"后缀）。
-3. 拉取该主力合约的 120 天日K线与最近 40 根 15 分钟分时线。
-4. 数据以「品种代码」(AU/CU/RB...) 为 key 保存为 JSON，
-   metadata 中记录当前主力合约完整代号与持仓量，供前端展示。
+Phase 1 - Market-wide OI Screen:
+  For every major Chinese futures commodity across SHFE/DCE/CZCE/INE/GFEX,
+  pull 10-year continuous main-contract history via futures_main_sina,
+  compute historical peak OI and compare against today.
+  Flag conditions:
+    (a) near_high  : current_oi >= peak_oi * 0.90
+    (b) new_high   : current_oi >  peak_oi  (all-time high)
 
-运行依赖: pip install akshare pandas
+Phase 2 - Detail Fetch (watchlist + anomaly contracts):
+  For the 6 fixed watchlist contracts AND all anomaly contracts,
+  identify the actual main contract month (highest position), and
+  download 120-day daily K-line + 40-bar 15-min intraday data.
+
+Output  : data/futures_data.json
+Requires: pip install akshare pandas
 """
 
-import os
-import json
-import datetime
-import sys
+import os, json, sys, datetime
 
-
-# =========================================================
-# 品种基础配置
-# realtime_name: futures_zh_realtime(symbol=...) 参数
-# =========================================================
-COMMODITY_CFG = {
-    'AU': {'name': '沪金',   'realtime_name': '黄金',  'exchange': 'SHFE', 'multiplier': 1000, 'margin': 0.08, 'unit': '克'},
-    'CU': {'name': '沪铜',   'realtime_name': '沪铜',  'exchange': 'SHFE', 'multiplier': 5,    'margin': 0.10, 'unit': '吨'},
-    'RB': {'name': '螺纹钢', 'realtime_name': '螺纹钢','exchange': 'SHFE', 'multiplier': 10,   'margin': 0.09, 'unit': '吨'},
-    'SC': {'name': '原油',   'realtime_name': '原油',  'exchange': 'INE',  'multiplier': 1000, 'margin': 0.11, 'unit': '桶'},
-    'SR': {'name': '白糖',   'realtime_name': '白糖',  'exchange': 'CZCE', 'multiplier': 10,   'margin': 0.07, 'unit': '吨'},
-    'TA': {'name': 'PTA',    'realtime_name': 'PTA',   'exchange': 'CZCE', 'multiplier': 5,    'margin': 0.08, 'unit': '吨'},
+# ─────────────────────────────────────────────────────────────────────────────
+# COMPLETE COMMODITY CONFIG (all 5 Chinese exchanges)
+# ─────────────────────────────────────────────────────────────────────────────
+ALL_CFG = {
+    # ── SHFE 上期所 ──────────────────────────────────
+    'AU': {'name':'沪金',    'realtime':'黄金',     'exch':'SHFE', 'mult':1000,'margin':0.08,'unit':'克'},
+    'AG': {'name':'沪银',    'realtime':'白银',     'exch':'SHFE', 'mult':15,  'margin':0.08,'unit':'千克'},
+    'CU': {'name':'沪铜',    'realtime':'沪铜',     'exch':'SHFE', 'mult':5,   'margin':0.10,'unit':'吨'},
+    'AL': {'name':'沪铝',    'realtime':'沪铝',     'exch':'SHFE', 'mult':5,   'margin':0.09,'unit':'吨'},
+    'ZN': {'name':'沪锌',    'realtime':'沪锌',     'exch':'SHFE', 'mult':5,   'margin':0.09,'unit':'吨'},
+    'PB': {'name':'沪铅',    'realtime':'沪铅',     'exch':'SHFE', 'mult':5,   'margin':0.09,'unit':'吨'},
+    'NI': {'name':'沪镍',    'realtime':'沪镍',     'exch':'SHFE', 'mult':1,   'margin':0.10,'unit':'吨'},
+    'SN': {'name':'沪锡',    'realtime':'沪锡',     'exch':'SHFE', 'mult':1,   'margin':0.10,'unit':'吨'},
+    'RB': {'name':'螺纹钢',  'realtime':'螺纹钢',   'exch':'SHFE', 'mult':10,  'margin':0.09,'unit':'吨'},
+    'HC': {'name':'热轧板',  'realtime':'热轧卷板', 'exch':'SHFE', 'mult':10,  'margin':0.09,'unit':'吨'},
+    'SS': {'name':'不锈钢',  'realtime':'不锈钢',   'exch':'SHFE', 'mult':5,   'margin':0.10,'unit':'吨'},
+    'FU': {'name':'燃油',    'realtime':'燃油',     'exch':'SHFE', 'mult':10,  'margin':0.09,'unit':'吨'},
+    'BU': {'name':'沥青',    'realtime':'沥青',     'exch':'SHFE', 'mult':10,  'margin':0.09,'unit':'吨'},
+    'RU': {'name':'橡胶',    'realtime':'天然橡胶', 'exch':'SHFE', 'mult':10,  'margin':0.09,'unit':'吨'},
+    'SP': {'name':'纸浆',    'realtime':'纸浆',     'exch':'SHFE', 'mult':10,  'margin':0.10,'unit':'吨'},
+    'EB': {'name':'苯乙烯',  'realtime':'苯乙烯',   'exch':'SHFE', 'mult':5,   'margin':0.09,'unit':'吨'},
+    # ── DCE 大商所 ──────────────────────────────────
+    'I':  {'name':'铁矿石',  'realtime':'铁矿石',   'exch':'DCE',  'mult':100, 'margin':0.09,'unit':'吨'},
+    'JM': {'name':'焦煤',    'realtime':'焦煤',     'exch':'DCE',  'mult':60,  'margin':0.10,'unit':'吨'},
+    'J':  {'name':'焦炭',    'realtime':'焦炭',     'exch':'DCE',  'mult':100, 'margin':0.10,'unit':'吨'},
+    'C':  {'name':'玉米',    'realtime':'玉米',     'exch':'DCE',  'mult':10,  'margin':0.05,'unit':'吨'},
+    'CS': {'name':'淀粉',    'realtime':'淀粉',     'exch':'DCE',  'mult':10,  'margin':0.05,'unit':'吨'},
+    'A':  {'name':'豆一',    'realtime':'大豆一号', 'exch':'DCE',  'mult':10,  'margin':0.05,'unit':'吨'},
+    'M':  {'name':'豆粕',    'realtime':'豆粕',     'exch':'DCE',  'mult':10,  'margin':0.06,'unit':'吨'},
+    'Y':  {'name':'豆油',    'realtime':'豆油',     'exch':'DCE',  'mult':10,  'margin':0.07,'unit':'吨'},
+    'P':  {'name':'棕榈油',  'realtime':'棕榈油',   'exch':'DCE',  'mult':10,  'margin':0.07,'unit':'吨'},
+    'V':  {'name':'PVC',     'realtime':'PVC',      'exch':'DCE',  'mult':5,   'margin':0.08,'unit':'吨'},
+    'L':  {'name':'聚乙烯',  'realtime':'聚乙烯',   'exch':'DCE',  'mult':5,   'margin':0.08,'unit':'吨'},
+    'PP': {'name':'聚丙烯',  'realtime':'聚丙烯',   'exch':'DCE',  'mult':5,   'margin':0.08,'unit':'吨'},
+    'EG': {'name':'乙二醇',  'realtime':'乙二醇',   'exch':'DCE',  'mult':10,  'margin':0.09,'unit':'吨'},
+    'PG': {'name':'液化气',  'realtime':'液化石油气','exch':'DCE', 'mult':20,  'margin':0.08,'unit':'吨'},
+    'JD': {'name':'鸡蛋',    'realtime':'鸡蛋',     'exch':'DCE',  'mult':10,  'margin':0.08,'unit':'500kg'},
+    'LH': {'name':'生猪',    'realtime':'生猪',     'exch':'DCE',  'mult':16,  'margin':0.15,'unit':'吨'},
+    # ── CZCE 郑商所 ──────────────────────────────────
+    'SR': {'name':'白糖',    'realtime':'白糖',     'exch':'CZCE', 'mult':10,  'margin':0.07,'unit':'吨'},
+    'CF': {'name':'棉花',    'realtime':'棉花',     'exch':'CZCE', 'mult':5,   'margin':0.07,'unit':'吨'},
+    'TA': {'name':'PTA',     'realtime':'PTA',      'exch':'CZCE', 'mult':5,   'margin':0.08,'unit':'吨'},
+    'MA': {'name':'甲醇',    'realtime':'甲醇',     'exch':'CZCE', 'mult':10,  'margin':0.08,'unit':'吨'},
+    'FG': {'name':'玻璃',    'realtime':'玻璃',     'exch':'CZCE', 'mult':20,  'margin':0.08,'unit':'吨'},
+    'OI': {'name':'菜油',    'realtime':'菜籽油',   'exch':'CZCE', 'mult':10,  'margin':0.07,'unit':'吨'},
+    'RM': {'name':'菜粕',    'realtime':'菜粕',     'exch':'CZCE', 'mult':10,  'margin':0.07,'unit':'吨'},
+    'SA': {'name':'纯碱',    'realtime':'纯碱',     'exch':'CZCE', 'mult':20,  'margin':0.09,'unit':'吨'},
+    'ZC': {'name':'动力煤',  'realtime':'动力煤',   'exch':'CZCE', 'mult':100, 'margin':0.10,'unit':'吨'},
+    'UR': {'name':'尿素',    'realtime':'尿素',     'exch':'CZCE', 'mult':20,  'margin':0.08,'unit':'吨'},
+    'AP': {'name':'苹果',    'realtime':'苹果',     'exch':'CZCE', 'mult':10,  'margin':0.10,'unit':'吨'},
+    'CJ': {'name':'红枣',    'realtime':'红枣',     'exch':'CZCE', 'mult':5,   'margin':0.10,'unit':'吨'},
+    'PK': {'name':'花生',    'realtime':'花生',     'exch':'CZCE', 'mult':5,   'margin':0.10,'unit':'吨'},
+    'SF': {'name':'硅铁',    'realtime':'硅铁',     'exch':'CZCE', 'mult':5,   'margin':0.10,'unit':'吨'},
+    'SM': {'name':'锰硅',    'realtime':'锰硅',     'exch':'CZCE', 'mult':5,   'margin':0.10,'unit':'吨'},
+    # ── INE 上期能源 ──────────────────────────────────
+    'SC': {'name':'原油',    'realtime':'原油',     'exch':'INE',  'mult':1000,'margin':0.11,'unit':'桶'},
+    'LU': {'name':'低硫油',  'realtime':'低硫燃料油','exch':'INE', 'mult':10,  'margin':0.10,'unit':'吨'},
+    'NR': {'name':'20号胶',  'realtime':'20号胶',   'exch':'INE',  'mult':10,  'margin':0.10,'unit':'吨'},
+    # ── GFEX 广期所 ──────────────────────────────────
+    'SI': {'name':'工业硅',  'realtime':'工业硅',   'exch':'GFEX', 'mult':5,   'margin':0.12,'unit':'吨'},
+    'LC': {'name':'碳酸锂',  'realtime':'碳酸锂',   'exch':'GFEX', 'mult':1,   'margin':0.12,'unit':'吨'},
 }
 
+# Fixed watchlist: always show K-line detail regardless of OI alert status
+WATCHLIST = ['AU', 'CU', 'RB', 'SC', 'SR', 'TA']
 
-def find_main_contract_by_oi(ak, pd, base_code, realtime_name):
+# Historical column order from futures_main_sina
+HIST_COLS = ['date', 'open', 'high', 'low', 'close', 'volume', 'hold', 'ext']
+
+# OI near-high threshold
+NEAR_HIGH_THRESH = 0.90
+HISTORY_YEARS = 10
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# HELPERS
+# ─────────────────────────────────────────────────────────────────────────────
+
+def screen_commodity(ak, pd, code, start_date):
     """
-    通过 futures_zh_realtime 查询所有活跃合约，找到持仓量最大的主力合约。
-    排除连续合约（以'0'结尾的代码，如 CU0），只考虑实际交割合约。
-    返回: (合约代号 str, 持仓量 int, 最新价 float)  或  (None, 0, 0)
+    Pull 10-year continuous main-contract history and compute OI significance.
+    Returns a dict of screening results, or None on failure.
+    """
+    cfg = ALL_CFG[code]
+    sym = f"{code}0"
+    try:
+        df = ak.futures_main_sina(symbol=sym, start_date=start_date)
+        if df is None or df.empty:
+            return None
+        df.columns = HIST_COLS[:len(df.columns)]
+        df['hold'] = pd.to_numeric(df['hold'], errors='coerce').fillna(0)
+        df_nz = df[df['hold'] > 0]
+        if df_nz.empty:
+            return None
+
+        hist_max_oi   = int(df_nz['hold'].max())
+        hist_max_date = str(df.loc[df['hold'].idxmax(), 'date'])
+        curr_oi       = int(df.iloc[-1]['hold'])
+        data_start    = str(df['date'].min())
+        data_rows     = len(df)
+
+        ratio = curr_oi / hist_max_oi if hist_max_oi > 0 else 0
+        if curr_oi > hist_max_oi and hist_max_oi > 0:
+            alert = 'new_high'
+        elif ratio >= NEAR_HIGH_THRESH and hist_max_oi > 0:
+            alert = 'near_high'
+        else:
+            alert = 'normal'
+
+        return {
+            'code':            code,
+            'name':            cfg['name'],
+            'exchange':        cfg['exch'],
+            'currentOI':       curr_oi,
+            'historicalMaxOI': hist_max_oi,
+            'historicalMaxDate': hist_max_date,
+            'dataStart':       data_start,
+            'dataRows':        data_rows,
+            'oiRatio':         round(ratio, 4),
+            'alert':           alert,
+        }
+    except Exception as e:
+        return None
+
+
+def find_main_contract(ak, pd, code, realtime_name):
+    """
+    Query futures_zh_realtime to find the contract with highest open interest.
+    Returns (contract_symbol, oi, price) or (None, 0, 0).
     """
     try:
         df = ak.futures_zh_realtime(symbol=realtime_name)
         if df is None or df.empty:
             return None, 0, 0.0
-
-        # 过滤掉连续合约（以"0"结尾或不含数字的）
         df_real = df[~df['symbol'].str.endswith('0')].copy()
         df_real = df_real[df_real['symbol'].str.contains(r'\d', regex=True)]
-
         if df_real.empty:
             return None, 0, 0.0
-
-        # 转换持仓量为数字
         df_real['position'] = pd.to_numeric(df_real['position'], errors='coerce').fillna(0)
-
-        # 找最大持仓量的合约
-        max_idx = df_real['position'].idxmax()
-        main_row = df_real.loc[max_idx]
-
-        main_sym = str(main_row['symbol']).upper().strip()
-        main_oi = int(main_row['position'])
-        main_price = float(main_row.get('trade', main_row.get('close', 0)))
-
-        # 验证合约代码格式（应以品种字母开头）
-        if main_sym.startswith(base_code.upper()) and main_oi > 0:
-            print(f"    [OI OK] Main contract: {main_sym} (OI: {main_oi:,})")
-            return main_sym, main_oi, main_price
-
-    except Exception as e:
-        print(f"    [-] OI查询失败: {e}")
-
+        row = df_real.loc[df_real['position'].idxmax()]
+        sym   = str(row['symbol']).upper()
+        oi    = int(row['position'])
+        price = float(row.get('trade', row.get('close', 0)))
+        if sym.startswith(code.upper()) and oi > 0:
+            return sym, oi, price
+    except Exception:
+        pass
     return None, 0, 0.0
 
 
-def fetch_daily(ak, pd, symbol):
-    """拉取日K线 (最近 120 根)"""
+def fetch_daily(ak, pd, symbol, n=120):
+    """Fetch n-day daily K-line bars."""
     df = ak.futures_zh_daily_sina(symbol=symbol)
     if df is None or df.empty:
-        raise ValueError(f"日K线返回空: {symbol}")
-
+        raise ValueError(f"Empty daily data: {symbol}")
     df['date'] = pd.to_datetime(df['date'])
-    df = df.sort_values('date').tail(120)
-
-    result = []
+    df = df.sort_values('date').tail(n)
+    out = []
     for _, row in df.iterrows():
-        result.append({
+        out.append({
             'date':   row['date'].strftime('%Y-%m-%d'),
             'open':   float(row['open']),
             'high':   float(row['high']),
             'low':    float(row['low']),
             'close':  float(row['close']),
             'volume': int(row['volume']),
-            'hold':   int(row['hold']) if ('hold' in row.index and not pd.isna(row['hold'])) else 0
+            'hold':   int(row['hold']) if ('hold' in row.index and not pd.isna(row['hold'])) else 0,
         })
-    return result
+    return out
 
 
-def fetch_minute(ak, pd, symbol, period='15'):
-    """拉取 15 分钟分时线 (最近 40 根)"""
+def fetch_minute(ak, pd, symbol, period='15', n=40):
+    """Fetch 15-min intraday K-line bars."""
     try:
         df = ak.futures_zh_minute_sina(symbol=symbol, period=period)
         if df is None or df.empty:
             return []
-
         df['datetime'] = pd.to_datetime(df['datetime'])
-        df = df.sort_values('datetime').tail(40)
-
-        result = []
+        df = df.sort_values('datetime').tail(n)
+        out = []
         for _, row in df.iterrows():
-            result.append({
+            out.append({
                 'datetime': row['datetime'].strftime('%Y-%m-%d %H:%M:%S'),
-                'open':     float(row['open']),
-                'high':     float(row['high']),
-                'low':      float(row['low']),
-                'close':    float(row['close']),
-                'volume':   int(row['volume'])
+                'open':  float(row['open']),
+                'high':  float(row['high']),
+                'low':   float(row['low']),
+                'close': float(row['close']),
+                'volume':int(row['volume']),
             })
-        return result
-    except Exception as e:
-        print(f"    [-] 15分钟线拉取失败: {e}")
+        return out
+    except Exception:
         return []
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# MAIN
+# ─────────────────────────────────────────────────────────────────────────────
+
 def sync_futures():
-    print("=" * 65)
-    print("  墨子投资 | 智能期货主力合约数据同步系统 v2.1")
-    print("  核心策略: 按实时持仓量自动选取当前主力合约")
-    print("=" * 65)
+    print("=" * 70)
+    print("  Moxi Investment | Full Market OI Screener + Sync  v4.0")
+    print("  Coverage: SHFE / DCE / CZCE / INE / GFEX  (~50 contracts)")
+    print("=" * 70)
 
     try:
         import akshare as ak
         import pandas as pd
     except ImportError:
-        print("[-] 缺少依赖: pip install akshare pandas")
+        print("[-] pip install akshare pandas")
         return False
 
-    now_str = datetime.datetime.now().isoformat()
-    contracts_meta = {}
-    data_out = {}
+    now_str    = datetime.datetime.now().isoformat()
+    start_date = (datetime.datetime.now() - datetime.timedelta(days=HISTORY_YEARS * 365)).strftime('%Y%m%d')
+    total = len(ALL_CFG)
 
-    for base_code, cfg in COMMODITY_CFG.items():
-        name = cfg['name']
-        exchange = cfg['exchange']
-        realtime_name = cfg['realtime_name']
+    # ──────────────────────────────────────────────────────────
+    # PHASE 1: OI SCREEN — all commodities
+    # ──────────────────────────────────────────────────────────
+    print(f"\n[Phase 1] OI screening {total} commodities since {start_date[:4]}...\n")
+    screening  = {}  # code -> screening result dict
+    anomalies  = []  # codes meeting near_high or new_high
 
-        print(f"\n[+] 品种: {name} ({base_code}) @ {exchange}")
-
-        # --- Step 1: 按持仓量查找主力合约 ---
-        main_sym, main_oi, main_price = find_main_contract_by_oi(ak, pd, base_code, realtime_name)
-
-        # 决定K线数据源:
-        # - 如果OI查询成功 → 用真实主力合约代号（如 CU2607）
-        # - 如果失败 → 回退到新浪连续主力合约（如 CU0），这是已知等效于主力的接口
-        if main_sym:
-            kline_sym = main_sym          # 用具体合约月份拉K线
-            display_sym = main_sym
+    for idx, (code, cfg) in enumerate(ALL_CFG.items(), 1):
+        result = screen_commodity(ak, pd, code, start_date)
+        if result:
+            screening[code] = result
+            if result['alert'] in ('near_high', 'new_high'):
+                anomalies.append(code)
+            badge = f"[{result['alert'].upper()}]" if result['alert'] != 'normal' else ''
+            print(f"  [{idx:>2}/{total}] {code:<4} {cfg['name']:<8} "
+                  f"curr={result['currentOI']:>8,}  "
+                  f"peak={result['historicalMaxOI']:>8,}  "
+                  f"ratio={result['oiRatio']:>6.1%}  {badge}")
         else:
-            kline_sym = f"{base_code}0"   # 回退：连续主力合约
-            display_sym = f"{base_code}(主力)"
-            print(f"    [回退] 使用连续主力合约: {kline_sym}")
+            print(f"  [{idx:>2}/{total}] {code:<4} {cfg['name']:<8} -- SKIP (no data)")
 
-        print(f"    [K线源] {kline_sym}")
+    print(f"\n  Screen done. Anomalies: {len(anomalies)} -> {anomalies if anomalies else 'none'}")
 
-        # --- Step 2: 拉取 K线数据 ---
+    # ──────────────────────────────────────────────────────────
+    # PHASE 2: DETAIL FETCH — watchlist + anomalies
+    # ──────────────────────────────────────────────────────────
+    detail_codes = sorted(set(WATCHLIST + anomalies), key=lambda c: (c not in anomalies, c))
+    print(f"\n[Phase 2] Fetching K-line detail for {len(detail_codes)} contracts: {detail_codes}\n")
+
+    contracts_meta = {}
+    data_out       = {}
+
+    for code in detail_codes:
+        cfg = ALL_CFG[code]
+        print(f"  [+] {cfg['name']} ({code}) @ {cfg['exch']}")
+
+        # Find actual main contract month
+        main_sym, main_oi, main_price = find_main_contract(ak, pd, code, cfg['realtime'])
+        if main_sym:
+            kline_sym   = main_sym
+            display_sym = main_sym
+            print(f"      Main: {main_sym}  OI={main_oi:,}  price={main_price}")
+        else:
+            kline_sym   = f"{code}0"
+            display_sym = f"{code}(主力)"
+            screen_curr = screening.get(code, {}).get('currentOI', 0)
+            main_oi     = screen_curr
+            main_price  = 0.0
+
+        # Daily K-line
         try:
-            daily_list = fetch_daily(ak, pd, kline_sym)
-            print(f"    [OK] 日K线: {len(daily_list)} 根")
+            daily = fetch_daily(ak, pd, kline_sym)
+            print(f"      Daily: {len(daily)} bars")
         except Exception as e:
-            print(f"    [-] 日K拉取失败: {e}, 尝试连续主力合约...")
+            print(f"      Daily FAILED ({e}), fallback to {code}0")
             try:
-                fallback_sym = f"{base_code}0"
-                daily_list = fetch_daily(ak, pd, fallback_sym)
-                kline_sym = fallback_sym
-                print(f"    [OK] 日K线(回退): {len(daily_list)} 根")
-            except Exception as e2:
-                print(f"    [-] 日K彻底失败: {e2}")
-                daily_list = []
+                kline_sym = f"{code}0"
+                daily = fetch_daily(ak, pd, kline_sym)
+                print(f"      Daily (fallback): {len(daily)} bars")
+            except Exception:
+                daily = []
 
-        min15_list = fetch_minute(ak, pd, kline_sym)
-        print(f"    [OK] 15分钟线: {len(min15_list)} 根")
+        # 15-min intraday
+        min15 = fetch_minute(ak, pd, kline_sym)
+        print(f"      15-min: {len(min15)} bars")
 
-        # --- Step 3: 构建元数据 ---
-        contracts_meta[base_code] = {
-            'symbol':       display_sym,
-            'klineSource':  kline_sym,
-            'name':         f"{name}主力",
-            'exchange':     exchange,
-            'multiplier':   cfg['multiplier'],
-            'marginRate':   cfg['margin'],
-            'unit':         cfg['unit'],
-            'openInterest': main_oi,
-            'latestPrice':  main_price
+        # Build metadata
+        oi_screen = screening.get(code, {})
+        contracts_meta[code] = {
+            'symbol':      display_sym,
+            'klineSource': kline_sym,
+            'name':        f"{cfg['name']}主力",
+            'exchange':    cfg['exch'],
+            'multiplier':  cfg['mult'],
+            'marginRate':  cfg['margin'],
+            'unit':        cfg['unit'],
+            'openInterest':main_oi,
+            'latestPrice': main_price,
+            'isWatchlist': code in WATCHLIST,
+            'isAnomaly':   code in anomalies,
+            'oiAnalysis': {
+                'currentOI':        oi_screen.get('currentOI', main_oi),
+                'historicalMaxOI':  oi_screen.get('historicalMaxOI', 0),
+                'historicalMaxDate':oi_screen.get('historicalMaxDate', ''),
+                'dataStart':        oi_screen.get('dataStart', ''),
+                'oiRatio':          oi_screen.get('oiRatio', 0),
+                'alert':            oi_screen.get('alert', 'unknown'),
+            },
         }
 
-        data_out[base_code] = {
-            'daily': daily_list,
-            'min15': min15_list
-        }
+        data_out[code] = {'daily': daily, 'min15': min15}
 
-    # --- 汇总输出 JSON ---
-    result = {
+    # ──────────────────────────────────────────────────────────
+    # OUTPUT JSON
+    # ──────────────────────────────────────────────────────────
+    output = {
         'metadata': {
-            'sync_time':   now_str,
-            'description': '按实时持仓量自动选取主力合约 | Auto-synced by sync_data.py v2.1',
-            'contracts':   contracts_meta
+            'sync_time':      now_str,
+            'version':        '4.0',
+            'description':    'Full market OI screen | watchlist + anomaly K-line data',
+            'historyYears':   HISTORY_YEARS,
+            'nearHighThresh': NEAR_HIGH_THRESH,
+            'watchlist':      WATCHLIST,
+            'anomalies':      anomalies,
+            'screening':      screening,    # OI stats for ALL screened commodities
+            'contracts':      contracts_meta,
         },
-        **data_out
+        **data_out,
     }
 
     data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
@@ -214,24 +353,20 @@ def sync_futures():
 
     try:
         with open(out_path, 'w', encoding='utf-8') as f:
-            json.dump(result, f, ensure_ascii=False, indent=2)
+            json.dump(output, f, ensure_ascii=False, indent=2)
 
-        print(f"[OK] Sync done! Main contracts by open interest:")
-        print(f"{'Code':>4}  {'Symbol':<12}  {'Open Interest':>12}  {'Last Price':>10}")
-        print("-" * 45)
-        for code, meta in contracts_meta.items():
-            oi_str = f"{meta['openInterest']:,}" if meta['openInterest'] else "N/A (fallback)"
-            price_str = f"{meta['latestPrice']:.1f}" if meta['latestPrice'] else "N/A"
-            print(f"  {code:>4}  {meta['symbol']:<12}  {oi_str:>12}  {price_str:>10}")
-        print(f"\n  Data saved to: {out_path}")
-        print("=" * 65)
+        print("\n" + "=" * 70)
+        print("[OK] Sync complete!")
+        print(f"     Screened : {len(screening)} commodities")
+        print(f"     Anomalies: {len(anomalies)} -> {anomalies if anomalies else 'none today'}")
+        print(f"     Detail   : {len(data_out)} contracts with K-line data")
+        print(f"     Output   : {out_path}")
+        print("=" * 70)
         return True
-
     except Exception as e:
-        print(f"[-] JSON写入失败: {e}")
+        print(f"[-] Write failed: {e}")
         return False
 
 
 if __name__ == '__main__':
-    ok = sync_futures()
-    sys.exit(0 if ok else 1)
+    sys.exit(0 if sync_futures() else 1)

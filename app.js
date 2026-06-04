@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     initRouting();
     initArticleSection();
-    initCalculator();
+    // initCalculator replaced by technical UI rendered after data loads
     loadFuturesData();
 });
 
@@ -268,22 +268,23 @@ async function loadFuturesData() {
         
         // -------------------------------------------------------
         // 动态更新 state.contracts 中的合约信息（月份/持仓量）
-        // 来源：sync_data.py 按真实持仓量自动选取后写入 metadata
         // -------------------------------------------------------
         if (data.metadata && data.metadata.contracts) {
-            const metaContracts = data.metadata.contracts;
-            Object.keys(state.contracts).forEach(baseCode => {
-                if (metaContracts[baseCode]) {
-                    const m = metaContracts[baseCode];
-                    state.contracts[baseCode].symbol      = m.symbol      || baseCode;
-                    state.contracts[baseCode].name        = m.name        || state.contracts[baseCode].name;
-                    state.contracts[baseCode].exchange    = m.exchange    || state.contracts[baseCode].exchange;
-                    state.contracts[baseCode].multiplier  = m.multiplier  || state.contracts[baseCode].multiplier;
-                    state.contracts[baseCode].marginRate  = m.marginRate  || state.contracts[baseCode].marginRate;
-                    state.contracts[baseCode].unit        = m.unit        || state.contracts[baseCode].unit;
-                    state.contracts[baseCode].openInterest= m.openInterest|| 0;
+            const anomalies = data.metadata.anomalies || [];
+            
+            // ONLY KEEP ANOMALIES in state.contracts for the Market Dashboard
+            state.contracts = {};
+            anomalies.forEach(code => {
+                if (data.metadata.contracts[code]) {
+                    state.contracts[code] = data.metadata.contracts[code];
                 }
             });
+            
+            if (anomalies.length > 0) {
+                state.activeContract = anomalies[0];
+            } else {
+                state.activeContract = null;
+            }
         }
         
         // 将 JSON 数据以 baseCode 为 key 存入 state.futuresData
@@ -295,12 +296,15 @@ async function loadFuturesData() {
         
         state.isDataReal = true;
         statusDot.className = 'status-dot synced';
-        statusText.textContent = '真实数据同步 ✓';
+        statusText.textContent = '全市场持仓异动扫描 ✓';
         
         if (data.metadata && data.metadata.sync_time) {
             const date = new Date(data.metadata.sync_time);
-            syncTimeText.textContent = `数据更新: ${date.toLocaleString()} | 主力合约按持仓量自动确认`;
+            syncTimeText.textContent = `更新: ${date.toLocaleString()} | 市场看板仅显示符合异动条件的合约`;
         }
+        
+        // Build the technical UI table and cards
+        buildTechnicalUI(data);
         
     } catch (err) {
         console.warn('未检测到真实数据文件，启用高仿真演算模式。', err);
@@ -408,7 +412,25 @@ function buildDashboardUI() {
     
     scrollContainer.innerHTML = '';
     
-    Object.keys(state.contracts).forEach(baseCode => {
+    const baseCodes = Object.keys(state.contracts);
+    
+    if (baseCodes.length === 0) {
+        // Show empty state when no anomalies found
+        scrollContainer.innerHTML = `
+            <div style="padding: 1.5rem; text-align: center; color: var(--text-muted); border: 1px dashed var(--border-color); border-radius: 12px; flex: 1;">
+                <i data-lucide="shield-check" style="width:24px; height:24px; margin-bottom: 0.5rem; color: var(--primary);"></i>
+                <div style="font-weight: 600;">今日无符合持仓量异动条件的合约</div>
+                <div style="font-size: 0.85rem; margin-top: 0.25rem;">全市场扫描未发现当前持仓量超过历史极值90%的主力合约</div>
+            </div>
+        `;
+        if (window.lucide) window.lucide.createIcons();
+        document.getElementById('chartActiveTitle').textContent = `暂无异动标的`;
+        document.getElementById('chartActiveSubtitle').textContent = `等待下次市场扫描...`;
+        if (window.activeChart) window.activeChart.setData([]);
+        return;
+    }
+    
+    baseCodes.forEach(baseCode => {
         const contract = state.contracts[baseCode];
         const dataContainer = state.futuresData[baseCode];
         if (!dataContainer || !dataContainer.daily || !dataContainer.daily.length) return;
@@ -427,18 +449,27 @@ function buildDashboardUI() {
         // Display the actual contract month symbol (e.g. AU2608) from metadata, or base code
         const displaySym = contract.symbol || baseCode;
         
+        // Technical Badges
+        const alertType = contract.oiAnalysis?.alert;
+        let badgeHtml = '';
+        if (alertType === 'new_high') badgeHtml = '<span class="oi-badge oi-badge-new-high">创新高</span>';
+        else if (alertType === 'near_high') badgeHtml = '<span class="oi-badge oi-badge-near-high">近历史高</span>';
+        
+        const cardClass = alertType === 'new_high' ? 'anomaly-new-high' : alertType === 'near_high' ? 'anomaly-near-high' : '';
+
         const card = document.createElement('div');
-        card.className = `ticker-card ${baseCode === state.activeContract ? 'active' : ''}`;
+        card.className = `ticker-card ${baseCode === state.activeContract ? 'active' : ''} ${cardClass}`;
         card.id = `ticker-${baseCode}`;
         card.innerHTML = `
-            <div class="ticker-card-header">
+            <div class="ticker-card-header" style="margin-bottom: 0;">
                 <div>
                     <span class="ticker-name">${contract.name}</span>
                     <span class="ticker-symbol">${displaySym}</span>
                 </div>
                 <span class="ticker-exchange">${contract.exchange}</span>
             </div>
-            <div class="ticker-price ${colorClass}" id="price-${baseCode}">${lastDay.close.toFixed(1)}</div>
+            <div class="ticker-card-badges">${badgeHtml}</div>
+            <div class="ticker-price ${colorClass}" id="price-${baseCode}" style="margin-top: 0.5rem;">${lastDay.close.toFixed(1)}</div>
             <div class="ticker-change ${colorClass}" id="change-${baseCode}">
                 <span>${sign}${dailyChange.toFixed(1)}</span>
                 <span>${sign}${dailyChangePct.toFixed(2)}%</span>
@@ -917,199 +948,141 @@ function closeArticleReader() {
 }
 
 // ==========================================================================
-/* FUTURES RISK & MARGIN CALCULATOR MODULE */
+/* TECHNICAL ANOMALY UI BUILDER */
 // ==========================================================================
 
-function initCalculator() {
-    // Collect DOM Elements
-    const totalCapitalInput = document.getElementById('calcTotalCapital');
-    const riskRatioInput = document.getElementById('calcRiskRatio');
-    const contractPriceInput = document.getElementById('calcContractPrice');
-    const multiplierInput = document.getElementById('calcMultiplier');
-    const marginRateInput = document.getElementById('calcMarginRate');
-    const stopLossInput = document.getElementById('calcStopLoss');
-    
-    const riskRatioSlider = document.getElementById('calcRiskRatioSlider');
-    const marginRateSlider = document.getElementById('calcMarginRateSlider');
+function buildTechnicalUI(data) {
+    const meta = data.metadata;
+    if (!meta) return;
 
-    const longBtn = document.getElementById('calcDirectionLong');
-    const shortBtn = document.getElementById('calcDirectionShort');
-    
-    let direction = 'long'; // 'long' or 'short'
-
-    if (!totalCapitalInput) return; // safeguard
-
-    // Bind slider & numeric input syncs
-    riskRatioSlider.addEventListener('input', () => {
-        riskRatioInput.value = riskRatioSlider.value;
-        calculateCalculatorResults();
-    });
-    
-    riskRatioInput.addEventListener('input', () => {
-        riskRatioSlider.value = riskRatioInput.value;
-        calculateCalculatorResults();
-    });
-    
-    marginRateSlider.addEventListener('input', () => {
-        marginRateInput.value = marginRateSlider.value;
-        calculateCalculatorResults();
-    });
-    
-    marginRateInput.addEventListener('input', () => {
-        marginRateSlider.value = marginRateInput.value;
-        calculateCalculatorResults();
-    });
-
-    // Direction Selectors
-    longBtn.addEventListener('click', () => {
-        longBtn.classList.add('active');
-        shortBtn.classList.remove('active');
-        direction = 'long';
-        calculateCalculatorResults();
-    });
-
-    shortBtn.addEventListener('click', () => {
-        shortBtn.classList.add('active');
-        longBtn.classList.remove('active');
-        direction = 'short';
-        calculateCalculatorResults();
-    });
-
-    // Populate active pricing values from dashboard state into calculator
-    const quickLoadPricingBtn = document.getElementById('calcLoadActiveMarket');
-    if (quickLoadPricingBtn) {
-        quickLoadPricingBtn.addEventListener('click', () => {
-            const sym = state.activeContract;
-            const contract = state.contracts[sym];
-            const daily = state.futuresData[sym].daily;
-            if (!contract || !daily.length) return;
-            
-            const last = daily[daily.length - 1];
-            
-            contractPriceInput.value = last.close.toFixed(1);
-            multiplierInput.value = contract.multiplier;
-            marginRateInput.value = (contract.marginRate * 100).toFixed(0);
-            marginRateSlider.value = (contract.marginRate * 100).toFixed(0);
-            
-            // Set stop loss dot default: 1% of index price
-            stopLossInput.value = Math.round(last.close * 0.012);
-            
-            calculateCalculatorResults();
-        });
+    // 1. Scan badge
+    const scanStatus = document.getElementById('techScanStatus');
+    if (scanStatus) {
+        scanStatus.textContent = `扫描完成: ${meta.sync_time ? new Date(meta.sync_time).toLocaleString() : ''} | 发现 ${meta.anomalies.length} 个异动`;
+        scanStatus.parentElement.style.color = meta.anomalies.length > 0 ? "var(--primary)" : "var(--text-muted)";
     }
 
-    // Input changes triggers recalculation
-    [totalCapitalInput, contractPriceInput, multiplierInput, stopLossInput].forEach(inp => {
-        inp.addEventListener('input', calculateCalculatorResults);
-    });
-
-    // Quick init calculations
-    setTimeout(() => {
-        if (quickLoadPricingBtn) quickLoadPricingBtn.click();
-    }, 100);
-
-    function calculateCalculatorResults() {
-        // Parsings
-        const cap = parseFloat(totalCapitalInput.value) || 0;
-        const riskPct = parseFloat(riskRatioInput.value) || 0;
-        const price = parseFloat(contractPriceInput.value) || 0;
-        const mult = parseFloat(multiplierInput.value) || 0;
-        const marginPct = (parseFloat(marginRateInput.value) || 0) / 100;
-        const stopLossPoints = parseFloat(stopLossInput.value) || 0;
-
-        if (cap <= 0 || price <= 0 || mult <= 0 || stopLossPoints <= 0) {
-            updateCalculatorUI({ lots: 0, marginUsed: 0, marginRatio: 0, leverage: 0, maxLoss: 0, stopLossPrice: 0, riskLevel: 'low' });
+    // 2. Populate Screening Table
+    const tbody = document.getElementById('techScreeningBody');
+    const subtitle = document.getElementById('techScreeningSubtitle');
+    if (tbody && meta.screening) {
+        subtitle.textContent = `覆盖品种: ${Object.keys(meta.screening).length}`;
+        tbody.innerHTML = '';
+        
+        // Sort screening results by oiRatio descending
+        const allScreening = Object.values(meta.screening).sort((a, b) => b.oiRatio - a.oiRatio);
+        
+        allScreening.forEach(s => {
+            const tr = document.createElement('tr');
+            if (s.alert === 'new_high') tr.className = 'row-anomaly row-new-high';
+            else if (s.alert === 'near_high') tr.className = 'row-anomaly row-near-high';
+            
+            let statusHtml = '<span style="color:var(--text-muted)">正常</span>';
+            if (s.alert === 'new_high') statusHtml = '<span class="oi-badge oi-badge-new-high">创新高</span>';
+            else if (s.alert === 'near_high') statusHtml = '<span class="oi-badge oi-badge-near-high">近历史高</span>';
+            
+            const fillWidth = Math.min(100, s.oiRatio * 100);
+            let fillColor = 'var(--text-muted)';
+            if (s.alert === 'new_high') fillColor = '#ef4444';
+            else if (s.alert === 'near_high') fillColor = '#f59e0b';
+            
+            tr.innerHTML = `
+                <td><strong>${s.name}</strong> (${s.code})</td>
+                <td>${s.exchange}</td>
+                <td>${(s.currentOI/10000).toFixed(1)}万手</td>
+                <td>${(s.historicalMaxOI/10000).toFixed(1)}万手</td>
+                <td>${s.historicalMaxDate}</td>
+                <td>
+                    <div class="ratio-bar-wrap">
+                        <span style="width: 38px; font-weight: 600; color: ${fillColor}">${(s.oiRatio*100).toFixed(1)}%</span>
+                        <div class="ratio-bar-bg"><div class="ratio-bar-fill" style="width: ${fillWidth}%; background-color: ${fillColor};"></div></div>
+                    </div>
+                </td>
+                <td>${statusHtml}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+    
+    // 3. Anomaly Cards (placeholder for future analysis)
+    const cardsContainer = document.getElementById('techAnomalyCards');
+    if (cardsContainer) {
+        if (!meta.anomalies || meta.anomalies.length === 0) {
+            cardsContainer.innerHTML = `
+                <div class="tech-empty-state">
+                    <div class="tech-empty-radar">
+                        <div class="tech-empty-radar-dot"></div>
+                    </div>
+                    <h3>今日暂无技术异动标的</h3>
+                    <p>市场看板监控显示，当前所有品种主力合约的持仓量均未达到历史峰值的90%。请等待下个交易日的全市场扫描更新。</p>
+                </div>
+            `;
             return;
         }
-
-        // 1. Target stop loss price based on direction
-        let stopLossPrice = 0;
-        if (direction === 'long') {
-            stopLossPrice = price - stopLossPoints;
-        } else {
-            stopLossPrice = price + stopLossPoints;
-        }
-
-        // 2. Risk budgeting: max budget allowed to lose in RMB
-        const maxLoss = cap * (riskPct / 100);
-
-        // 3. Loss per lot = stopLossPoints * multiplier
-        const lossPerLot = stopLossPoints * mult;
-
-        // 4. Maximum hand lots we can trade: Max budget / Loss per lot
-        let lots = Math.floor(maxLoss / lossPerLot);
-        if (lots < 0) lots = 0;
-
-        // 5. Margin required for the recommended lots
-        const nominalValuePerLot = price * mult;
-        const marginPerLot = nominalValuePerLot * marginPct;
-        const marginUsed = lots * marginPerLot;
-
-        // 6. Leverage of recommended position: Nominal value / Account Capital
-        const nominalValueTotal = lots * nominalValuePerLot;
-        const leverage = cap > 0 ? (nominalValueTotal / cap) : 0;
-
-        // 7. Margin utilization percentage
-        const marginRatio = cap > 0 ? (marginUsed / cap) * 100 : 0;
-
-        // Risk Level checks
-        let riskLevel = 'low'; // safe
-        if (leverage > 8 || marginRatio > 60) {
-            riskLevel = 'high';
-        } else if (leverage > 4 || marginRatio > 35) {
-            riskLevel = 'medium';
-        }
-
-        updateCalculatorUI({
-            lots,
-            marginUsed,
-            marginRatio,
-            leverage,
-            maxLoss,
-            stopLossPrice,
-            riskLevel
+        
+        cardsContainer.innerHTML = '<div class="anomaly-cards-grid"></div>';
+        const grid = cardsContainer.querySelector('.anomaly-cards-grid');
+        
+        meta.anomalies.forEach(code => {
+            const contract = meta.contracts[code];
+            if (!contract) return;
+            const oi = contract.oiAnalysis;
+            const isNewHigh = oi.alert === 'new_high';
+            const badgeClass = isNewHigh ? 'oi-badge-new-high' : 'oi-badge-near-high';
+            const badgeText = isNewHigh ? 'OI创新高' : 'OI近历史高';
+            const cardClass = isNewHigh ? 'card-new-high' : 'card-near-high';
+            const fillClass = isNewHigh ? 'fill-new-high' : 'fill-near-high';
+            const fillWidth = Math.min(100, oi.oiRatio * 100);
+            
+            grid.innerHTML += `
+                <div class="anomaly-card ${cardClass}">
+                    <div class="anomaly-card-header">
+                        <div class="anomaly-card-header-left">
+                            <h3>${contract.name}</h3>
+                            <div class="card-meta">${contract.symbol} · ${contract.exchange}</div>
+                        </div>
+                        <span class="oi-badge ${badgeClass}">${badgeText}</span>
+                    </div>
+                    
+                    <div class="anomaly-card-stats">
+                        <div class="anomaly-stat">
+                            <span class="anomaly-stat-label">当前总持仓</span>
+                            <span class="anomaly-stat-value">${(oi.currentOI/10000).toFixed(1)}万手</span>
+                        </div>
+                        <div class="anomaly-stat">
+                            <span class="anomaly-stat-label">历史单日峰值</span>
+                            <span class="anomaly-stat-value">${(oi.historicalMaxOI/10000).toFixed(1)}万手</span>
+                        </div>
+                        <div class="anomaly-stat" style="grid-column: 1/-1;">
+                            <span class="anomaly-stat-label">历史峰值日期</span>
+                            <span class="anomaly-stat-value" style="font-size: 0.85rem;">${oi.historicalMaxDate}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="anomaly-oi-bar">
+                        <div class="anomaly-oi-bar-label">
+                            <span>持仓量攀升进度</span>
+                            <span style="font-weight: 700; color: ${isNewHigh ? '#ef4444' : '#f59e0b'}">${(oi.oiRatio*100).toFixed(1)}%</span>
+                        </div>
+                        <div class="anomaly-oi-bar-bg">
+                            <div class="anomaly-oi-bar-fill ${fillClass}" style="width: ${fillWidth}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="anomaly-analysis-placeholder">
+                        <i data-lucide="line-chart"></i>
+                        量化异动分析模块
+                        <span class="anomaly-placeholder-coming">可留白待开发</span>
+                    </div>
+                    
+                    <div class="anomaly-card-footer">
+                        <button class="btn-view-chart" onclick="switchTab('dashboard'); selectContract('${code}')">
+                            <i data-lucide="activity"></i> 在看板中深度分析
+                        </button>
+                    </div>
+                </div>
+            `;
         });
-    }
-
-    function updateCalculatorUI(res) {
-        document.getElementById('calcResultLots').textContent = res.lots;
-        document.getElementById('calcResultMargin').textContent = `¥${Math.round(res.marginUsed).toLocaleString()}`;
-        document.getElementById('calcResultMarginRatio').textContent = `${res.marginRatio.toFixed(1)}%`;
-        document.getElementById('calcResultLeverage').textContent = `${res.leverage.toFixed(2)}x`;
-        document.getElementById('calcResultMaxLoss').textContent = `¥${Math.round(res.maxLoss).toLocaleString()}`;
-        
-        const slPriceText = res.stopLossPrice > 0 ? res.stopLossPrice.toFixed(1) : '--';
-        document.getElementById('calcResultStopLossPrice').textContent = slPriceText;
-
-        // Update Risk Bar Indicator
-        const bar = document.getElementById('calcRiskBarFill');
-        const text = document.getElementById('calcRiskLabelText');
-        
-        if (!bar || !text) return;
-
-        let width = '0%';
-        let color = '#10b981'; // Green
-        let statusText = '极安全';
-
-        if (res.lots > 0) {
-            if (res.riskLevel === 'high') {
-                width = '90%';
-                color = '#ef4444'; // Red
-                statusText = '超高风险 (谨防爆仓！)';
-            } else if (res.riskLevel === 'medium') {
-                width = '55%';
-                color = '#f59e0b'; // Orange/Amber
-                statusText = '中度风险 (注意波动)';
-            } else {
-                width = '25%';
-                color = '#10b981'; // Green
-                statusText = '低风险 (理性仓位)';
-            }
-        }
-
-        bar.style.width = width;
-        bar.style.backgroundColor = color;
-        text.textContent = statusText;
-        text.style.color = color;
+        if (window.lucide) window.lucide.createIcons();
     }
 }

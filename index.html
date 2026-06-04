@@ -35,8 +35,8 @@
                     <li data-tab="articles">
                         <a href="#articles"><i data-lucide="book-open"></i>投资思考</a>
                     </li>
-                    <li data-tab="calculator">
-                        <a href="#calculator"><i data-lucide="calculator"></i>仓位计算器</a>
+                    <li data-tab="technical">
+                        <a href="#technical"><i data-lucide="zap"></i>技术异动</a>
                     </li>
                     <li data-tab="about">
                         <a href="#about"><i data-lucide="user"></i>关于本站</a>
@@ -181,137 +181,75 @@
                 </div>
             </section>
             
-            <!-- SECTION 3: RISK & MARGIN CALCULATOR -->
-            <section id="calculatorSection" class="page-section">
-                <div class="articles-title-section" style="margin-bottom: 2rem;">
-                    <h1>期货仓位与风险管理计算器</h1>
-                    <p>量化您的单笔交易风险，精确计算建议开仓手数，防止账户穿仓风险</p>
-                </div>
-                
-                <div class="calculator-container">
-                    
-                    <!-- Inputs Form -->
-                    <div class="calc-form">
-                        <div class="calc-title">
-                            <h2>参数配置 panel</h2>
-                            <p>输入您的风险偏好与标的要素</p>
-                        </div>
-                        
-                        <!-- Quick loading from market -->
-                        <button class="profile-link-btn" id="calcLoadActiveMarket" style="justify-content: center; font-size: 0.85rem; padding: 0.6rem;">
-                            <i data-lucide="import"></i> 导入当前市场看板活跃合约参数
-                        </button>
-                        
-                        <!-- Account Capital -->
-                        <div class="input-group">
-                            <div class="input-label-row">
-                                <label for="calcTotalCapital">账户总资金</label>
-                                <span class="input-unit">RMB (元)</span>
-                            </div>
-                            <input type="number" id="calcTotalCapital" class="calc-input" value="500000" min="1000">
-                        </div>
-                        
-                        <!-- Direction Selection -->
-                        <div class="input-group">
-                            <span class="input-label-row">交易方向</span>
-                            <div class="direction-selector">
-                                <button class="direction-btn direction-long active" id="calcDirectionLong">看多 (LONG)</button>
-                                <button class="direction-btn direction-short" id="calcDirectionShort">看空 (SHORT)</button>
-                            </div>
-                        </div>
+            <!-- SECTION 3: TECHNICAL ANOMALY MONITOR -->
+            <section id="technicalSection" class="page-section">
 
-                        <!-- Risk Budget Ratio -->
-                        <div class="input-group">
-                            <div class="input-label-row">
-                                <label for="calcRiskRatio">单笔最大亏损风险</label>
-                                <span><span id="riskRatioVal">1.0</span>%</span>
-                            </div>
-                            <input type="range" id="calcRiskRatioSlider" class="calc-slider" min="0.5" max="5.0" step="0.1" value="1.0">
-                            <input type="hidden" id="calcRiskRatio" value="1.0">
-                        </div>
-
-                        <!-- Contract Entry Price -->
-                        <div class="input-group">
-                            <div class="input-label-row">
-                                <label for="calcContractPrice">入场合约价格</label>
-                                <span class="input-unit">点数/元</span>
-                            </div>
-                            <input type="number" id="calcContractPrice" class="calc-input" value="72000" step="0.5">
-                        </div>
-                        
-                        <!-- Contract Multiplier -->
-                        <div class="input-group">
-                            <div class="input-label-row">
-                                <label for="calcMultiplier">合约乘数</label>
-                                <span class="input-unit">吨/手（克/手）</span>
-                            </div>
-                            <input type="number" id="calcMultiplier" class="calc-input" value="5">
-                        </div>
-                        
-                        <!-- Margin Rate -->
-                        <div class="input-group">
-                            <div class="input-label-row">
-                                <label for="calcMarginRate">保证金比例</label>
-                                <span><span id="marginRateVal">10</span>%</span>
-                            </div>
-                            <input type="range" id="calcMarginRateSlider" class="calc-slider" min="5" max="30" step="1" value="10">
-                            <input type="hidden" id="calcMarginRate" value="10">
-                        </div>
-                        
-                        <!-- Stop Loss Points -->
-                        <div class="input-group">
-                            <div class="input-label-row">
-                                <label for="calcStopLoss">硬止损点数</label>
-                                <span class="input-unit">点/元 (回撤点数)</span>
-                            </div>
-                            <input type="number" id="calcStopLoss" class="calc-input" value="700" min="1">
+                <!-- Section Header -->
+                <div class="tech-header">
+                    <div class="tech-header-left">
+                        <div class="tech-header-icon"><i data-lucide="zap"></i></div>
+                        <div>
+                            <h1>技术异动监控</h1>
+                            <p>全市场持仓量扫描 · 历史峰值阈值触发 · 结构性异动标的深度分析</p>
                         </div>
                     </div>
-                    
-                    <!-- Outputs Card -->
-                    <div class="calc-results">
-                        <div class="results-header">
-                            <div class="results-heading">建议开仓规模</div>
-                            <div class="primary-result"><span id="calcResultLots">0</span><span class="primary-result-unit">手</span></div>
-                        </div>
-                        
-                        <div class="results-grid">
-                            <div class="result-item">
-                                <span class="result-label">建议建仓保证金:</span>
-                                <span class="result-value" id="calcResultMargin">¥0</span>
-                            </div>
-                            <div class="result-item">
-                                <span class="result-label">资金占用比例:</span>
-                                <span class="result-value" id="calcResultMarginRatio">0.0%</span>
-                            </div>
-                            <div class="result-item">
-                                <span class="result-label">持仓真实杠杆:</span>
-                                <span class="result-value" id="calcResultLeverage">0.00x</span>
-                            </div>
-                            <div class="result-item">
-                                <span class="result-label">单笔最大亏损金额:</span>
-                                <span class="result-value price-up" id="calcResultMaxLoss">¥0</span>
-                            </div>
-                            <div class="result-item" style="grid-column: 1 / -1;">
-                                <span class="result-label">建议止损触发价格:</span>
-                                <span class="result-value" id="calcResultStopLossPrice" style="color: var(--primary); font-size: 1.4rem;">--</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Risk Bar Indicator -->
-                        <div class="risk-meter-container">
-                            <div class="risk-meter-label">
-                                <span>安全评级 (Leverage Safety)</span>
-                                <span id="calcRiskLabelText" style="font-weight: 700;">极安全</span>
-                            </div>
-                            <div class="risk-bar-bg">
-                                <div class="risk-bar-fill" id="calcRiskBarFill"></div>
-                            </div>
-                        </div>
-                        
+                    <div class="tech-scan-badge" id="techScanBadge">
+                        <span class="radar-dot"></span>
+                        <span id="techScanStatus">正在载入扫描数据...</span>
                     </div>
                 </div>
+
+                <!-- Condition Legend -->
+                <div class="tech-legend">
+                    <div class="tech-legend-item">
+                        <span class="oi-badge oi-badge-new-high">OI创新高</span>
+                        <span>条件 (b)：当前持仓量 &gt; 历史10年单日峰值</span>
+                    </div>
+                    <div class="tech-legend-item">
+                        <span class="oi-badge oi-badge-near-high">OI近历史高</span>
+                        <span>条件 (a)：当前持仓量 ≥ 历史10年单日峰值 × 90%</span>
+                    </div>
+                </div>
+
+                <!-- OI Screening Overview Table -->
+                <div class="tech-screening-panel">
+                    <div class="tech-panel-title">
+                        <i data-lucide="bar-chart-2"></i>
+                        全市场持仓量排名概览
+                        <span class="tech-panel-subtitle" id="techScreeningSubtitle">载入中...</span>
+                    </div>
+                    <div class="tech-screening-table-wrap">
+                        <table class="tech-screening-table" id="techScreeningTable">
+                            <thead>
+                                <tr>
+                                    <th>品种</th>
+                                    <th>交易所</th>
+                                    <th>当前持仓</th>
+                                    <th>历史峰值</th>
+                                    <th>峰值日期</th>
+                                    <th>OI比率</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody id="techScreeningBody">
+                                <tr><td colspan="7" class="tech-table-loading">载入中...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Anomaly Contract Detail Cards -->
+                <div class="tech-anomaly-section">
+                    <div class="tech-panel-title">
+                        <i data-lucide="alert-triangle"></i>
+                        持仓量异动标的
+                        <span class="tech-panel-subtitle">当前满足持仓量阈值条件的主力合约</span>
+                    </div>
+                    <div id="techAnomalyCards"></div>
+                </div>
+
             </section>
+
             
             <!-- SECTION 4: ABOUT ME -->
             <section id="aboutSection" class="page-section">
