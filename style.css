@@ -429,16 +429,19 @@ main {
     align-items: baseline;
     gap: 1rem;
     white-space: nowrap;
+    flex: 1;
 }
 
 .chart-title {
     font-size: 1.25rem;
     font-weight: 700;
+    white-space: nowrap;
 }
 
 .chart-subtitle {
     font-size: 0.85rem;
     color: var(--text-muted);
+    white-space: nowrap;
 }
 
 .chart-toolbar {
