@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>木林投资 | 个人量化与商品期货小站</title>
+    
+    <!-- SEO Optimization -->
+    <meta name="description" content="一个简约优美的个人投资空间，提供个人投资思考文章与中国商品期货数据可视化分析、实时行情模拟与资金风险管理计算器。">
+    <meta name="keywords" content="个人投资, 商品期货, 行情分析, K线图, 仓位计算器, CTA策略, 量化交易">
+    
+    <!-- Premium Fonts and Icons -->
+    <link rel="stylesheet" href="./style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body data-theme="dark">
+
+    <div class="app-container">
+        
+        <!-- Header -->
+        <header>
+            <div class="logo-section">
+                <div class="logo-icon">QN</div>
+                <div>
+                    <h1 class="logo-title">墨子投资</h1>
+                    <div class="logo-sub">Quantum Nest Portal</div>
+                </div>
+            </div>
+            
+            <nav>
+                <ul>
+                    <li data-tab="dashboard" class="active">
+                        <a href="#dashboard"><i data-lucide="line-chart"></i>市场看板</a>
+                    </li>
+                    <li data-tab="articles">
+                        <a href="#articles"><i data-lucide="book-open"></i>投资思考</a>
+                    </li>
+                    <li data-tab="calculator">
+                        <a href="#calculator"><i data-lucide="calculator"></i>仓位计算器</a>
+                    </li>
+                    <li data-tab="about">
+                        <a href="#about"><i data-lucide="user"></i>关于本站</a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="header-actions">
+                <div class="sync-status" title="显示系统当前的数据同步状态">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="statusText">正在加载...</span>
+                </div>
+                <button class="theme-toggle" id="themeToggleBtn" title="切换深色/浅色主题">
+                    <i data-lucide="sun"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main>
+            
+            <!-- SECTION 1: MARKET DASHBOARD -->
+            <section id="dashboardSection" class="page-section active">
+                <!-- Horizontally Scrollable Commodity Tickers -->
+                <div class="tickers-scroll-container" id="tickersScrollContainer">
+                    <!-- Dynamic Ticker Cards loaded by JS -->
+                </div>
+                
+                <div class="dashboard-grid">
+                    <!-- Chart Panel -->
+                    <div class="chart-panel">
+                        <div class="chart-header">
+                            <div class="chart-title-area">
+                                <h2 class="chart-title" id="chartActiveTitle">期货主连合约</h2>
+                                <span class="chart-subtitle" id="chartActiveSubtitle">加载合约详情...</span>
+                            </div>
+                            
+                            <!-- Control Toolbar -->
+                            <div class="chart-toolbar">
+                                <!-- Period Toggle -->
+                                <div class="btn-group" id="chartPeriodToolbar">
+                                    <button class="btn-tab active" data-period="D">日K</button>
+                                    <button class="btn-tab" data-period="W">周K</button>
+                                    <button class="btn-tab" data-period="15M">15M</button>
+                                </div>
+                                
+                                <!-- Chart Type Toggle -->
+                                <div class="btn-group" id="chartTypeToolbar">
+                                    <button class="btn-tab active" data-type="candle">K线</button>
+                                    <button class="btn-tab" data-type="line">分时</button>
+                                </div>
+                                
+                                <!-- Indicators Toggles -->
+                                <div class="btn-group">
+                                    <button class="btn-tab active" id="indicatorMA5" title="5日均线">MA5</button>
+                                    <button class="btn-tab active" id="indicatorMA10" title="10日均线">MA10</button>
+                                    <button class="btn-tab active" id="indicatorMA20" title="20日均线">MA20</button>
+                                    <button class="btn-tab active" id="indicatorVolume" title="成交量副图">VOL</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Interactive Canvas Wrapper -->
+                        <div class="chart-canvas-wrapper">
+                            <canvas id="futuresChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Sidebar Analysis Widgets -->
+                    <div class="dashboard-sidebar">
+                        
+                        <!-- Basic Stats widget -->
+                        <div class="sidebar-widget">
+                            <h3 class="widget-title"><i data-lucide="info"></i>合约基础属性</h3>
+                            <div class="stats-list">
+                                <div class="stats-row">
+                                    <span class="stats-label">最新价格:</span>
+                                    <span class="stats-value" id="statClosePrice">--</span>
+                                </div>
+                                <div class="stats-row">
+                                    <span class="stats-label">日成交量:</span>
+                                    <span class="stats-value" id="statVolume">--</span>
+                                </div>
+                                <div class="stats-row">
+                                    <span class="stats-label">持仓总量:</span>
+                                    <span class="stats-value" id="statHold">--</span>
+                                </div>
+                                <div class="stats-row">
+                                    <span class="stats-label">一手保证金:</span>
+                                    <span class="stats-value" id="statMarginValue" style="color: var(--primary);">--</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Term Structure widget -->
+                        <div class="sidebar-widget">
+                            <h3 class="widget-title"><i data-lucide="bar-chart-3"></i>期限结构 (Spread)</h3>
+                            <div class="term-structure-graph" id="termStructureGraph">
+                                <!-- Term structure bar chart loaded by JS -->
+                            </div>
+                            <div class="stats-row" style="margin-top: 0.75rem;">
+                                <span class="stats-label" id="termStructureStatus">期限结构：升贴水分析</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Quant Signal widget -->
+                        <div class="sidebar-widget">
+                            <h3 class="widget-title"><i data-lucide="cpu"></i>CTA 均线策略倾向</h3>
+                            <div class="stats-row" style="align-items: center; justify-content: space-between;">
+                                <span class="stats-label">短线技术信号:</span>
+                                <span class="signal-badge signal-neutral" id="statCtaSignal">计算中</span>
+                            </div>
+                            <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.75rem; line-height: 1.4;">
+                                基于多周期均线死金叉形态自动计算。技术指标仅供参考，不作为实盘投资入场依据。
+                            </p>
+                        </div>
+                        
+                    </div>
+                </div>
+            </section>
+            
+            <!-- SECTION 2: INVESTMENT ARTICLES -->
+            <section id="articlesSection" class="page-section">
+                <div class="articles-header">
+                    <div class="articles-title-section">
+                        <h1>投资思考与深度研究</h1>
+                        <p>大宗商品、宏观流动性以及系统化交易系统的知行合一</p>
+                    </div>
+                    
+                    <!-- Filters -->
+                    <div class="category-filter" id="categoryFilterToolbar">
+                        <button class="category-btn active" data-category="all">全部文章</button>
+                        <button class="category-btn" data-category="macro">宏观研究</button>
+                        <button class="category-btn" data-category="futures">商品交易</button>
+                        <button class="category-btn" data-category="allocation">资产配置</button>
+                    </div>
+                </div>
+                
+                <!-- Articles Cards Grid -->
+                <div class="articles-grid" id="articlesGrid">
+                    <!-- Dynamic Article cards loaded by JS -->
+                </div>
+            </section>
+            
+            <!-- SECTION 3: RISK & MARGIN CALCULATOR -->
+            <section id="calculatorSection" class="page-section">
+                <div class="articles-title-section" style="margin-bottom: 2rem;">
+                    <h1>期货仓位与风险管理计算器</h1>
+                    <p>量化您的单笔交易风险，精确计算建议开仓手数，防止账户穿仓风险</p>
+                </div>
+                
+                <div class="calculator-container">
+                    
+                    <!-- Inputs Form -->
+                    <div class="calc-form">
+                        <div class="calc-title">
+                            <h2>参数配置 panel</h2>
+                            <p>输入您的风险偏好与标的要素</p>
+                        </div>
+                        
+                        <!-- Quick loading from market -->
+                        <button class="profile-link-btn" id="calcLoadActiveMarket" style="justify-content: center; font-size: 0.85rem; padding: 0.6rem;">
+                            <i data-lucide="import"></i> 导入当前市场看板活跃合约参数
+                        </button>
+                        
+                        <!-- Account Capital -->
+                        <div class="input-group">
+                            <div class="input-label-row">
+                                <label for="calcTotalCapital">账户总资金</label>
+                                <span class="input-unit">RMB (元)</span>
+                            </div>
+                            <input type="number" id="calcTotalCapital" class="calc-input" value="500000" min="1000">
+                        </div>
+                        
+                        <!-- Direction Selection -->
+                        <div class="input-group">
+                            <span class="input-label-row">交易方向</span>
+                            <div class="direction-selector">
+                                <button class="direction-btn direction-long active" id="calcDirectionLong">看多 (LONG)</button>
+                                <button class="direction-btn direction-short" id="calcDirectionShort">看空 (SHORT)</button>
+                            </div>
+                        </div>
+
+                        <!-- Risk Budget Ratio -->
+                        <div class="input-group">
+                            <div class="input-label-row">
+                                <label for="calcRiskRatio">单笔最大亏损风险</label>
+                                <span><span id="riskRatioVal">1.0</span>%</span>
+                            </div>
+                            <input type="range" id="calcRiskRatioSlider" class="calc-slider" min="0.5" max="5.0" step="0.1" value="1.0">
+                            <input type="hidden" id="calcRiskRatio" value="1.0">
+                        </div>
+
+                        <!-- Contract Entry Price -->
+                        <div class="input-group">
+                            <div class="input-label-row">
+                                <label for="calcContractPrice">入场合约价格</label>
+                                <span class="input-unit">点数/元</span>
+                            </div>
+                            <input type="number" id="calcContractPrice" class="calc-input" value="72000" step="0.5">
+                        </div>
+                        
+                        <!-- Contract Multiplier -->
+                        <div class="input-group">
+                            <div class="input-label-row">
+                                <label for="calcMultiplier">合约乘数</label>
+                                <span class="input-unit">吨/手（克/手）</span>
+                            </div>
+                            <input type="number" id="calcMultiplier" class="calc-input" value="5">
+                        </div>
+                        
+                        <!-- Margin Rate -->
+                        <div class="input-group">
+                            <div class="input-label-row">
+                                <label for="calcMarginRate">保证金比例</label>
+                                <span><span id="marginRateVal">10</span>%</span>
+                            </div>
+                            <input type="range" id="calcMarginRateSlider" class="calc-slider" min="5" max="30" step="1" value="10">
+                            <input type="hidden" id="calcMarginRate" value="10">
+                        </div>
+                        
+                        <!-- Stop Loss Points -->
+                        <div class="input-group">
+                            <div class="input-label-row">
+                                <label for="calcStopLoss">硬止损点数</label>
+                                <span class="input-unit">点/元 (回撤点数)</span>
+                            </div>
+                            <input type="number" id="calcStopLoss" class="calc-input" value="700" min="1">
+                        </div>
+                    </div>
+                    
+                    <!-- Outputs Card -->
+                    <div class="calc-results">
+                        <div class="results-header">
+                            <div class="results-heading">建议开仓规模</div>
+                            <div class="primary-result"><span id="calcResultLots">0</span><span class="primary-result-unit">手</span></div>
+                        </div>
+                        
+                        <div class="results-grid">
+                            <div class="result-item">
+                                <span class="result-label">建议建仓保证金:</span>
+                                <span class="result-value" id="calcResultMargin">¥0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">资金占用比例:</span>
+                                <span class="result-value" id="calcResultMarginRatio">0.0%</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">持仓真实杠杆:</span>
+                                <span class="result-value" id="calcResultLeverage">0.00x</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">单笔最大亏损金额:</span>
+                                <span class="result-value price-up" id="calcResultMaxLoss">¥0</span>
+                            </div>
+                            <div class="result-item" style="grid-column: 1 / -1;">
+                                <span class="result-label">建议止损触发价格:</span>
+                                <span class="result-value" id="calcResultStopLossPrice" style="color: var(--primary); font-size: 1.4rem;">--</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Risk Bar Indicator -->
+                        <div class="risk-meter-container">
+                            <div class="risk-meter-label">
+                                <span>安全评级 (Leverage Safety)</span>
+                                <span id="calcRiskLabelText" style="font-weight: 700;">极安全</span>
+                            </div>
+                            <div class="risk-bar-bg">
+                                <div class="risk-bar-fill" id="calcRiskBarFill"></div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </section>
+            
+            <!-- SECTION 4: ABOUT ME -->
+            <section id="aboutSection" class="page-section">
+                <div class="about-card">
+                    <div class="about-header">
+                        <div class="about-avatar">ZL</div>
+                        <h2>关于墨子投资与本站作者</h2>
+                        <p style="color: var(--text-muted); margin-top: 0.25rem;">宏观研究者 / 量化交易实践者</p>
+                    </div>
+                    
+                    <div class="about-content">
+                        <h3>关于本站</h3>
+                        <p>
+                            本站是一个针对个人投资者和大宗商品交易爱好者的个人投资展示与研究小站。
+                            主要面向**中国商品期货市场**，集成了自研的极简行情展示K线系统，并配套了仓位资金控制量化计算工具。
+                        </p>
+                        
+                        <h3>投资理念</h3>
+                        <p>
+                            以**“安全边际为基石，趋势跟踪为核心”**。资产配置中，大宗商品提供了独特的抗通胀和宏观流动性套利价值。
+                            在交易期货等高杠杆工具时，本站强调严格的风险暴露控制（单笔交易亏损硬控制在1%以内），通过程序化和系统性的方法来规避人性的弱点。
+                        </p>
+                        
+                        <h3>交易系统设置</h3>
+                        <p>
+                            - **行情同步**: 可通过底层的 `sync_data.py` (Python & AkShare) 实时拉取国内四大期货交易所主连合约行情，打通 Python 投研端与 Web 展示端的数据闭环。<br>
+                            - **主攻品种**: 沪铜 (CU)、沪金 (AU)、螺纹钢 (RB) 及高流动性能化品种。
+                        </p>
+                    </div>
+                    
+                    <div class="profile-links">
+                        <a href="https://github.com" target="_blank" class="profile-link-btn">
+                            <i data-lucide="github"></i> GitHub 主页
+                        </a>
+                        <a href="mailto:zilin@example.com" class="profile-link-btn">
+                            <i data-lucide="mail"></i> 邮件联系
+                        </a>
+                    </div>
+                </div>
+            </section>
+            
+        </main>
+        
+        <!-- INLINE ARTICLE READER OVERLAY -->
+        <div class="reader-overlay" id="readerOverlay">
+            <div class="reader-container" id="readerContainer">
+                <div class="reader-progress-bar" id="readerProgressBar"></div>
+                <button class="reader-close-btn" id="readerCloseBtn" title="关闭返回列表">
+                    <i data-lucide="x"></i>
+                </button>
+                <div class="reader-content">
+                    <div class="reader-header">
+                        <div class="reader-category" id="readerCategory">CATEGORY</div>
+                        <h2 class="reader-title" id="readerTitle">Article Title</h2>
+                        <div class="reader-meta">
+                            <div class="author-info">
+                                <span class="author-avatar" id="readerAuthorAvatar">ZL</span>
+                                <span id="readerAuthor">Zilin</span>
+                            </div>
+                            <span>·</span>
+                            <span id="readerDate">2026-06-01</span>
+                            <span>·</span>
+                            <span id="readerReadTime">10 mins read</span>
+                        </div>
+                    </div>
+                    <div class="reader-body" id="readerBody">
+                        <!-- Dynamic rich text loaded by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <div class="footer-content">
+                <div class="footer-left">
+                    <div class="disclaimer-title">风险提示 (Risk Disclaimer)</div>
+                    <p>
+                        本站所载一切数据与文章思考仅作学术研究与个人量化实践记录，均不构成任何投资入场建议。
+                        期货交易属于高风险金融衍生工具，具有极高杠杆属性，可能导致本金严重亏损。请投资者保持理性，知晓“入市有风险，投资需谨慎”。
+                    </p>
+                </div>
+                <div class="footer-right">
+                    <span id="syncTime">正在建立数据链接...</span>
+                    <span>墨子投资小站 © 2026 Powered by Antigravity AI Engine</span>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- Script Entrypoint -->
+    <script type="module" src="./app.js"></script>
+    <script>
+        // Trigger initial lucide icons compilation
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+</html>
