@@ -4,8 +4,7 @@
 FULL MARKET OI SCREENER + DATA SYNC (sync_data.py v4.0)
 ==========================================================================
 【当前数据源限制说明】：
-1. 合约覆盖范围：本脚本只针对 Watchlist 自选合约 (AU, CU, RB, SC, SR, TA) 以及触发持仓量异动 (>= 历史峰值90%) 的异常合约下载详细的日K与分钟分时数据。
-   其他常规合约在 Phase 1 只参与持仓量大小筛查（以便在“技术异动列表”中正确排序），但不拉取其 K 线/分时数据，以控制文件总体积。
+1. 合约覆盖范围：本脚本已实现对所有交易所、所有合约的数据同步，每日收盘后下载所有 50+ 合约的详细日线、分钟线及分时数据。
 2. 周期覆盖范围与深度限制：
    - 分钟 K 线 (1m, 5m, 15m, 30m, 60m) 受限于新浪行情接口历史深度，只拉取最新最近约 1500 根 Bar 的滚动历史。
    - 日线 (daily) 拉取完整 10 年历史连续合约数据。
@@ -318,10 +317,11 @@ def sync_futures():
     print(f"\n  Screen done. Anomalies: {len(anomalies)} -> {anomalies if anomalies else 'none'}")
 
     # ──────────────────────────────────────────────────────────
-    # PHASE 2: DETAIL FETCH — watchlist + anomalies
+    # PHASE 2: DETAIL FETCH — all contracts across all exchanges
     # ──────────────────────────────────────────────────────────
-    detail_codes = sorted(set(WATCHLIST + anomalies), key=lambda c: (c not in anomalies, c))
-    print(f"\n[Phase 2] Fetching K-line detail for {len(detail_codes)} contracts: {detail_codes}\n")
+    # 按照用户要求，每日同步必须覆盖所有交易所、所有合约的所有周期数据，不仅限于 Watchlist 和 anomalies
+    detail_codes = sorted(list(ALL_CFG.keys()))
+    print(f"\n[Phase 2] Fetching K-line detail for all {len(detail_codes)} contracts across all exchanges...\n")
 
     contracts_meta = {}
     data_out       = {}
