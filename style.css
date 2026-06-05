@@ -585,6 +585,44 @@ main {
     background: var(--bg-surface);
 }
 
+/* Collapsible TPO & VP button groups */
+#chartTpoGroup:not(.expanded) .tpo-btn,
+#chartVpGroup:not(.expanded) .vp-btn {
+    display: none;
+    max-width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+#chartTpoGroup:not(.expanded) .tpo-btn.active,
+#chartVpGroup:not(.expanded) .vp-btn.active {
+    display: block !important;
+    max-width: 70px !important;
+    padding: 0.35rem 0.85rem !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+#chartTpoGroup:not(.expanded):not(.has-active) .tpo-btn[data-tpo="30m"],
+#chartVpGroup:not(.expanded):not(.has-active) .vp-btn[data-vp="30m"] {
+    display: block !important;
+    max-width: 70px !important;
+    padding: 0.35rem 0.85rem !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+#chartTpoGroup.expanded .tpo-btn,
+#chartVpGroup.expanded .vp-btn {
+    display: block;
+    max-width: 70px;
+    padding: 0.35rem 0.85rem;
+    opacity: 1;
+    pointer-events: auto;
+}
+
 .chart-canvas-wrapper {
     flex: 1;
     position: relative;

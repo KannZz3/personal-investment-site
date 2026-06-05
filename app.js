@@ -21,7 +21,9 @@ const state = {
     chartPeriod: 'D', // 'D' (日K), 'W' (周K), 'Month' (月K), '15M', '30M', '60M'
     isDataReal: false,
     futuresData: {}, // Holds real or simulated data for each base commodity code
-    realDataLoadError: false
+    realDataLoadError: false,
+    selectedTpoProfileLevel: 'none', // 'none', '30m', 'daily', 'weekly'
+    selectedVolumeProfileLevel: 'none' // 'none', '30m', 'daily', 'weekly'
 };
 
 // Custom articles database
@@ -370,6 +372,8 @@ function generateMockData() {
         
         state.futuresData[baseCode] = {
             daily: dataList,
+            min1: generateMinuteData(price, volatility * 0.25, 1000, 1),
+            min5: generateMinuteData(price, volatility * 0.3, 1000, 5),
             min15: generateMinuteData(price, volatility * 0.4, 1000, 15),
             min30: generateMinuteData(price, volatility * 0.45, 1000, 30),
             min60: generateMinuteData(price, volatility * 0.5, 1000, 60)
@@ -584,6 +588,76 @@ function initializeChartComponent() {
         });
     }
 
+    // Handle TPO Profile toolbar
+    const tpoGroup = document.getElementById('chartTpoGroup');
+    const tpoToggle = document.getElementById('tpoToggle');
+    let tpoExpanded = false;
+
+    if (tpoToggle && tpoGroup) {
+        tpoToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            tpoExpanded = !tpoExpanded;
+            tpoGroup.classList.toggle('expanded', tpoExpanded);
+            tpoToggle.textContent = tpoExpanded ? '\u00ab' : '\u00bb';
+        });
+
+        tpoGroup.addEventListener('mouseleave', () => {
+            if (tpoExpanded) {
+                tpoExpanded = false;
+                tpoGroup.classList.remove('expanded');
+                tpoToggle.textContent = '\u00bb';
+            }
+        });
+    }
+
+    const tpoButtons = document.querySelectorAll('#chartTpoGroup .tpo-btn');
+    tpoButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const level = btn.getAttribute('data-tpo');
+            if (state.selectedTpoProfileLevel === level) {
+                state.selectedTpoProfileLevel = 'none';
+            } else {
+                state.selectedTpoProfileLevel = level;
+            }
+            updateChartData();
+        });
+    });
+
+    // Handle Volume Profile toolbar
+    const vpGroup = document.getElementById('chartVpGroup');
+    const vpToggle = document.getElementById('vpToggle');
+    let vpExpanded = false;
+
+    if (vpToggle && vpGroup) {
+        vpToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            vpExpanded = !vpExpanded;
+            vpGroup.classList.toggle('expanded', vpExpanded);
+            vpToggle.textContent = vpExpanded ? '\u00ab' : '\u00bb';
+        });
+
+        vpGroup.addEventListener('mouseleave', () => {
+            if (vpExpanded) {
+                vpExpanded = false;
+                vpGroup.classList.remove('expanded');
+                vpToggle.textContent = '\u00bb';
+            }
+        });
+    }
+
+    const vpButtons = document.querySelectorAll('#chartVpGroup .vp-btn');
+    vpButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const level = btn.getAttribute('data-vp');
+            if (state.selectedVolumeProfileLevel === level) {
+                state.selectedVolumeProfileLevel = 'none';
+            } else {
+                state.selectedVolumeProfileLevel = level;
+            }
+            updateChartData();
+        });
+    });
+
     // Populate initial data to chart
     updateChartData();
     updateSidebarWidget();
@@ -619,7 +693,21 @@ function updateChartData() {
     document.getElementById('chartActiveTitle').innerHTML = `${contract.name}<br><span style="font-size: 0.95rem; color: var(--text-secondary); font-weight: 500;">(${displaySym})</span>`;
     document.getElementById('chartActiveSubtitle').textContent = oiInfo;
     
+    // Configure TPO and Volume Profiles on chart
+    window.activeChart.symbol = baseCode;
+    window.activeChart.setProfileLevels(state.selectedTpoProfileLevel, state.selectedVolumeProfileLevel);
+    window.activeChart.setIntradayData({
+        bars1m: dataContainer.min1 || [],
+        bars5m: dataContainer.min5 || [],
+        bars15m: dataContainer.min15 || [],
+        bars30m: dataContainer.min30 || [],
+        bars60m: dataContainer.min60 || [],
+        dailyDates: (dataContainer.daily || []).map(d => d.date)
+    });
+    
     window.activeChart.setData(dataset);
+    
+    syncProfileButtons();
 }
 
 // Compress Daily datasets to Weekly aggregates
@@ -1191,5 +1279,47 @@ function buildTechnicalUI(data) {
             `;
         });
         if (window.lucide) window.lucide.createIcons();
+    }
+}
+
+function syncProfileButtons() {
+    const tpoGroup = document.getElementById('chartTpoGroup');
+    const tpoButtons = document.querySelectorAll('#chartTpoGroup .tpo-btn');
+    if (tpoGroup) {
+        let hasActive = false;
+        tpoButtons.forEach(btn => {
+            const level = btn.getAttribute('data-tpo');
+            if (state.selectedTpoProfileLevel === level) {
+                btn.classList.add('active');
+                hasActive = true;
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+        if (hasActive) {
+            tpoGroup.classList.add('has-active');
+        } else {
+            tpoGroup.classList.remove('has-active');
+        }
+    }
+
+    const vpGroup = document.getElementById('chartVpGroup');
+    const vpButtons = document.querySelectorAll('#chartVpGroup .vp-btn');
+    if (vpGroup) {
+        let hasActive = false;
+        vpButtons.forEach(btn => {
+            const level = btn.getAttribute('data-vp');
+            if (state.selectedVolumeProfileLevel === level) {
+                btn.classList.add('active');
+                hasActive = true;
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+        if (hasActive) {
+            vpGroup.classList.add('has-active');
+        } else {
+            vpGroup.classList.remove('has-active');
+        }
     }
 }

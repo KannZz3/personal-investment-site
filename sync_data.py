@@ -283,7 +283,7 @@ def fetch_minute(ak, pd, symbol, period='15', n=1500):
 
 def sync_futures():
     print("=" * 70)
-    print("  Moxi Investment | Full Market OI Screener + Sync  v4.0")
+    print("  Summit Wind Portal | Full Market OI Screener + Sync  v4.0")
     print("  Coverage: SHFE / DCE / CZCE / INE / GFEX  (~50 contracts)")
     print("=" * 70)
 
@@ -355,11 +355,13 @@ def sync_futures():
             print(f"      Daily FAILED ({e})")
             daily = []
 
-        # Intraday K-lines: 15M, 30M, 60M (up to 1500 bars limit)
+        # Intraday K-lines: 1M, 5M, 15M, 30M, 60M (up to 1500 bars limit)
+        min1  = fetch_minute(ak, pd, kline_sym, period='1', n=1500)
+        min5  = fetch_minute(ak, pd, kline_sym, period='5', n=1500)
         min15 = fetch_minute(ak, pd, kline_sym, period='15', n=1500)
         min30 = fetch_minute(ak, pd, kline_sym, period='30', n=1500)
         min60 = fetch_minute(ak, pd, kline_sym, period='60', n=1500)
-        print(f"      15-min: {len(min15)} bars | 30-min: {len(min30)} bars | 60-min: {len(min60)} bars")
+        print(f"      1-min: {len(min1)} bars | 5-min: {len(min5)} bars | 15-min: {len(min15)} bars | 30-min: {len(min30)} bars | 60-min: {len(min60)} bars")
 
         # Build metadata
         oi_screen = screening.get(code, {})
@@ -385,7 +387,7 @@ def sync_futures():
             },
         }
 
-        data_out[code] = {'daily': daily, 'min15': min15, 'min30': min30, 'min60': min60}
+        data_out[code] = {'daily': daily, 'min1': min1, 'min5': min5, 'min15': min15, 'min30': min30, 'min60': min60}
 
     # ──────────────────────────────────────────────────────────
     # OUTPUT JSON

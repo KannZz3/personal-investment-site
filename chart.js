@@ -48,6 +48,18 @@ class FuturesChart {
         this.theme = 'dark';
         this.lastHoverPct = 0.5;
         
+        // Market Profile states
+        this.symbol = '';
+        this.tpoLevel = 'none';
+        this.vpLevel = 'none';
+        this.bars1m = [];
+        this.bars5m = [];
+        this.bars15m = [];
+        this.bars30m = [];
+        this.bars60m = [];
+        this.dailyDates = [];
+        this.profileCache = {};
+        
         this.initEvents();
     }
 
@@ -100,6 +112,295 @@ class FuturesChart {
         this.visibleEnd = this.data.length;
         
         this.resize();
+    }
+
+    setProfileLevels(tpoLevel, vpLevel) {
+        this.tpoLevel = tpoLevel || 'none';
+        this.vpLevel = vpLevel || 'none';
+    }
+
+    setIntradayData({ bars1m, bars5m, bars15m, bars30m, bars60m, dailyDates }) {
+        this.bars1m = bars1m || [];
+        this.bars5m = bars5m || [];
+        this.bars15m = bars15m || [];
+        this.bars30m = bars30m || [];
+        this.bars60m = bars60m || [];
+        this.dailyDates = dailyDates || [];
+    }
+
+    getProfileData(type, level, endDate) {
+        if (level === 'none') return null;
+        
+        const symbol = this.symbol;
+        const cacheKey = `${symbol}_${endDate}_${level}_${type}`;
+        if (this.profileCache[cacheKey]) {
+            return this.profileCache[cacheKey];
+        }
+        
+        const tickSize = getTickSize(symbol);
+        const dailyDates = this.dailyDates;
+        
+        const barsDict = {
+            '1m': this.bars1m,
+            '5m': this.bars5m,
+            '15m': this.bars15m,
+            '30m': this.bars30m,
+            '60m': this.bars60m
+        };
+        
+        // Setup checks parameters
+        let preferredFrequency = '';
+        let fallbackFrequencies = [];
+        if (type === 'tpo') {
+            preferredFrequency = '30m';
+            fallbackFrequencies = []; // Strictly no fallback for TPO
+        } else {
+            preferredFrequency = '1m';
+            if (level === '30m') {
+                fallbackFrequencies = ['5m']; // Strictly no 15m for 30m VP
+            } else {
+                fallbackFrequencies = ['5m', '15m']; // Daily/Weekly composite VP can fallback to 15m
+            }
+        }
+        
+        const availability = checkProfileDataAvailability({
+            symbol,
+            profileType: type,
+            profileLevel: level,
+            requestedEndDate: endDate,
+            dailyDates,
+            barsDict,
+            preferredFrequency,
+            fallbackFrequencies
+        });
+        
+        if (!availability.canBuild) {
+            const emptyProfile = {
+                type: type,
+                level: level,
+                symbol: symbol,
+                endDate: endDate,
+                lookback: level === '30m' ? '1D' : level === 'daily' ? '20D' : '8W',
+                poc: 0, vah: 0, val: 0, rangeHigh: 0, rangeLow: 0,
+                rows: [],
+                meta: {
+                    requestedFrequency,
+                    actualFrequencyUsed: preferredFrequency,
+                    earliestAvailableTime: availability.earliestAvailableTime || "",
+                    latestAvailableTime: availability.latestAvailableTime || "",
+                    profileStartTime: "",
+                    profileEndTime: "",
+                    fallbackUsed: false,
+                    insufficientReason: availability.insufficientReason || "Data insufficient",
+                    dataQuality: "insufficient"
+                }
+            };
+            this.profileCache[cacheKey] = emptyProfile;
+            return emptyProfile;
+        }
+        
+        const activeBars = barsDict[availability.actualFrequencyUsed];
+        let profile = null;
+        
+        if (type === 'tpo') {
+            if (level === '30m') {
+                profile = buildTpoProfile({ bars30m: activeBars, tickSize, symbol, sessionDate: endDate, dailyDates });
+            } else if (level === 'daily') {
+                profile = buildDailyCompositeTpo({ bars30m: activeBars, tickSize, symbol, endDate, dailyDates, lookbackDays: 20 });
+            } else if (level === 'weekly') {
+                profile = buildWeeklyCompositeTpo({ bars30m: activeBars, tickSize, symbol, endDate, dailyDates, lookbackWeeks: 8 });
+            }
+        } else if (type === 'volume') {
+            if (level === '30m') {
+                profile = buildVolumeProfile({ bars1m: activeBars, tickSize, symbol, sessionDate: endDate, dailyDates });
+            } else if (level === 'daily') {
+                profile = buildDailyCompositeVolume({ bars1m: activeBars, tickSize, symbol, endDate, dailyDates, lookbackDays: 20 });
+            } else if (level === 'weekly') {
+                profile = buildWeeklyCompositeVolume({ bars1m: activeBars, tickSize, symbol, endDate, dailyDates, lookbackWeeks: 8 });
+            }
+        }
+        
+        if (profile) {
+            // Enrich metadata
+            if (!profile.meta) profile.meta = {};
+            profile.meta.requestedFrequency = preferredFrequency;
+            profile.meta.actualFrequencyUsed = availability.actualFrequencyUsed;
+            profile.meta.earliestAvailableTime = availability.earliestAvailableTime;
+            profile.meta.latestAvailableTime = availability.latestAvailableTime;
+            profile.meta.profileStartTime = availability.adjustedStartTime;
+            profile.meta.profileEndTime = availability.adjustedEndTime;
+            profile.meta.fallbackUsed = availability.fallbackUsed;
+            if (availability.fallbackReason) {
+                profile.meta.fallbackReason = availability.fallbackReason;
+            }
+            profile.meta.dataQuality = availability.fallbackUsed ? "fallback" : "full";
+            
+            // Count unique trading days covered in the lookback window
+            if (dailyDates) {
+                let lookbackDays = 1;
+                if (level === 'daily') lookbackDays = 20;
+                else if (level === 'weekly') lookbackDays = 40;
+                
+                const endIdx = dailyDates.indexOf(endDate);
+                if (endIdx !== -1) {
+                    const startIdx = Math.max(0, endIdx - lookbackDays + 1);
+                    profile.meta.dataCoverageDays = endIdx - startIdx + 1;
+                }
+            }
+            
+            this.profileCache[cacheKey] = profile;
+        }
+        return profile;
+    }
+
+    drawProfileTooltip(type, row, profile, mouseX, mouseY, w, h) {
+        const ctx = this.ctx;
+        const isDark = this.theme === 'dark';
+        const meta = profile.meta || {};
+        
+        // Calculate dynamic height based on metadata lines
+        let linesCount = type === 'tpo' ? 4 : 5; // Base lines
+        if (meta.actualFrequencyUsed) linesCount++;
+        if (meta.dataCoverageDays) linesCount++;
+        if (meta.profileStartTime && meta.profileEndTime) linesCount++;
+        if (type === 'volume' && meta.fallbackUsed && meta.fallbackReason) linesCount++;
+        
+        const tooltipW = 210;
+        const tooltipH = 38 + linesCount * 16;
+        
+        let tooltipX = mouseX + 15;
+        let tooltipY = mouseY + 15;
+        
+        if (tooltipX + tooltipW > w) tooltipX = mouseX - tooltipW - 15;
+        if (tooltipY + tooltipH > h) tooltipY = mouseY - tooltipH - 15;
+        if (tooltipX < 0) tooltipX = 10;
+        if (tooltipY < 0) tooltipY = 10;
+        
+        ctx.fillStyle = isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)';
+        ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.15)';
+        ctx.lineWidth = 1;
+        
+        ctx.shadowColor = isDark ? 'rgba(0, 0, 0, 0.5)' : 'rgba(0, 0, 0, 0.1)';
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 2;
+        
+        if (ctx.roundRect) {
+            ctx.beginPath();
+            ctx.roundRect(tooltipX, tooltipY, tooltipW, tooltipH, 8);
+            ctx.fill();
+            ctx.stroke();
+        } else {
+            ctx.beginPath();
+            ctx.rect(tooltipX, tooltipY, tooltipW, tooltipH);
+            ctx.fill();
+            ctx.stroke();
+        }
+        
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+        
+        ctx.fillStyle = isDark ? '#f3f4f6' : '#0f172a';
+        ctx.font = 'bold 11px Inter';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        
+        let textY = tooltipY + 10;
+        const lineH = 16;
+        
+        const drawLine = (label, val, color) => {
+            ctx.fillStyle = isDark ? '#9ca3af' : '#475569';
+            ctx.font = '10px Inter';
+            ctx.fillText(label, tooltipX + 10, textY);
+            
+            ctx.fillStyle = color || (isDark ? '#f3f4f6' : '#0f172a');
+            ctx.font = 'bold 10px Inter';
+            const labelW = ctx.measureText(label).width;
+            ctx.fillText(val, tooltipX + 10 + labelW + 5, textY);
+            
+            textY += lineH;
+        };
+        
+        if (type === 'tpo') {
+            ctx.fillText("TPO Profile Details", tooltipX + 10, textY);
+            textY += 18;
+            
+            drawLine("价格:", row.price.toFixed(1));
+            drawLine("TPO 计数:", String(row.value));
+            
+            let areaText = "Outside VA";
+            let areaColor = isDark ? '#9ca3af' : '#475569';
+            if (row.isPoc) {
+                areaText = "POC";
+                areaColor = '#c084fc';
+            } else if (row.isValueArea) {
+                areaText = "Value Area";
+                areaColor = '#818cf8';
+            }
+            drawLine("区域属性:", areaText, areaColor);
+            
+            const dayType = meta.dayType ? meta.dayType : "Normal";
+            drawLine("日内结构:", dayType);
+            
+            // Draw metadata fields
+            if (meta.actualFrequencyUsed) {
+                drawLine("计算频率:", meta.actualFrequencyUsed);
+            }
+            if (meta.dataCoverageDays) {
+                drawLine("覆盖天数:", meta.dataCoverageDays + " 天");
+            }
+            if (meta.profileStartTime && meta.profileEndTime) {
+                const formatTime = (t) => t.length >= 16 ? t.slice(5, 16) : t;
+                drawLine("计算区间:", `${formatTime(meta.profileStartTime)} 至 ${formatTime(meta.profileEndTime)}`);
+            }
+        } else {
+            ctx.fillText("Volume Profile Details", tooltipX + 10, textY);
+            textY += 18;
+            
+            drawLine("价格:", row.price.toFixed(1));
+            drawLine("估算成交:", this.formatVolume(row.value));
+            
+            const totalVol = meta.totalVolume ? meta.totalVolume : 1;
+            const percent = ((row.value / totalVol) * 100).toFixed(2) + "%";
+            drawLine("成交比率:", percent);
+            
+            let areaText = "Outside VA";
+            let areaColor = isDark ? '#9ca3af' : '#475569';
+            if (row.isPoc) {
+                areaText = "VPOC";
+                areaColor = '#60a5fa';
+            } else if (row.isHvn) {
+                areaText = "HVN";
+                areaColor = '#3b82f6';
+            } else if (row.isLvn) {
+                areaText = "LVN";
+                areaColor = '#f43f5e';
+            } else if (row.isValueArea) {
+                areaText = "Value Area";
+                areaColor = '#60a5fa';
+            }
+            drawLine("区域属性:", areaText, areaColor);
+            
+            const qualityText = meta.dataQuality === 'fallback' ? "近似估算 (15m)" : "完整精度";
+            const qualityColor = meta.dataQuality === 'fallback' ? '#f59e0b' : '#10b981';
+            drawLine("数据质量:", qualityText, qualityColor);
+            
+            // Draw metadata fields
+            if (meta.actualFrequencyUsed) {
+                drawLine("计算频率:", meta.actualFrequencyUsed + (meta.fallbackUsed ? " (已降级)" : ""));
+            }
+            if (meta.dataCoverageDays) {
+                drawLine("覆盖天数:", meta.dataCoverageDays + " 天");
+            }
+            if (meta.profileStartTime && meta.profileEndTime) {
+                const formatTime = (t) => t.length >= 16 ? t.slice(5, 16) : t;
+                drawLine("计算区间:", `${formatTime(meta.profileStartTime)} 至 ${formatTime(meta.profileEndTime)}`);
+            }
+            if (meta.fallbackUsed && meta.fallbackReason) {
+                drawLine("降级原因:", "1m数据覆盖不足");
+            }
+        }
     }
 
     setChartType(type) {
@@ -545,6 +846,35 @@ class FuturesChart {
         minPrice -= priceRange * 0.05;
         if (minPrice < 0) minPrice = 0;
 
+        // Calculate TPO and Volume Profiles if requested
+        const lastVisibleBar = visibleData[visibleData.length - 1];
+        let tpoProfile = null;
+        let tpoStep = 0;
+        let endDate = null;
+        if (this.tpoLevel !== 'none' && lastVisibleBar) {
+            endDate = lastVisibleBar.date || (lastVisibleBar.datetime ? getTradingDate(lastVisibleBar.datetime, this.dailyDates) : null);
+            if (endDate) {
+                tpoProfile = this.getProfileData('tpo', this.tpoLevel, endDate);
+                if (tpoProfile && tpoProfile.rows && tpoProfile.rows.length > 1) {
+                    tpoStep = tpoProfile.rows[1].price - tpoProfile.rows[0].price;
+                }
+            }
+        }
+
+        let vpProfile = null;
+        let vpStep = 0;
+        if (this.vpLevel !== 'none' && lastVisibleBar) {
+            if (!endDate) {
+                endDate = lastVisibleBar.date || (lastVisibleBar.datetime ? getTradingDate(lastVisibleBar.datetime, this.dailyDates) : null);
+            }
+            if (endDate) {
+                vpProfile = this.getProfileData('volume', this.vpLevel, endDate);
+                if (vpProfile && vpProfile.rows && vpProfile.rows.length > 1) {
+                    vpStep = vpProfile.rows[1].price - vpProfile.rows[0].price;
+                }
+            }
+        }
+
         // Draw grids & borders
         ctx.strokeStyle = colorGrid;
         ctx.lineWidth = 1;
@@ -596,6 +926,45 @@ class FuturesChart {
             if (maxVol === 0) return volumeTop + volumeHeight;
             return volumeTop + volumeHeight * (1 - vol / maxVol);
         };
+
+        const maxProfileWidth = chartWidth * 0.3;
+
+        // Draw TPO Profile Histogram under K-lines
+        if (tpoProfile && tpoProfile.rows && tpoProfile.rows.length > 0) {
+            const vaFillStyle = isDark ? 'rgba(139, 92, 246, 0.32)' : 'rgba(139, 92, 246, 0.22)';
+            const nonVaFillStyle = isDark ? 'rgba(139, 92, 246, 0.12)' : 'rgba(139, 92, 246, 0.08)';
+            
+            tpoProfile.rows.forEach(row => {
+                const yBottom = getPriceY(row.price - tpoStep / 2);
+                const yTop = getPriceY(row.price + tpoStep / 2);
+                const barHeight = Math.max(1, yBottom - yTop);
+                
+                if (yTop >= this.paddingTop - barHeight && yBottom <= this.paddingTop + priceHeight + barHeight) {
+                    const barWidth = row.normalizedValue * maxProfileWidth;
+                    ctx.fillStyle = row.isValueArea ? vaFillStyle : nonVaFillStyle;
+                    ctx.fillRect(this.paddingLeft, yTop, barWidth, barHeight);
+                }
+            });
+        }
+
+        // Draw Volume Profile Histogram under K-lines
+        if (vpProfile && vpProfile.rows && vpProfile.rows.length > 0) {
+            const vaFillStyle = isDark ? 'rgba(59, 130, 246, 0.32)' : 'rgba(59, 130, 246, 0.22)';
+            const nonVaFillStyle = isDark ? 'rgba(59, 130, 246, 0.12)' : 'rgba(59, 130, 246, 0.08)';
+            
+            vpProfile.rows.forEach(row => {
+                const yBottom = getPriceY(row.price - vpStep / 2);
+                const yTop = getPriceY(row.price + vpStep / 2);
+                const barHeight = Math.max(1, yBottom - yTop);
+                
+                if (yTop >= this.paddingTop - barHeight && yBottom <= this.paddingTop + priceHeight + barHeight) {
+                    const barWidth = row.normalizedValue * maxProfileWidth;
+                    ctx.fillStyle = row.isValueArea ? vaFillStyle : nonVaFillStyle;
+                    const xStart = w - this.paddingRight - barWidth;
+                    ctx.fillRect(xStart, yTop, barWidth, barHeight);
+                }
+            });
+        }
 
         // 1. Draw Candlesticks or Close Price line
         if (this.chartType === 'candle') {
@@ -715,6 +1084,160 @@ class FuturesChart {
             if (this.indicators.ma20) drawMA('ma20', '#3b82f6'); // Blue
         }
 
+        // Draw TPO Reference levels on top of K-lines
+        if (tpoProfile && tpoProfile.rows && tpoProfile.rows.length > 0) {
+            // TPO POC
+            const yPoc = getPriceY(tpoProfile.poc);
+            if (yPoc >= this.paddingTop && yPoc <= this.paddingTop + priceHeight) {
+                ctx.strokeStyle = '#c084fc';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(this.paddingLeft, yPoc);
+                ctx.lineTo(w - this.paddingRight, yPoc);
+                ctx.stroke();
+                
+                ctx.fillStyle = '#c084fc';
+                ctx.font = 'bold 9px Inter';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(`TPO POC: ${tpoProfile.poc.toFixed(1)}`, this.paddingLeft + 5, yPoc - 2);
+            }
+            
+            // TPO VAH & VAL
+            ctx.strokeStyle = 'rgba(192, 132, 252, 0.5)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([4, 4]);
+            
+            const yVah = getPriceY(tpoProfile.vah);
+            if (yVah >= this.paddingTop && yVah <= this.paddingTop + priceHeight) {
+                ctx.beginPath();
+                ctx.moveTo(this.paddingLeft, yVah);
+                ctx.lineTo(w - this.paddingRight, yVah);
+                ctx.stroke();
+                
+                ctx.fillStyle = 'rgba(192, 132, 252, 0.8)';
+                ctx.font = '9px Inter';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(`TPO VAH: ${tpoProfile.vah.toFixed(1)}`, this.paddingLeft + 5, yVah - 2);
+            }
+            
+            const yVal = getPriceY(tpoProfile.val);
+            if (yVal >= this.paddingTop && yVal <= this.paddingTop + priceHeight) {
+                ctx.beginPath();
+                ctx.moveTo(this.paddingLeft, yVal);
+                ctx.lineTo(w - this.paddingRight, yVal);
+                ctx.stroke();
+                
+                ctx.fillStyle = 'rgba(192, 132, 252, 0.8)';
+                ctx.font = '9px Inter';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(`TPO VAL: ${tpoProfile.val.toFixed(1)}`, this.paddingLeft + 5, yVal - 2);
+            }
+            ctx.setLineDash([]);
+        }
+
+        // Draw Volume Profile Reference levels on top of K-lines
+        if (vpProfile && vpProfile.rows && vpProfile.rows.length > 0) {
+            // VP POC
+            const yPoc = getPriceY(vpProfile.poc);
+            if (yPoc >= this.paddingTop && yPoc <= this.paddingTop + priceHeight) {
+                ctx.strokeStyle = '#60a5fa';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(this.paddingLeft, yPoc);
+                ctx.lineTo(w - this.paddingRight, yPoc);
+                ctx.stroke();
+                
+                ctx.fillStyle = '#60a5fa';
+                ctx.font = 'bold 9px Inter';
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(`VP POC: ${vpProfile.poc.toFixed(1)}`, w - this.paddingRight - 5, yPoc - 2);
+            }
+            
+            // VP VAH & VAL
+            ctx.strokeStyle = 'rgba(96, 165, 250, 0.5)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([4, 4]);
+            
+            const yVah = getPriceY(vpProfile.vah);
+            if (yVah >= this.paddingTop && yVah <= this.paddingTop + priceHeight) {
+                ctx.beginPath();
+                ctx.moveTo(this.paddingLeft, yVah);
+                ctx.lineTo(w - this.paddingRight, yVah);
+                ctx.stroke();
+                
+                ctx.fillStyle = 'rgba(96, 165, 250, 0.8)';
+                ctx.font = '9px Inter';
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(`VP VAH: ${vpProfile.vah.toFixed(1)}`, w - this.paddingRight - 5, yVah - 2);
+            }
+            
+            const yVal = getPriceY(vpProfile.val);
+            if (yVal >= this.paddingTop && yVal <= this.paddingTop + priceHeight) {
+                ctx.beginPath();
+                ctx.moveTo(this.paddingLeft, yVal);
+                ctx.lineTo(w - this.paddingRight, yVal);
+                ctx.stroke();
+                
+                ctx.fillStyle = 'rgba(96, 165, 250, 0.8)';
+                ctx.font = '9px Inter';
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(`VP VAL: ${vpProfile.val.toFixed(1)}`, w - this.paddingRight - 5, yVal - 2);
+            }
+            ctx.setLineDash([]);
+
+            // Draw HVN & LVN lines
+            const vpMaxProfileWidth = chartWidth * 0.3;
+            const xStart = w - this.paddingRight - vpMaxProfileWidth;
+            
+            if (vpProfile.meta && vpProfile.meta.hvnList) {
+                ctx.strokeStyle = 'rgba(96, 165, 250, 0.4)';
+                ctx.lineWidth = 1;
+                vpProfile.meta.hvnList.forEach(hvn => {
+                    const y = getPriceY(hvn);
+                    if (y >= this.paddingTop && y <= this.paddingTop + priceHeight) {
+                        ctx.beginPath();
+                        ctx.moveTo(xStart, y);
+                        ctx.lineTo(w - this.paddingRight, y);
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = 'rgba(96, 165, 250, 0.6)';
+                        ctx.font = '8px Inter';
+                        ctx.textAlign = 'right';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(`HVN`, w - this.paddingRight - 5, y);
+                    }
+                });
+            }
+            
+            if (vpProfile.meta && vpProfile.meta.lvnList) {
+                ctx.strokeStyle = 'rgba(244, 63, 94, 0.35)';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([2, 2]);
+                vpProfile.meta.lvnList.forEach(lvn => {
+                    const y = getPriceY(lvn);
+                    if (y >= this.paddingTop && y <= this.paddingTop + priceHeight) {
+                        ctx.beginPath();
+                        ctx.moveTo(xStart, y);
+                        ctx.lineTo(w - this.paddingRight, y);
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = 'rgba(244, 63, 94, 0.6)';
+                        ctx.font = '8px Inter';
+                        ctx.textAlign = 'right';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(`LVN`, w - this.paddingRight - 5, y);
+                    }
+                });
+                ctx.setLineDash([]);
+            }
+        }
+
         // 4. X-Axis Date Labels (draw about 5 labels depending on count)
         const labelInterval = Math.ceil(count / 5);
         ctx.fillStyle = colorText;
@@ -802,6 +1325,44 @@ class FuturesChart {
             const pctText = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
             drawLabelVal('幅:', pctText, priceColor);
             drawLabelVal('量:', this.formatVolume(d.volume), colorTextBright);
+        }
+
+        // Draw watermarks for insufficient data
+        if (this.tpoLevel !== 'none' && (!tpoProfile || !tpoProfile.rows || tpoProfile.rows.length === 0 || tpoProfile.meta.dataQuality === "insufficient")) {
+            ctx.fillStyle = isDark ? 'rgba(239, 68, 68, 0.55)' : 'rgba(220, 38, 38, 0.7)';
+            ctx.font = '11px Inter';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            ctx.fillText("该区间缺少分钟级数据，无法构建对应 Profile", this.paddingLeft + 15, this.paddingTop + 40);
+        }
+        
+        if (this.vpLevel !== 'none' && (!vpProfile || !vpProfile.rows || vpProfile.rows.length === 0 || vpProfile.meta.dataQuality === "insufficient")) {
+            ctx.fillStyle = isDark ? 'rgba(239, 68, 68, 0.55)' : 'rgba(220, 38, 38, 0.7)';
+            ctx.font = '11px Inter';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'top';
+            ctx.fillText("该区间缺少分钟级数据，无法构建对应 Profile", w - this.paddingRight - 15, this.paddingTop + 40);
+        }
+
+        // Draw profile tooltips if mouse is hovering on profiles
+        if (this.mouseX >= this.paddingLeft && this.mouseX <= w - this.paddingRight &&
+            this.mouseY >= this.paddingTop && this.mouseY <= this.paddingTop + priceHeight) {
+            
+            const hoverPrice = maxPrice - ((maxPrice - minPrice) * ((this.mouseY - this.paddingTop) / priceHeight));
+            
+            if (tpoProfile && tpoProfile.rows && tpoProfile.rows.length > 0 && 
+                this.mouseX >= this.paddingLeft && this.mouseX <= this.paddingLeft + maxProfileWidth) {
+                const row = tpoProfile.rows.find(r => Math.abs(r.price - hoverPrice) <= tpoStep / 2);
+                if (row) {
+                    this.drawProfileTooltip('tpo', row, tpoProfile, this.mouseX, this.mouseY, w, h);
+                }
+            } else if (vpProfile && vpProfile.rows && vpProfile.rows.length > 0 && 
+                       this.mouseX >= w - this.paddingRight - maxProfileWidth && this.mouseX <= w - this.paddingRight) {
+                const row = vpProfile.rows.find(r => Math.abs(r.price - hoverPrice) <= vpStep / 2);
+                if (row) {
+                    this.drawProfileTooltip('volume', row, vpProfile, this.mouseX, this.mouseY, w, h);
+                }
+            }
         }
 
         // Update custom scrollbar handle position

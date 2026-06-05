@@ -93,6 +93,22 @@
                                     <button class="btn-tab" data-type="line">分时</button>
                                 </div>
                                 
+                                <!-- TPO Profile Toggle (collapsible) -->
+                                <div class="period-group" id="chartTpoGroup">
+                                    <button class="btn-tab tpo-btn" data-tpo="30m">30m TPO</button>
+                                    <button class="btn-tab tpo-btn" data-tpo="daily">日 TPO</button>
+                                    <button class="btn-tab tpo-btn" data-tpo="weekly">周 TPO</button>
+                                    <button class="btn-tab period-toggle-btn" id="tpoToggle">»</button>
+                                </div>
+                                
+                                <!-- Volume Profile Toggle (collapsible) -->
+                                <div class="period-group" id="chartVpGroup">
+                                    <button class="btn-tab vp-btn" data-vp="30m">30m VP</button>
+                                    <button class="btn-tab vp-btn" data-vp="daily">日 VP</button>
+                                    <button class="btn-tab vp-btn" data-vp="weekly">周 VP</button>
+                                    <button class="btn-tab period-toggle-btn" id="vpToggle">»</button>
+                                </div>
+                                
                                 <!-- Indicators Toggles (collapsible) -->
                                 <div class="indicator-group" id="indicatorGroup">
                                     <button class="btn-tab indicator-always active" id="indicatorMA5" title="5日均线">MA5</button>
@@ -306,6 +322,7 @@
     </div>
 
     <!-- Script Entrypoint -->
+    <script src="./profile.js?v=7"></script>
     <script src="./chart.js?v=7"></script>
     <script src="./app.js?v=7"></script>
     <script>
