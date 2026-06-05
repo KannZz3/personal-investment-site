@@ -218,13 +218,28 @@ def find_main_contract(ak, pd, code, realtime_name):
     return None, 0, 0.0
 
 
-def fetch_daily(ak, pd, symbol, n=120):
-    """Fetch n-day daily K-line bars."""
-    df = ak.futures_zh_daily_sina(symbol=symbol)
+def fetch_daily(ak, pd, code, start_date):
+    """
+    Fetch full daily K-line via continuous main contract (futures_main_sina).
+    Uses the same API call as the OI screener so data is consistent.
+    """
+    sym = f"{code}0"
+    df = ak.futures_main_sina(symbol=sym, start_date=start_date)
     if df is None or df.empty:
-        raise ValueError(f"Empty daily data: {symbol}")
-    df['date'] = pd.to_datetime(df['date'])
-    df = df.sort_values('date').tail(n)
+        raise ValueError(f"Empty daily data: {sym}")
+    df.columns = HIST_COLS[:len(df.columns)]
+    df['date']   = pd.to_datetime(df['date'])
+    df['open']   = pd.to_numeric(df['open'],   errors='coerce')
+    df['high']   = pd.to_numeric(df['high'],   errors='coerce')
+    df['low']    = pd.to_numeric(df['low'],    errors='coerce')
+    df['close']  = pd.to_numeric(df['close'],  errors='coerce')
+    df['volume'] = pd.to_numeric(df['volume'], errors='coerce').fillna(0).astype(int)
+    df['hold']   = pd.to_numeric(df['hold'],   errors='coerce').fillna(0)
+    # Convert pre-2020 bilateral hold to unilateral (consistent with OI screener)
+    def _to_unilateral(row):
+        return row['hold'] / 2.0 if str(row['date']) < '2020-01-02' else row['hold']
+    df['hold'] = df.apply(_to_unilateral, axis=1)
+    df = df.sort_values('date').dropna(subset=['open', 'close'])
     out = []
     for _, row in df.iterrows():
         out.append({
@@ -234,13 +249,13 @@ def fetch_daily(ak, pd, symbol, n=120):
             'low':    float(row['low']),
             'close':  float(row['close']),
             'volume': int(row['volume']),
-            'hold':   int(row['hold']) if ('hold' in row.index and not pd.isna(row['hold'])) else 0,
+            'hold':   int(row['hold']),
         })
     return out
 
 
 def fetch_minute(ak, pd, symbol, period='15', n=40):
-    """Fetch 15-min intraday K-line bars."""
+    """Fetch intraday K-line bars for given period ('15'/'30'/'60')."""
     try:
         df = ak.futures_zh_minute_sina(symbol=symbol, period=period)
         if df is None or df.empty:
@@ -332,22 +347,19 @@ def sync_futures():
             main_oi     = screen_curr
             main_price  = 0.0
 
-        # Daily K-line
+        # Daily K-line via continuous main contract (full 10-year history)
         try:
-            daily = fetch_daily(ak, pd, kline_sym)
+            daily = fetch_daily(ak, pd, code, start_date)
             print(f"      Daily: {len(daily)} bars")
         except Exception as e:
-            print(f"      Daily FAILED ({e}), fallback to {code}0")
-            try:
-                kline_sym = f"{code}0"
-                daily = fetch_daily(ak, pd, kline_sym)
-                print(f"      Daily (fallback): {len(daily)} bars")
-            except Exception:
-                daily = []
+            print(f"      Daily FAILED ({e})")
+            daily = []
 
-        # 15-min intraday
-        min15 = fetch_minute(ak, pd, kline_sym)
-        print(f"      15-min: {len(min15)} bars")
+        # Intraday K-lines: 15M (40 bars ~2 days), 30M (80 bars ~10 days), 60M (60 bars ~15 days)
+        min15 = fetch_minute(ak, pd, kline_sym, period='15', n=40)
+        min30 = fetch_minute(ak, pd, kline_sym, period='30', n=80)
+        min60 = fetch_minute(ak, pd, kline_sym, period='60', n=60)
+        print(f"      15-min: {len(min15)} bars | 30-min: {len(min30)} bars | 60-min: {len(min60)} bars")
 
         # Build metadata
         oi_screen = screening.get(code, {})
@@ -373,7 +385,7 @@ def sync_futures():
             },
         }
 
-        data_out[code] = {'daily': daily, 'min15': min15}
+        data_out[code] = {'daily': daily, 'min15': min15, 'min30': min30, 'min60': min60}
 
     # ──────────────────────────────────────────────────────────
     # OUTPUT JSON

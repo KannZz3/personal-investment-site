@@ -14,8 +14,8 @@ class FuturesChart {
         this.chartType = 'candle'; // 'candle' or 'line' (分时/Tick)
         this.indicators = {
             ma5: true,
-            ma10: true,
-            ma20: true,
+            ma10: false,
+            ma20: false,
             volume: true
         };
         

@@ -79,8 +79,11 @@
                                 <!-- Period Toggle -->
                                 <div class="btn-group" id="chartPeriodToolbar">
                                     <button class="btn-tab" data-period="15M">15M</button>
+                                    <button class="btn-tab" data-period="30M">30M</button>
+                                    <button class="btn-tab" data-period="60M">1H</button>
                                     <button class="btn-tab active" data-period="D">日K</button>
                                     <button class="btn-tab" data-period="W">周K</button>
+                                    <button class="btn-tab" data-period="Month">月K</button>
                                 </div>
                                 
                                 <!-- Chart Type Toggle -->
@@ -89,12 +92,13 @@
                                     <button class="btn-tab" data-type="line">分时</button>
                                 </div>
                                 
-                                <!-- Indicators Toggles -->
-                                <div class="btn-group">
-                                    <button class="btn-tab active" id="indicatorMA5" title="5日均线">MA5</button>
-                                    <button class="btn-tab active" id="indicatorMA10" title="10日均线">MA10</button>
-                                    <button class="btn-tab active" id="indicatorMA20" title="20日均线">MA20</button>
-                                    <button class="btn-tab active" id="indicatorVolume" title="成交量副图">VOL</button>
+                                <!-- Indicators Toggles (collapsible) -->
+                                <div class="indicator-group" id="indicatorGroup">
+                                    <button class="btn-tab indicator-always active" id="indicatorMA5" title="5日均线">MA5</button>
+                                    <button class="btn-tab indicator-extra" id="indicatorMA10" title="10日均线">MA10</button>
+                                    <button class="btn-tab indicator-extra" id="indicatorMA20" title="20日均线">MA20</button>
+                                    <button class="btn-tab indicator-always active" id="indicatorVolume" title="成交量副图">VOL</button>
+                                    <button class="btn-tab indicator-toggle-btn" id="indicatorToggle" title="展开/收起均线">»</button>
                                 </div>
                             </div>
                         </div>

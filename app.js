@@ -18,7 +18,7 @@ const state = {
         'TA': { name: 'PTA主力',    symbol: 'TA',  exchange: 'CZCE', basePrice: 6180,  multiplier: 5,    marginRate: 0.08, unit: '吨' }
     },
     activeContract: 'CU',
-    chartPeriod: 'D', // 'D' (日K), 'W' (周K), '15M' (15分钟)
+    chartPeriod: 'D', // 'D' (日K), 'W' (周K), 'Month' (月K), '15M', '30M', '60M'
     isDataReal: false,
     futuresData: {}, // Holds real or simulated data for each base commodity code
     realDataLoadError: false
@@ -528,23 +528,38 @@ function initializeChartComponent() {
         });
     });
 
-    // Handle indicators toggles
-    const ma5Btn = document.getElementById('indicatorMA5');
+    // Handle indicator toggles with collapsible panel
+    const indicatorGroup  = document.getElementById('indicatorGroup');
+    const indicatorToggle = document.getElementById('indicatorToggle');
+    const ma5Btn  = document.getElementById('indicatorMA5');
     const ma10Btn = document.getElementById('indicatorMA10');
     const ma20Btn = document.getElementById('indicatorMA20');
-    const volBtn = document.getElementById('indicatorVolume');
+    const volBtn  = document.getElementById('indicatorVolume');
 
-    const handleIndicatorToggle = (btn, indicator) => {
+    let indicatorExpanded = false;
+
+    // Helper: wire an indicator button to the chart
+    const wireIndicator = (btn, indicator) => {
+        if (!btn) return;
         btn.addEventListener('click', () => {
             btn.classList.toggle('active');
             window.activeChart.toggleIndicator(indicator);
         });
     };
 
-    if (ma5Btn) handleIndicatorToggle(ma5Btn, 'ma5');
-    if (ma10Btn) handleIndicatorToggle(ma10Btn, 'ma10');
-    if (ma20Btn) handleIndicatorToggle(ma20Btn, 'ma20');
-    if (volBtn) handleIndicatorToggle(volBtn, 'volume');
+    wireIndicator(ma5Btn, 'ma5');
+    wireIndicator(ma10Btn, 'ma10');
+    wireIndicator(ma20Btn, 'ma20');
+    wireIndicator(volBtn, 'volume');
+
+    // Expand / collapse the extra indicators (MA10, MA20)
+    if (indicatorToggle && indicatorGroup) {
+        indicatorToggle.addEventListener('click', () => {
+            indicatorExpanded = !indicatorExpanded;
+            indicatorGroup.classList.toggle('expanded', indicatorExpanded);
+            indicatorToggle.textContent = indicatorExpanded ? '\u00ab' : '\u00bb';
+        });
+    }
 
     // Populate initial data to chart
     updateChartData();
@@ -564,9 +579,15 @@ function updateChartData() {
     if (state.chartPeriod === 'D') {
         dataset = dataContainer.daily;
     } else if (state.chartPeriod === '15M') {
-        dataset = dataContainer.min15;
+        dataset = dataContainer.min15 || [];
+    } else if (state.chartPeriod === '30M') {
+        dataset = dataContainer.min30 || [];
+    } else if (state.chartPeriod === '60M') {
+        dataset = dataContainer.min60 || [];
     } else if (state.chartPeriod === 'W') {
         dataset = compressToWeekly(dataContainer.daily);
+    } else if (state.chartPeriod === 'Month') {
+        dataset = compressToMonthly(dataContainer.daily);
     }
     
     // Display actual contract symbol (from metadata, e.g. CU2609) or base code
@@ -635,6 +656,56 @@ function getWeekNumber(d) {
     var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
     var weekNo = Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
     return d.getUTCFullYear() + '-' + weekNo;
+}
+
+// Compress Daily datasets to Monthly aggregates
+function compressToMonthly(dailyData) {
+    if (!dailyData || !dailyData.length) return [];
+
+    const monthly = [];
+    let currentMonth = [];
+    let prevMonthKey = null;
+
+    dailyData.forEach((day, index) => {
+        const dateObj = new Date(day.date);
+        const monthKey = `${dateObj.getFullYear()}-${dateObj.getMonth()}`;
+        const isLastItem = index === dailyData.length - 1;
+
+        if (prevMonthKey !== null && monthKey !== prevMonthKey && currentMonth.length > 0) {
+            // Wrap up previous month
+            const mOpen  = currentMonth[0].open;
+            const mClose = currentMonth[currentMonth.length - 1].close;
+            const mHigh  = Math.max(...currentMonth.map(d => d.high));
+            const mLow   = Math.min(...currentMonth.map(d => d.low));
+            const mVol   = currentMonth.reduce((s, d) => s + d.volume, 0);
+            const mHold  = currentMonth[currentMonth.length - 1].hold;
+            monthly.push({
+                date:   currentMonth[currentMonth.length - 1].date,
+                open:   mOpen, high: mHigh, low: mLow, close: mClose,
+                volume: mVol,  hold: mHold
+            });
+            currentMonth = [];
+        }
+
+        currentMonth.push(day);
+        prevMonthKey = monthKey;
+
+        if (isLastItem && currentMonth.length > 0) {
+            const mOpen  = currentMonth[0].open;
+            const mClose = currentMonth[currentMonth.length - 1].close;
+            const mHigh  = Math.max(...currentMonth.map(d => d.high));
+            const mLow   = Math.min(...currentMonth.map(d => d.low));
+            const mVol   = currentMonth.reduce((s, d) => s + d.volume, 0);
+            const mHold  = currentMonth[currentMonth.length - 1].hold;
+            monthly.push({
+                date:   currentMonth[currentMonth.length - 1].date,
+                open:   mOpen, high: mHigh, low: mLow, close: mClose,
+                volume: mVol,  hold: mHold
+            });
+        }
+    });
+
+    return monthly;
 }
 
 // Update Analysis and Stats Sidebar Panels

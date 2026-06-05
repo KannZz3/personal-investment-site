@@ -484,6 +484,54 @@ main {
     font-weight: 600;
 }
 
+/* Collapsible Indicator Group */
+.indicator-group {
+    display: flex;
+    background: var(--bg-app);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 2px;
+    overflow: hidden;
+    align-items: center;
+}
+
+.indicator-group .indicator-extra {
+    display: none;
+    max-width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: max-width 0.18s ease, opacity 0.18s ease, padding 0.18s ease;
+}
+
+.indicator-group.expanded .indicator-extra {
+    display: block;
+    max-width: 70px;
+    padding: 0.35rem 0.85rem;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.indicator-toggle-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    padding: 0.35rem 0.6rem;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    letter-spacing: -1px;
+    transition: color var(--transition-fast), background var(--transition-fast);
+    flex-shrink: 0;
+}
+
+.indicator-toggle-btn:hover {
+    color: var(--primary);
+    background: var(--bg-surface);
+}
+
 .chart-canvas-wrapper {
     flex: 1;
     position: relative;
