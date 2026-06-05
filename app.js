@@ -171,8 +171,8 @@ const articles = [
     {
         id: 4,
         title: "纸浆交割标准品企业极限完税成本测算分析",
-        category: "cost",
-        categoryName: "商品成本",
+        category: "shfe",
+        categoryName: "上期所",
         date: "2026-06-06",
         readTime: "5 分钟",
         excerpt: "基于国内主流进口针叶浆及阔叶浆的企业进口通关数据，详尽构建纸浆主力合约标准交割品完税极限下的到货成本测算模型，评估期货主力合约当前定价的相对估值水位。",
@@ -198,8 +198,8 @@ const articles = [
     {
         id: 5,
         title: "天然橡胶交割标准品企业极限完税成本测算分析",
-        category: "cost",
-        categoryName: "商品成本",
+        category: "shfe",
+        categoryName: "上期所",
         date: "2026-06-06",
         readTime: "5 分钟",
         excerpt: "从海南、云南国产全乳胶与进口复合胶、混合胶关税结构出发，测算天然橡胶（RU）主力合约交割标准品在企业极限完税状态下的到货成本模型。",
