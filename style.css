@@ -553,15 +553,6 @@ main {
     transition: max-width 0.18s ease, opacity 0.18s ease, padding 0.18s ease;
 }
 
-/* If the extra period is active, keep it visible even when collapsed */
-.period-group .period-extra.active {
-    display: block;
-    max-width: 70px;
-    padding: 0.35rem 0.85rem;
-    opacity: 1;
-    pointer-events: auto;
-}
-
 .period-group.expanded .period-extra {
     display: block;
     max-width: 70px;
