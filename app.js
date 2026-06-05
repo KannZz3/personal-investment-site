@@ -334,8 +334,8 @@ function generateMockData() {
         let price = contract.basePrice;
         const volatility = baseCode === 'AU' ? 0.006 : baseCode === 'CU' ? 0.009 : 0.012; // Gold has lower vol than rebar/sugar
         
-        // Generate 120 historical days
-        for (let i = 120; i >= 0; i--) {
+        // Generate 2400 historical days (~10 years)
+        for (let i = 2400; i >= 0; i--) {
             const date = new Date(today);
             date.setDate(today.getDate() - i);
             
@@ -353,7 +353,7 @@ function generateMockData() {
             const low = Math.min(oldPrice, price) * (1 - Math.random() * volatility * 0.5);
             
             // Base contract volumes
-            const baseVol = symbol.startsWith('AU') ? 80000 : symbol.startsWith('CU') ? 150000 : 800000;
+            const baseVol = baseCode.startsWith('AU') ? 80000 : baseCode.startsWith('CU') ? 150000 : 800000;
             const volume = Math.round(baseVol * (0.6 + Math.random() * 0.8));
             const hold = Math.round(baseVol * 1.5 + (Math.random() - 0.5) * baseVol * 0.2);
 
@@ -370,19 +370,20 @@ function generateMockData() {
         
         state.futuresData[baseCode] = {
             daily: dataList,
-            // 15 Minutes (generate 40 bars for intraday)
-            min15: generateMinuteData(price, volatility * 0.4, 40)
+            min15: generateMinuteData(price, volatility * 0.4, 1000, 15),
+            min30: generateMinuteData(price, volatility * 0.45, 1000, 30),
+            min60: generateMinuteData(price, volatility * 0.5, 1000, 60)
         };
     });
 }
 
-function generateMinuteData(basePrice, volatility, numBars) {
+function generateMinuteData(basePrice, volatility, numBars, intervalMinutes) {
     const dataList = [];
     let price = basePrice;
     const now = new Date();
     
     for (let i = numBars; i >= 0; i--) {
-        const time = new Date(now.getTime() - i * 15 * 60 * 1000);
+        const time = new Date(now.getTime() - i * intervalMinutes * 60 * 1000);
         const pad = (n) => String(n).padStart(2, '0');
         const timeStr = `${time.getFullYear()}-${pad(time.getMonth()+1)}-${pad(time.getDate())} ${pad(time.getHours())}:${pad(time.getMinutes())}:00`;
         
@@ -719,13 +720,19 @@ function updateSidebarWidget() {
     
     const last = dataList[dataList.length - 1];
     
-    // 1. Basic Stats updates
-    document.getElementById('statClosePrice').textContent = last.close.toFixed(1);
-    document.getElementById('statVolume').textContent = window.activeChart.formatVolume(last.volume);
-    document.getElementById('statHold').textContent = window.activeChart.formatVolume(last.hold);
+    // 1. Basic Stats updates (check if elements exist)
+    const statClosePrice = document.getElementById('statClosePrice');
+    if (statClosePrice) statClosePrice.textContent = last.close.toFixed(1);
+    
+    const statVolume = document.getElementById('statVolume');
+    if (statVolume) statVolume.textContent = window.activeChart.formatVolume(last.volume);
+    
+    const statHold = document.getElementById('statHold');
+    if (statHold) statHold.textContent = window.activeChart.formatVolume(last.hold);
     
     const marginHand = last.close * contract.multiplier * contract.marginRate;
-    document.getElementById('statMarginValue').textContent = `¥${marginHand.toFixed(0)}`;
+    const statMarginValue = document.getElementById('statMarginValue');
+    if (statMarginValue) statMarginValue.textContent = `¥${marginHand.toFixed(0)}`;
     
     // 2. Mock term structure (basis curves)
     const structureBarContainer = document.getElementById('termStructureGraph');
@@ -757,29 +764,34 @@ function updateSidebarWidget() {
             structureBarContainer.appendChild(col);
         });
         
-        document.getElementById('termStructureStatus').textContent = isBack ? '期限结构：贴水 (Backwardation) 远月贴水' : '期限结构：升水 (Contango) 远月升水';
-        document.getElementById('termStructureStatus').className = isBack ? 'stats-value price-up' : 'stats-value price-down';
+        const termStatus = document.getElementById('termStructureStatus');
+        if (termStatus) {
+            termStatus.textContent = isBack ? '期限结构：贴水 (Backwardation) 远月贴水' : '期限结构：升水 (Contango) 远月升水';
+            termStatus.className = isBack ? 'stats-value price-up' : 'stats-value price-down';
+        }
     }
     
     // 3. CTA Technical Signals computations (moving averages based)
     const signalBadge = document.getElementById('statCtaSignal');
-    const ma5 = last.ma5;
-    const ma20 = last.ma20;
-    
-    if (ma5 && ma20) {
-        if (last.close > ma5 && ma5 > ma20) {
-            signalBadge.textContent = '看多 (Bullish)';
-            signalBadge.className = 'signal-badge signal-buy';
-        } else if (last.close < ma5 && ma5 < ma20) {
-            signalBadge.textContent = '看空 (Bearish)';
-            signalBadge.className = 'signal-badge signal-sell';
+    if (signalBadge) {
+        const ma5 = last.ma5;
+        const ma20 = last.ma20;
+        
+        if (ma5 && ma20) {
+            if (last.close > ma5 && ma5 > ma20) {
+                signalBadge.textContent = '看多 (Bullish)';
+                signalBadge.className = 'signal-badge signal-buy';
+            } else if (last.close < ma5 && ma5 < ma20) {
+                signalBadge.textContent = '看空 (Bearish)';
+                signalBadge.className = 'signal-badge signal-sell';
+            } else {
+                signalBadge.textContent = '中性 (Neutral)';
+                signalBadge.className = 'signal-badge signal-neutral';
+            }
         } else {
-            signalBadge.textContent = '中性 (Neutral)';
+            signalBadge.textContent = '计算中';
             signalBadge.className = 'signal-badge signal-neutral';
         }
-    } else {
-        signalBadge.textContent = '计算中';
-        signalBadge.className = 'signal-badge signal-neutral';
     }
 }
 
@@ -877,7 +889,9 @@ function startStatsSimulation() {
         if (!daily || !daily.length) return;
         const last = daily[daily.length - 1];
         last.hold += Math.round((Math.random() - 0.5) * 100);
-        document.getElementById('statHold').textContent = window.activeChart.formatVolume(last.hold);
+        
+        const statHold = document.getElementById('statHold');
+        if (statHold) statHold.textContent = window.activeChart.formatVolume(last.hold);
     }, 5000);
 }
 

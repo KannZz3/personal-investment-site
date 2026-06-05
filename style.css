@@ -309,7 +309,7 @@ main {
 /* Grid Layout */
 .dashboard-grid {
     display: grid;
-    grid-template-columns: 1fr 320px;
+    grid-template-columns: 1fr;
     gap: 1.5rem;
     margin-top: 1.5rem;
 }
@@ -1885,4 +1885,71 @@ footer {
     background: var(--primary);
     color: #fff;
     border-color: var(--primary);
+}
+
+/* ==========================================================================
+   CHART NAVIGATION & CUSTOM SCROLLBAR
+   ========================================================================== */
+.chart-navigation-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding: 0.25rem 0;
+    user-select: none;
+}
+
+.scrollbar-container {
+    flex-grow: 1;
+    position: relative;
+    height: 12px;
+}
+
+.scrollbar-track {
+    background: var(--bg-app);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    height: 100%;
+    position: relative;
+    cursor: pointer;
+}
+
+.scrollbar-handle {
+    background: var(--text-muted);
+    border-radius: 6px;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    width: 30%;
+    cursor: grab;
+    transition: background-color var(--transition-fast);
+}
+
+.scrollbar-handle:hover {
+    background: var(--primary);
+}
+
+.scrollbar-handle:active {
+    cursor: grabbing;
+    background: var(--primary-hover);
+}
+
+.nav-btn {
+    background: var(--bg-app);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.nav-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--text-muted);
+    background-color: var(--bg-surface-hover);
 }

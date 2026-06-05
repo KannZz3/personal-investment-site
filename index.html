@@ -107,57 +107,18 @@
                         <div class="chart-canvas-wrapper">
                             <canvas id="futuresChart"></canvas>
                         </div>
-                    </div>
-                    
-                    <!-- Sidebar Analysis Widgets -->
-                    <div class="dashboard-sidebar">
                         
-                        <!-- Basic Stats widget -->
-                        <div class="sidebar-widget">
-                            <h3 class="widget-title"><i data-lucide="info"></i>合约基础属性</h3>
-                            <div class="stats-list">
-                                <div class="stats-row">
-                                    <span class="stats-label">最新价格:</span>
-                                    <span class="stats-value" id="statClosePrice">--</span>
-                                </div>
-                                <div class="stats-row">
-                                    <span class="stats-label">日成交量:</span>
-                                    <span class="stats-value" id="statVolume">--</span>
-                                </div>
-                                <div class="stats-row">
-                                    <span class="stats-label">持仓总量:</span>
-                                    <span class="stats-value" id="statHold">--</span>
-                                </div>
-                                <div class="stats-row">
-                                    <span class="stats-label">一手保证金:</span>
-                                    <span class="stats-value" id="statMarginValue" style="color: var(--primary);">--</span>
+                        <!-- Scroll & Zoom Controller -->
+                        <div class="chart-navigation-bar" id="chartNavigationBar">
+                            <button class="nav-btn" id="chartZoomIn" title="放大"><i data-lucide="zoom-in"></i></button>
+                            <button class="nav-btn" id="chartZoomOut" title="缩小"><i data-lucide="zoom-out"></i></button>
+                            <button class="nav-btn" id="chartZoomReset" title="重置视角 (显示全部数据)"><i data-lucide="maximize"></i></button>
+                            <div class="scrollbar-container">
+                                <div class="scrollbar-track" id="scrollbarTrack">
+                                    <div class="scrollbar-handle" id="scrollbarHandle"></div>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Term Structure widget -->
-                        <div class="sidebar-widget">
-                            <h3 class="widget-title"><i data-lucide="bar-chart-3"></i>期限结构 (Spread)</h3>
-                            <div class="term-structure-graph" id="termStructureGraph">
-                                <!-- Term structure bar chart loaded by JS -->
-                            </div>
-                            <div class="stats-row" style="margin-top: 0.75rem;">
-                                <span class="stats-label" id="termStructureStatus">期限结构：升贴水分析</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Quant Signal widget -->
-                        <div class="sidebar-widget">
-                            <h3 class="widget-title"><i data-lucide="cpu"></i>CTA 均线策略倾向</h3>
-                            <div class="stats-row" style="align-items: center; justify-content: space-between;">
-                                <span class="stats-label">短线技术信号:</span>
-                                <span class="signal-badge signal-neutral" id="statCtaSignal">计算中</span>
-                            </div>
-                            <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.75rem; line-height: 1.4;">
-                                基于多周期均线死金叉形态自动计算。技术指标仅供参考，不作为实盘投资入场依据。
-                            </p>
-                        </div>
-                        
                     </div>
                 </div>
             </section>

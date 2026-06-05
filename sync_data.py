@@ -254,7 +254,7 @@ def fetch_daily(ak, pd, code, start_date):
     return out
 
 
-def fetch_minute(ak, pd, symbol, period='15', n=40):
+def fetch_minute(ak, pd, symbol, period='15', n=1500):
     """Fetch intraday K-line bars for given period ('15'/'30'/'60')."""
     try:
         df = ak.futures_zh_minute_sina(symbol=symbol, period=period)
@@ -355,10 +355,10 @@ def sync_futures():
             print(f"      Daily FAILED ({e})")
             daily = []
 
-        # Intraday K-lines: 15M (40 bars ~2 days), 30M (80 bars ~10 days), 60M (60 bars ~15 days)
-        min15 = fetch_minute(ak, pd, kline_sym, period='15', n=40)
-        min30 = fetch_minute(ak, pd, kline_sym, period='30', n=80)
-        min60 = fetch_minute(ak, pd, kline_sym, period='60', n=60)
+        # Intraday K-lines: 15M, 30M, 60M (up to 1500 bars limit)
+        min15 = fetch_minute(ak, pd, kline_sym, period='15', n=1500)
+        min30 = fetch_minute(ak, pd, kline_sym, period='30', n=1500)
+        min60 = fetch_minute(ak, pd, kline_sym, period='60', n=1500)
         print(f"      15-min: {len(min15)} bars | 30-min: {len(min30)} bars | 60-min: {len(min60)} bars")
 
         # Build metadata
