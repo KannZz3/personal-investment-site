@@ -2166,3 +2166,46 @@ footer {
     font-size: 1rem;
     line-height: 1;
 }
+
+/* Math styles for article rendering */
+.math-block {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 1.5rem auto;
+    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+    border-left: 4px solid var(--primary, #6366f1);
+    font-family: 'Cambria', 'Georgia', 'Times New Roman', serif;
+    font-size: 1.2rem;
+    color: var(--text-primary, #f3f4f6);
+    overflow-x: auto;
+    white-space: nowrap;
+    max-width: 90%;
+}
+.math-inline {
+    font-family: 'Cambria', 'Georgia', 'Times New Roman', serif;
+    font-style: italic;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.15rem 0.35rem;
+    border-radius: 4px;
+    font-size: 0.95em;
+    margin: 0 0.2rem;
+    white-space: nowrap;
+}
+.math-fraction {
+    display: inline-flex;
+    flex-direction: column;
+    vertical-align: middle;
+    text-align: center;
+    padding: 0 0.35rem;
+    font-size: 0.9em;
+}
+.math-numerator {
+    border-bottom: 1px solid var(--text-primary, #f3f4f6);
+    padding-bottom: 2px;
+}
+.math-denominator {
+    padding-top: 2px;
+}
