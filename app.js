@@ -699,9 +699,14 @@ function updateChartData() {
     
     // Display actual contract symbol (from metadata, e.g. CU2609) or base code
     const displaySym = contract.symbol || baseCode;
-    const oiInfo = contract.oiAnalysis ? `当下持仓量: ${(contract.oiAnalysis.currentOI/10000).toFixed(1)}万手 · 峰值持仓量: ${(contract.oiAnalysis.historicalMaxOI/10000).toFixed(1)}万手` : (contract.openInterest ? `持仓量: ${(contract.openInterest/10000).toFixed(1)}万手` : '');
+    const oiInfo = contract.oiAnalysis ? `当下持仓量: ${(contract.oiAnalysis.currentOI/10000).toFixed(1)}万手 · 峰值持仓量: ${(contract.oiAnalysis.historicalMaxOI/10000).toFixed(1)}万手 (主连/连续合约口径)` : (contract.openInterest ? `持仓量: ${(contract.openInterest/10000).toFixed(1)}万手 (主连/连续合约口径)` : '');
     document.getElementById('chartActiveTitle').innerHTML = `${contract.name}<br><span style="font-size: 0.95rem; color: var(--text-secondary); font-weight: 500;">(${displaySym})</span>`;
     document.getElementById('chartActiveSubtitle').textContent = oiInfo;
+    
+    const limitMonthSymbol = document.getElementById('limitMonthSymbol');
+    if (limitMonthSymbol) {
+        limitMonthSymbol.textContent = displaySym;
+    }
     
     // Configure TPO and Volume Profiles on chart
     window.activeChart.symbol = baseCode;
@@ -1305,11 +1310,11 @@ function buildTechnicalUI(data) {
                     
                     <div class="anomaly-card-stats">
                         <div class="anomaly-stat">
-                            <span class="anomaly-stat-label">当前总持仓</span>
+                            <span class="anomaly-stat-label">当前总持仓 (主连口径)</span>
                             <span class="anomaly-stat-value">${(oi.currentOI/10000).toFixed(1)}万手</span>
                         </div>
                         <div class="anomaly-stat">
-                            <span class="anomaly-stat-label">历史单日峰值</span>
+                            <span class="anomaly-stat-label">历史单日峰值 (主连口径)</span>
                             <span class="anomaly-stat-value">${(oi.historicalMaxOI/10000).toFixed(1)}万手</span>
                         </div>
                         <div class="anomaly-stat" style="grid-column: 1/-1;">
