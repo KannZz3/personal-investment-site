@@ -362,13 +362,34 @@ function buildVolumeProfile({ bars1m, tickSize, symbol, sessionDate, dailyDates,
         }
     });
     
-    // Volume POC
+    // Volume POC with tie-break: 1) closest to midpoint, 2) closest to close, 3) higher price
+    const profileMidpointIdx = (numRows - 1) / 2;
+    const lastClose = sessionBars.length > 0 ? sessionBars[sessionBars.length - 1].close : priceBins[Math.round(profileMidpointIdx)];
     let maxVol = 0;
     let pocIdx = 0;
     for (let i = 0; i < numRows; i++) {
         if (volCounts[i] > maxVol) {
             maxVol = volCounts[i];
             pocIdx = i;
+        } else if (volCounts[i] === maxVol && maxVol > 0) {
+            // Tie-break rule 1: closer to profile midpoint
+            const distMidCurrent = Math.abs(i - profileMidpointIdx);
+            const distMidBest = Math.abs(pocIdx - profileMidpointIdx);
+            if (distMidCurrent < distMidBest) {
+                pocIdx = i;
+            } else if (distMidCurrent === distMidBest) {
+                // Tie-break rule 2: closer to close price
+                const distCloseCurrent = Math.abs(priceBins[i] - lastClose);
+                const distCloseBest = Math.abs(priceBins[pocIdx] - lastClose);
+                if (distCloseCurrent < distCloseBest) {
+                    pocIdx = i;
+                } else if (distCloseCurrent === distCloseBest) {
+                    // Tie-break rule 3: higher price wins
+                    if (priceBins[i] > priceBins[pocIdx]) {
+                        pocIdx = i;
+                    }
+                }
+            }
         }
     }
     const poc = priceBins[pocIdx];
@@ -666,12 +687,34 @@ function buildDailyCompositeVolume({ bars1m, tickSize, symbol, endDate, dailyDat
         }
     });
     
+    // Volume POC with tie-break: 1) closest to midpoint, 2) closest to close, 3) higher price
+    const profileMidpointIdx = (numRows - 1) / 2;
+    const lastClose = compositeBars.length > 0 ? compositeBars[compositeBars.length - 1].close : priceBins[Math.round(profileMidpointIdx)];
     let maxVol = 0;
     let pocIdx = 0;
     for (let i = 0; i < numRows; i++) {
         if (volCounts[i] > maxVol) {
             maxVol = volCounts[i];
             pocIdx = i;
+        } else if (volCounts[i] === maxVol && maxVol > 0) {
+            // Tie-break rule 1: closer to profile midpoint
+            const distMidCurrent = Math.abs(i - profileMidpointIdx);
+            const distMidBest = Math.abs(pocIdx - profileMidpointIdx);
+            if (distMidCurrent < distMidBest) {
+                pocIdx = i;
+            } else if (distMidCurrent === distMidBest) {
+                // Tie-break rule 2: closer to close price
+                const distCloseCurrent = Math.abs(priceBins[i] - lastClose);
+                const distCloseBest = Math.abs(priceBins[pocIdx] - lastClose);
+                if (distCloseCurrent < distCloseBest) {
+                    pocIdx = i;
+                } else if (distCloseCurrent === distCloseBest) {
+                    // Tie-break rule 3: higher price wins
+                    if (priceBins[i] > priceBins[pocIdx]) {
+                        pocIdx = i;
+                    }
+                }
+            }
         }
     }
     const poc = priceBins[pocIdx];

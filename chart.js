@@ -185,6 +185,7 @@ class FuturesChart {
                 poc: 0, vah: 0, val: 0, rangeHigh: 0, rangeLow: 0,
                 rows: [],
                 meta: {
+                    profileLevel: level,
                     preferredFrequency,
                     actualFrequencyUsed: preferredFrequency,
                     earliest30mDate: this.earliest30mDate,
@@ -223,6 +224,7 @@ class FuturesChart {
         if (profile) {
             // Enrich metadata
             if (!profile.meta) profile.meta = {};
+            profile.meta.profileLevel = level;
             profile.meta.requestedFrequency = preferredFrequency;
             profile.meta.actualFrequencyUsed = availability.actualFrequencyUsed;
             profile.meta.earliestAvailableTime = availability.earliestAvailableTime;
@@ -259,8 +261,10 @@ class FuturesChart {
         const meta = profile.meta || {};
         
         // Calculate dynamic height based on metadata lines
-        let linesCount = type === 'tpo' ? 4 : 5; // Base lines
-        if (meta.actualFrequencyUsed) linesCount++;
+        // TPO base: title + ProfileType + DataQuality + 价格 + TPO计数 + 区域属性 + 日内结构 = 6 content lines
+        // VP base: title + ProfileType + DataQuality + 价格 + 估算成交 + 成交比率 + 区域属性 = 7 content lines
+        let linesCount = type === 'tpo' ? 6 : 7;
+        if (meta.actualFrequencyUsed) linesCount++; // Freq Used (conditional)
         if (meta.dataCoverageDays) linesCount++;
         if (meta.profileStartTime && meta.profileEndTime) linesCount++;
         if (type === 'volume' && meta.fallbackUsed && meta.fallbackReason) linesCount++;
@@ -326,6 +330,21 @@ class FuturesChart {
             ctx.fillText("TPO Profile Details", tooltipX + 10, textY);
             textY += 18;
             
+            // Profile Type
+            const profileTypeLabel = meta.profileLevel === 'daily' ? 'Daily Composite TPO' :
+                                     meta.profileLevel === 'weekly' ? 'Weekly Composite TPO' : '30m TPO';
+            drawLine("Profile Type:", profileTypeLabel);
+            
+            // Actual Frequency Used
+            if (meta.actualFrequencyUsed) {
+                drawLine("Freq Used:", meta.actualFrequencyUsed);
+            }
+            
+            // Data Quality
+            const tpoQuality = meta.dataQuality || 'full';
+            const tpoQualityColor = tpoQuality === 'full' ? '#10b981' : tpoQuality === 'fallback' ? '#f59e0b' : '#9ca3af';
+            drawLine("Data Quality:", tpoQuality.toUpperCase(), tpoQualityColor);
+            
             drawLine("价格:", row.price.toFixed(1));
             drawLine("TPO 计数:", String(row.value));
             
@@ -343,10 +362,6 @@ class FuturesChart {
             const dayType = meta.dayType ? meta.dayType : "Normal";
             drawLine("日内结构:", dayType);
             
-            // Draw metadata fields
-            if (meta.actualFrequencyUsed) {
-                drawLine("计算频率:", meta.actualFrequencyUsed);
-            }
             if (meta.dataCoverageDays) {
                 drawLine("覆盖天数:", meta.dataCoverageDays + " 天");
             }
@@ -357,6 +372,21 @@ class FuturesChart {
         } else {
             ctx.fillText("Volume Profile Details", tooltipX + 10, textY);
             textY += 18;
+            
+            // Profile Type
+            const vpTypeLabel = meta.profileLevel === 'daily' ? 'Daily Composite VP' :
+                                meta.profileLevel === 'weekly' ? 'Weekly Composite VP' : '30m VP';
+            drawLine("Profile Type:", vpTypeLabel);
+            
+            // Actual Frequency Used
+            if (meta.actualFrequencyUsed) {
+                drawLine("Freq Used:", meta.actualFrequencyUsed + (meta.fallbackUsed ? " (fallback)" : ""));
+            }
+            
+            // Data Quality
+            const vpQuality = meta.dataQuality || 'unknown';
+            const vpQualityColor = vpQuality === 'full' ? '#10b981' : vpQuality === 'fallback' ? '#f59e0b' : '#9ca3af';
+            drawLine("Data Quality:", vpQuality.toUpperCase(), vpQualityColor);
             
             drawLine("价格:", row.price.toFixed(1));
             drawLine("估算成交:", this.formatVolume(row.value));
@@ -382,14 +412,6 @@ class FuturesChart {
             }
             drawLine("区域属性:", areaText, areaColor);
             
-            const qualityText = meta.dataQuality === 'fallback' ? "近似估算 (15m)" : "完整精度";
-            const qualityColor = meta.dataQuality === 'fallback' ? '#f59e0b' : '#10b981';
-            drawLine("数据质量:", qualityText, qualityColor);
-            
-            // Draw metadata fields
-            if (meta.actualFrequencyUsed) {
-                drawLine("计算频率:", meta.actualFrequencyUsed + (meta.fallbackUsed ? " (已降级)" : ""));
-            }
             if (meta.dataCoverageDays) {
                 drawLine("覆盖天数:", meta.dataCoverageDays + " 天");
             }
