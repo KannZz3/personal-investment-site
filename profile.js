@@ -961,3 +961,9 @@ function checkProfileDataAvailability({
         insufficientReason: `Coverage check failed for preferred frequency ${preferredFrequency} and all fallbacks. Preferred failed because: ${prefResult.reason}`
     };
 }
+
+function getEarliestTradingDate(bars, dailyDates) {
+    if (!bars || bars.length === 0) return "无数据";
+    const firstBar = bars[0];
+    return getTradingDate(firstBar.datetime || firstBar.date, dailyDates);
+}

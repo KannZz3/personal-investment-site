@@ -126,6 +126,11 @@ class FuturesChart {
         this.bars30m = bars30m || [];
         this.bars60m = bars60m || [];
         this.dailyDates = dailyDates || [];
+        this.profileCache = {}; // Reset profile cache on new data
+        
+        this.earliest30mDate = getEarliestTradingDate(this.bars30m, this.dailyDates);
+        this.earliest1mDate = getEarliestTradingDate(this.bars1m, this.dailyDates);
+        this.earliest5mDate = getEarliestTradingDate(this.bars5m, this.dailyDates);
     }
 
     getProfileData(type, level, endDate) {
@@ -156,11 +161,7 @@ class FuturesChart {
             fallbackFrequencies = []; // Strictly no fallback for TPO
         } else {
             preferredFrequency = '1m';
-            if (level === '30m') {
-                fallbackFrequencies = ['5m']; // Strictly no 15m for 30m VP
-            } else {
-                fallbackFrequencies = ['5m', '15m']; // Daily/Weekly composite VP can fallback to 15m
-            }
+            fallbackFrequencies = ['5m']; // Strictly no 15m for all VP
         }
         
         const availability = checkProfileDataAvailability({
@@ -184,15 +185,14 @@ class FuturesChart {
                 poc: 0, vah: 0, val: 0, rangeHigh: 0, rangeLow: 0,
                 rows: [],
                 meta: {
-                    requestedFrequency,
+                    preferredFrequency,
                     actualFrequencyUsed: preferredFrequency,
-                    earliestAvailableTime: availability.earliestAvailableTime || "",
-                    latestAvailableTime: availability.latestAvailableTime || "",
-                    profileStartTime: "",
-                    profileEndTime: "",
-                    fallbackUsed: false,
-                    insufficientReason: availability.insufficientReason || "Data insufficient",
-                    dataQuality: "insufficient"
+                    earliest30mDate: this.earliest30mDate,
+                    earliest1mDate: this.earliest1mDate,
+                    earliest5mDate: this.earliest5mDate,
+                    currentChartDate: endDate,
+                    dataQuality: "insufficient",
+                    insufficientReason: availability.insufficientReason || "Data insufficient"
                 }
             };
             this.profileCache[cacheKey] = emptyProfile;
@@ -1330,19 +1330,58 @@ class FuturesChart {
 
         // Draw watermarks for insufficient data
         if (this.tpoLevel !== 'none' && (!tpoProfile || !tpoProfile.rows || tpoProfile.rows.length === 0 || tpoProfile.meta.dataQuality === "insufficient")) {
-            ctx.fillStyle = isDark ? 'rgba(239, 68, 68, 0.55)' : 'rgba(220, 38, 38, 0.7)';
-            ctx.font = '11px Inter';
+            const x = this.paddingLeft + 15;
+            const y = this.paddingTop + 45;
+            
+            ctx.fillStyle = isDark ? 'rgba(148, 163, 184, 0.75)' : 'rgba(100, 116, 139, 0.85)';
             ctx.textAlign = 'left';
             ctx.textBaseline = 'top';
-            ctx.fillText("该区间缺少分钟级数据，无法构建对应 Profile", this.paddingLeft + 15, this.paddingTop + 40);
+            
+            const levelNames = { '30m': '30m TPO', 'daily': '日 TPO', 'weekly': '周 TPO' };
+            const lvlName = levelNames[this.tpoLevel] || this.tpoLevel;
+            
+            ctx.font = 'bold 11px Inter, sans-serif';
+            ctx.fillText(`当前区间早于标准 ${lvlName} 数据边界。`, x, y);
+            
+            ctx.font = '10px Inter, sans-serif';
+            const lineSpacing = 16;
+            ctx.fillText(`所需数据: 30m OHLC`, x, y + lineSpacing);
+            ctx.fillText(`可用区间: ${this.earliest30mDate || "无数据"} 至今`, x, y + lineSpacing * 2);
+            ctx.fillText(`当前区间: ${endDate || "未知"}`, x, y + lineSpacing * 3);
+            ctx.fillText(`标准 Profile 已暂时隐藏 (insufficient)。`, x, y + lineSpacing * 4);
         }
         
         if (this.vpLevel !== 'none' && (!vpProfile || !vpProfile.rows || vpProfile.rows.length === 0 || vpProfile.meta.dataQuality === "insufficient")) {
-            ctx.fillStyle = isDark ? 'rgba(239, 68, 68, 0.55)' : 'rgba(220, 38, 38, 0.7)';
-            ctx.font = '11px Inter';
+            const x = w - this.paddingRight - 15;
+            const y = this.paddingTop + 45;
+            
+            ctx.fillStyle = isDark ? 'rgba(148, 163, 184, 0.75)' : 'rgba(100, 116, 139, 0.85)';
             ctx.textAlign = 'right';
             ctx.textBaseline = 'top';
-            ctx.fillText("该区间缺少分钟级数据，无法构建对应 Profile", w - this.paddingRight - 15, this.paddingTop + 40);
+            
+            const levelNames = { '30m': '30m VP', 'daily': '日 VP', 'weekly': '周 VP' };
+            const lvlName = levelNames[this.vpLevel] || this.vpLevel;
+            
+            ctx.font = 'bold 11px Inter, sans-serif';
+            ctx.fillText(`当前区间早于标准 ${lvlName} 数据边界。`, x, y);
+            
+            ctx.font = '10px Inter, sans-serif';
+            const lineSpacing = 16;
+            ctx.fillText(`所需数据: 1m (首选) / 5m (备用) OHLCV`, x, y + lineSpacing);
+            
+            let availStr = "";
+            if (this.earliest1mDate && this.earliest1mDate !== "无数据") {
+                availStr += `1m: ${this.earliest1mDate} 至今`;
+            }
+            if (this.earliest5mDate && this.earliest5mDate !== "无数据") {
+                if (availStr) availStr += " / ";
+                availStr += `5m: ${this.earliest5mDate} 至今`;
+            }
+            if (!availStr) availStr = "无数据";
+            
+            ctx.fillText(`可用区间: ${availStr}`, x, y + lineSpacing * 2);
+            ctx.fillText(`当前区间: ${endDate || "未知"}`, x, y + lineSpacing * 3);
+            ctx.fillText(`标准 Profile 已暂时隐藏 (insufficient)。`, x, y + lineSpacing * 4);
         }
 
         // Draw profile tooltips if mouse is hovering on profiles

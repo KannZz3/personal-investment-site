@@ -705,9 +705,62 @@ function updateChartData() {
         dailyDates: (dataContainer.daily || []).map(d => d.date)
     });
     
+    window.activeChart.chartPeriod = state.chartPeriod;
     window.activeChart.setData(dataset);
     
+    updateProfileAvailabilityPanel();
     syncProfileButtons();
+}
+
+function updateProfileAvailabilityPanel() {
+    const baseCode = state.activeContract;
+    const dataContainer = state.futuresData[baseCode];
+    const panel = document.getElementById('profileLimitsPanel');
+    if (!panel || !dataContainer) return;
+    
+    const bars30m = dataContainer.min30 || [];
+    const bars1m = dataContainer.min1 || [];
+    const bars5m = dataContainer.min5 || [];
+    const dailyDates = (dataContainer.daily || []).map(d => d.date);
+    
+    const tpoStart = getEarliestTradingDate(bars30m, dailyDates);
+    const vp1mStart = getEarliestTradingDate(bars1m, dailyDates);
+    const vp5mStart = getEarliestTradingDate(bars5m, dailyDates);
+    
+    const limitTpoInfo = document.getElementById('limitTpoInfo');
+    const limitVpInfo = document.getElementById('limitVpInfo');
+    
+    if (tpoStart && tpoStart !== "无数据") {
+        if (limitTpoInfo) {
+            limitTpoInfo.textContent = `TPO (30m/日/周) 可用起点: ${tpoStart} 至今`;
+            limitTpoInfo.style.display = 'inline-flex';
+        }
+    } else {
+        if (limitTpoInfo) limitTpoInfo.style.display = 'none';
+    }
+    
+    if ((vp1mStart && vp1mStart !== "无数据") || (vp5mStart && vp5mStart !== "无数据")) {
+        if (limitVpInfo) {
+            let vpText = "VP (30m/日/周) 可用起点: ";
+            const parts = [];
+            if (vp1mStart && vp1mStart !== "无数据") parts.push(`1m: ${vp1mStart}`);
+            if (vp5mStart && vp5mStart !== "无数据") parts.push(`5m: ${vp5mStart}`);
+            vpText += parts.join(" / ") + " 至今";
+            limitVpInfo.textContent = vpText;
+            limitVpInfo.style.display = 'inline-flex';
+        }
+    } else {
+        if (limitVpInfo) limitVpInfo.style.display = 'none';
+    }
+    
+    const hasTpo = tpoStart && tpoStart !== "无数据";
+    const hasVp = (vp1mStart && vp1mStart !== "无数据") || (vp5mStart && vp5mStart !== "无0数据" && vp5mStart !== "无数据");
+    
+    if (hasTpo || hasVp) {
+        panel.style.display = 'flex';
+    } else {
+        panel.style.display = 'none';
+    }
 }
 
 // Compress Daily datasets to Weekly aggregates

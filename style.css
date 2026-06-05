@@ -2139,3 +2139,30 @@ footer {
 .chart-panel:fullscreen .chart-canvas-wrapper {
     flex: 1 !important;
 }
+
+/* Profile Availability Limits Info */
+.profile-limits-panel {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 1.5rem;
+    padding: 0.5rem 0;
+    margin-top: 0.5rem;
+    border-top: 1px dashed var(--border-color);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: var(--font-body);
+}
+
+.profile-limit-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.profile-limit-item::before {
+    content: "•";
+    color: var(--primary);
+    font-size: 1rem;
+    line-height: 1;
+}
