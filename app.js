@@ -257,6 +257,14 @@ function switchTab(tabId) {
 }
 
 // Futures Data Hub: Handles Sync / Simulation Mode
+// 【数据同步机制与当前限制说明】：
+// 1. 同步机制：本站定位为“在当前数据源覆盖范围内的每日更新动态期货分析网站”。每日更新完全依赖底层 sync_data.py 脚本或外部定时任务在每日收盘后运行，
+//    并成功更新 data/futures_data.json 数据源文件。前端网页本身并不会直接从交易所抓取最新实盘数据，而是读取最新的 JSON 文件，
+//    重新计算和渲染 derived results（如果数据源未被定时任务更新，重新加载页面仍会使用旧数据）。
+// 2. 合约覆盖限制：为了控制数据体积并提升同步效率，底层同步脚本 (sync_data.py) 仅针对 Watchlist 自选合约 (AU, CU, RB, SC, SR, TA)
+//    以及全市场扫描中满足持仓量异动 (>= 历史峰值90%) 的异常合约拉取详细 K 线与分时行情。常规合约只进行持仓筛查，不提供详细 K 线。
+// 3. 周期与深度限制：受限于新浪等行情接口历史深度限制，分钟 K 线 (1m, 5m, 15m, 30m, 60m) 只包含最新最近约 1500 根 Bar 的历史数据；
+//    日线包含完整 10 年历史连续合约数据，周线与月线由日线在前端动态压缩；TPO 与 Volume Profile (VP) 根据 1m, 5m, 30m 基础数据在前端进行算力 Profile 绘制。
 async function loadFuturesData() {
     const statusDot = document.getElementById('statusDot');
     const statusText = document.getElementById('statusText');
@@ -302,7 +310,8 @@ async function loadFuturesData() {
         
         if (data.metadata && data.metadata.sync_time) {
             const date = new Date(data.metadata.sync_time);
-            syncTimeText.textContent = `数据更新: ${date.toLocaleString()} | 基于上一交易日收盘数据，每日更新`;
+            syncTimeText.innerHTML = `在当前数据源覆盖范围内，本站为按日更新的动态数据页面。<br>` +
+                                     `每日收盘后更新 data/futures_data.json，所有基于该数据源的筛选结果、技术异动、市场看板、K线图、MA/VOL、TPO/VP 等都会重新计算和刷新。(数据同步时间: ${date.toLocaleString()})`;
         }
         
         // Build the technical UI table and cards
@@ -315,7 +324,8 @@ async function loadFuturesData() {
         
         statusDot.className = 'status-dot active';
         statusText.textContent = '行情模拟模式';
-        syncTimeText.textContent = '演示模式 · 数据为模拟数据，非实盘按日更新';
+        syncTimeText.innerHTML = `演示模式 · 数据为模拟数据。<br>` +
+                                 `在当前数据源覆盖范围内，本站为按日更新的动态数据页面。每日收盘后更新 data/futures_data.json，所有基于该数据源的筛选结果、技术异动、市场看板、K线图、MA/VOL、TPO/VP 等都会重新计算和刷新。`;
         
         startLiveTickerTimer();
     }
@@ -1044,6 +1054,7 @@ function startLiveTickerTimer() {
 
 // Interactive macro variables slider simulator
 function startStatsSimulation() {
+    if (state.isDataReal) return; // Disable simulation in real data mode
     setInterval(() => {
         // Slow variations in aggregate open interest
         if (state.activeTab !== 'dashboard') return;

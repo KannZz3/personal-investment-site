@@ -3,18 +3,14 @@
 ==========================================================================
 FULL MARKET OI SCREENER + DATA SYNC (sync_data.py v4.0)
 ==========================================================================
-Phase 1 - Market-wide OI Screen:
-  For every major Chinese futures commodity across SHFE/DCE/CZCE/INE/GFEX,
-  pull 10-year continuous main-contract history via futures_main_sina,
-  compute historical peak OI and compare against today.
-  Flag conditions:
-    (a) near_high  : current_oi >= peak_oi * 0.90
-    (b) new_high   : current_oi >  peak_oi  (all-time high)
-
-Phase 2 - Detail Fetch (watchlist + anomaly contracts):
-  For the 6 fixed watchlist contracts AND all anomaly contracts,
-  identify the actual main contract month (highest position), and
-  download 120-day daily K-line + 40-bar 15-min intraday data.
+【当前数据源限制说明】：
+1. 合约覆盖范围：本脚本只针对 Watchlist 自选合约 (AU, CU, RB, SC, SR, TA) 以及触发持仓量异动 (>= 历史峰值90%) 的异常合约下载详细的日K与分钟分时数据。
+   其他常规合约在 Phase 1 只参与持仓量大小筛查（以便在“技术异动列表”中正确排序），但不拉取其 K 线/分时数据，以控制文件总体积。
+2. 周期覆盖范围与深度限制：
+   - 分钟 K 线 (1m, 5m, 15m, 30m, 60m) 受限于新浪行情接口历史深度，只拉取最新最近约 1500 根 Bar 的滚动历史。
+   - 日线 (daily) 拉取完整 10 年历史连续合约数据。
+   - 周线与月线由网页端根据日线数据实时动态压缩生成，无需脚本单独下载。
+   - TPO / VP 直方图由网页端依据 1m, 5m, 30m 基础分钟数据在 Canvas 上动态计算并渲染。
 
 Output  : data/futures_data.json
 Requires: pip install akshare pandas
