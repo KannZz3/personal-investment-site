@@ -1,4 +1,4 @@
-# 墨子投资小站 | Quantum Nest Investment Portal
+# 山风蛊小站 | Summit Wind Investment Portal
 
 > 🌐 **在线演示地址 (GitHub Pages)**: [https://kannzz3.github.io/personal-investment-site/](https://kannzz3.github.io/personal-investment-site/)
 

@@ -40,7 +40,7 @@ def start_server():
     handler = http.server.SimpleHTTPRequestHandler
     
     print("=" * 60)
-    print("           墨子投资小站 | 本地静态 HTTP 服务")
+    print("           山风蛊小站 | 本地静态 HTTP 服务")
     print("=" * 60)
     print(f" [+] 正在启动本地服务器...")
     print(f" [+] 服务地址: http://localhost:{port}")
