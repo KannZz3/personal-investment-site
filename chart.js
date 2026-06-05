@@ -993,26 +993,6 @@ class FuturesChart {
             }
         }
 
-        // Update bottom availability labels with current profile quality status
-        // Only appends (partial)/(insufficient) suffix when quality is not 'full'
-        const _limitTpoEl = document.getElementById('limitTpoInfo');
-        if (_limitTpoEl && this.earliest30mDate && this.earliest30mDate !== '无数据') {
-            const _tpoQ = tpoProfile && tpoProfile.meta && tpoProfile.meta.dataQuality;
-            const _tpoSuffix = (_tpoQ && _tpoQ !== 'full') ? ` (${_tpoQ})` : '';
-            _limitTpoEl.textContent = `TPO 可用起点: ${this.earliest30mDate} 至今${_tpoSuffix}`;
-        }
-        const _limitVpEl = document.getElementById('limitVpInfo');
-        if (_limitVpEl) {
-            const _vpParts = [];
-            if (this.earliest1mDate && this.earliest1mDate !== '无数据') _vpParts.push(`1m: ${this.earliest1mDate}`);
-            if (this.earliest5mDate && this.earliest5mDate !== '无数据') _vpParts.push(`5m: ${this.earliest5mDate}`);
-            if (_vpParts.length > 0) {
-                const _vpQ = vpProfile && vpProfile.meta && vpProfile.meta.dataQuality;
-                const _vpSuffix = (_vpQ && _vpQ !== 'full') ? ` (${_vpQ})` : '';
-                _limitVpEl.textContent = `VP 可用起点: ${_vpParts.join(' / ')} 至今${_vpSuffix}`;
-            }
-        }
-
         // Draw grids & borders
         ctx.strokeStyle = colorGrid;
         ctx.lineWidth = 1;
