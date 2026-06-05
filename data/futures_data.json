@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "sync_time": "2026-06-05T07:46:10.620115",
+    "sync_time": "2026-06-05T08:26:30.383501",
     "version": "4.0",
     "description": "Full market OI screen | watchlist + anomaly K-line data",
     "historyYears": 10,
@@ -23,11 +23,11 @@
         "name": "沪金",
         "exchange": "SHFE",
         "currentOI": 191537,
-        "historicalMaxOI": 609586,
+        "historicalMaxOI": 304793,
         "historicalMaxDate": "2019-08-29",
         "dataStart": "2016-06-07",
         "dataRows": 2425,
-        "oiRatio": 0.3142,
+        "oiRatio": 0.6284,
         "alert": "normal"
       },
       "AG": {
@@ -35,11 +35,11 @@
         "name": "沪银",
         "exchange": "SHFE",
         "currentOI": 287231,
-        "historicalMaxOI": 1422364,
+        "historicalMaxOI": 711182,
         "historicalMaxDate": "2019-08-29",
         "dataStart": "2016-06-07",
         "dataRows": 2425,
-        "oiRatio": 0.2019,
+        "oiRatio": 0.4039,
         "alert": "normal"
       },
       "CU": {
@@ -47,11 +47,11 @@
         "name": "沪铜",
         "exchange": "SHFE",
         "currentOI": 177479,
-        "historicalMaxOI": 356466,
-        "historicalMaxDate": "2016-06-08",
+        "historicalMaxOI": 293381,
+        "historicalMaxDate": "2025-10-27",
         "dataStart": "2016-06-07",
         "dataRows": 2425,
-        "oiRatio": 0.4979,
+        "oiRatio": 0.6049,
         "alert": "normal"
       },
       "AL": {
@@ -59,11 +59,11 @@
         "name": "沪铝",
         "exchange": "SHFE",
         "currentOI": 274711,
-        "historicalMaxOI": 481690,
-        "historicalMaxDate": "2017-09-20",
+        "historicalMaxOI": 446659,
+        "historicalMaxDate": "2025-11-13",
         "dataStart": "2016-06-07",
         "dataRows": 2425,
-        "oiRatio": 0.5703,
+        "oiRatio": 0.615,
         "alert": "normal"
       },
       "ZN": {
@@ -71,11 +71,11 @@
         "name": "沪锌",
         "exchange": "SHFE",
         "currentOI": 101447,
-        "historicalMaxOI": 378572,
+        "historicalMaxOI": 189286,
         "historicalMaxDate": "2017-04-19",
         "dataStart": "2016-06-07",
         "dataRows": 2425,
-        "oiRatio": 0.268,
+        "oiRatio": 0.5359,
         "alert": "normal"
       },
       "PB": {
@@ -95,11 +95,11 @@
         "name": "沪镍",
         "exchange": "SHFE",
         "currentOI": 142024,
-        "historicalMaxOI": 717612,
+        "historicalMaxOI": 358806,
         "historicalMaxDate": "2017-01-25",
         "dataStart": "2016-06-07",
         "dataRows": 2424,
-        "oiRatio": 0.1979,
+        "oiRatio": 0.3958,
         "alert": "normal"
       },
       "SN": {
@@ -119,11 +119,11 @@
         "name": "螺纹钢",
         "exchange": "SHFE",
         "currentOI": 1704591,
-        "historicalMaxOI": 4832902,
-        "historicalMaxDate": "2017-07-13",
+        "historicalMaxOI": 2441388,
+        "historicalMaxDate": "2025-05-28",
         "dataStart": "2016-06-07",
         "dataRows": 2425,
-        "oiRatio": 0.3527,
+        "oiRatio": 0.6982,
         "alert": "normal"
       },
       "HC": {
@@ -155,11 +155,11 @@
         "name": "燃油",
         "exchange": "SHFE",
         "currentOI": 184762,
-        "historicalMaxOI": 922356,
-        "historicalMaxDate": "2019-11-15",
+        "historicalMaxOI": 880157,
+        "historicalMaxDate": "2020-04-27",
         "dataStart": "2016-06-07",
         "dataRows": 2402,
-        "oiRatio": 0.2003,
+        "oiRatio": 0.2099,
         "alert": "normal"
       },
       "BU": {
@@ -167,11 +167,11 @@
         "name": "沥青",
         "exchange": "SHFE",
         "currentOI": 255653,
-        "historicalMaxOI": 1337214,
+        "historicalMaxOI": 668607,
         "historicalMaxDate": "2016-09-27",
         "dataStart": "2016-06-07",
         "dataRows": 2425,
-        "oiRatio": 0.1912,
+        "oiRatio": 0.3824,
         "alert": "normal"
       },
       "RU": {
@@ -179,11 +179,11 @@
         "name": "橡胶",
         "exchange": "SHFE",
         "currentOI": 179922,
-        "historicalMaxOI": 569772,
-        "historicalMaxDate": "2018-06-08",
+        "historicalMaxOI": 300869,
+        "historicalMaxDate": "2023-05-08",
         "dataStart": "2016-06-07",
         "dataRows": 2425,
-        "oiRatio": 0.3158,
+        "oiRatio": 0.598,
         "alert": "normal"
       },
       "SP": {
@@ -239,11 +239,11 @@
         "name": "铁矿石",
         "exchange": "DCE",
         "currentOI": 605270,
-        "historicalMaxOI": 2193168,
+        "historicalMaxOI": 1096584,
         "historicalMaxDate": "2017-06-08",
         "dataStart": "2016-06-07",
         "dataRows": 2426,
-        "oiRatio": 0.276,
+        "oiRatio": 0.552,
         "alert": "normal"
       },
       "JM": {
@@ -263,11 +263,11 @@
         "name": "焦炭",
         "exchange": "DCE",
         "currentOI": 37449,
-        "historicalMaxOI": 446160,
+        "historicalMaxOI": 223080,
         "historicalMaxDate": "2016-10-31",
         "dataStart": "2016-06-07",
         "dataRows": 2426,
-        "oiRatio": 0.0839,
+        "oiRatio": 0.1679,
         "alert": "normal"
       },
       "C": {
@@ -275,11 +275,11 @@
         "name": "玉米",
         "exchange": "DCE",
         "currentOI": 1061705,
-        "historicalMaxOI": 3520522,
+        "historicalMaxOI": 1760261,
         "historicalMaxDate": "2017-02-08",
         "dataStart": "2016-06-07",
         "dataRows": 2425,
-        "oiRatio": 0.3016,
+        "oiRatio": 0.6032,
         "alert": "normal"
       },
       "CS": {
@@ -287,11 +287,11 @@
         "name": "淀粉",
         "exchange": "DCE",
         "currentOI": 293988,
-        "historicalMaxOI": 1277736,
+        "historicalMaxOI": 638868,
         "historicalMaxDate": "2017-02-14",
         "dataStart": "2016-06-07",
         "dataRows": 2424,
-        "oiRatio": 0.2301,
+        "oiRatio": 0.4602,
         "alert": "normal"
       },
       "A": {
@@ -299,11 +299,11 @@
         "name": "豆一",
         "exchange": "DCE",
         "currentOI": 243654,
-        "historicalMaxOI": 376370,
-        "historicalMaxDate": "2017-10-30",
+        "historicalMaxOI": 358722,
+        "historicalMaxDate": "2026-02-27",
         "dataStart": "2016-06-07",
         "dataRows": 2426,
-        "oiRatio": 0.6474,
+        "oiRatio": 0.6792,
         "alert": "normal"
       },
       "M": {
@@ -311,11 +311,11 @@
         "name": "豆粕",
         "exchange": "DCE",
         "currentOI": 2447993,
-        "historicalMaxOI": 3385712,
-        "historicalMaxDate": "2019-12-31",
+        "historicalMaxOI": 2763005,
+        "historicalMaxDate": "2024-12-18",
         "dataStart": "2016-06-07",
         "dataRows": 2425,
-        "oiRatio": 0.723,
+        "oiRatio": 0.886,
         "alert": "normal"
       },
       "Y": {
@@ -323,11 +323,11 @@
         "name": "豆油",
         "exchange": "DCE",
         "currentOI": 631155,
-        "historicalMaxOI": 1334992,
-        "historicalMaxDate": "2019-12-31",
+        "historicalMaxOI": 839796,
+        "historicalMaxDate": "2026-01-29",
         "dataStart": "2016-06-07",
         "dataRows": 2425,
-        "oiRatio": 0.4728,
+        "oiRatio": 0.7516,
         "alert": "normal"
       },
       "P": {
@@ -335,11 +335,11 @@
         "name": "棕榈油",
         "exchange": "DCE",
         "currentOI": 519053,
-        "historicalMaxOI": 1638964,
-        "historicalMaxDate": "2019-12-30",
+        "historicalMaxOI": 845921,
+        "historicalMaxDate": "2020-01-10",
         "dataStart": "2016-06-07",
         "dataRows": 2424,
-        "oiRatio": 0.3167,
+        "oiRatio": 0.6136,
         "alert": "normal"
       },
       "V": {
@@ -359,11 +359,11 @@
         "name": "聚乙烯",
         "exchange": "DCE",
         "currentOI": 369533,
-        "historicalMaxOI": 1011098,
-        "historicalMaxDate": "2019-08-29",
+        "historicalMaxOI": 620857,
+        "historicalMaxDate": "2024-11-22",
         "dataStart": "2016-06-07",
         "dataRows": 2425,
-        "oiRatio": 0.3655,
+        "oiRatio": 0.5952,
         "alert": "normal"
       },
       "PP": {
@@ -371,11 +371,11 @@
         "name": "聚丙烯",
         "exchange": "DCE",
         "currentOI": 579585,
-        "historicalMaxOI": 812448,
-        "historicalMaxDate": "2016-07-06",
+        "historicalMaxOI": 721628,
+        "historicalMaxDate": "2023-05-23",
         "dataStart": "2016-06-07",
         "dataRows": 2424,
-        "oiRatio": 0.7134,
+        "oiRatio": 0.8032,
         "alert": "normal"
       },
       "EG": {
@@ -383,11 +383,11 @@
         "name": "乙二醇",
         "exchange": "DCE",
         "currentOI": 308736,
-        "historicalMaxOI": 561792,
-        "historicalMaxDate": "2019-06-05",
+        "historicalMaxOI": 549566,
+        "historicalMaxDate": "2023-06-27",
         "dataStart": "2018-12-10",
         "dataRows": 1812,
-        "oiRatio": 0.5496,
+        "oiRatio": 0.5618,
         "alert": "normal"
       },
       "PG": {
@@ -443,11 +443,11 @@
         "name": "豆二",
         "exchange": "DCE",
         "currentOI": 146332,
-        "historicalMaxOI": 371420,
-        "historicalMaxDate": "2019-12-18",
+        "historicalMaxOI": 240350,
+        "historicalMaxDate": "2026-03-16",
         "dataStart": "2016-06-08",
         "dataRows": 2352,
-        "oiRatio": 0.394,
+        "oiRatio": 0.6088,
         "alert": "normal"
       },
       "FB": {
@@ -467,11 +467,11 @@
         "name": "白糖",
         "exchange": "CZCE",
         "currentOI": 659276,
-        "historicalMaxOI": 930538,
-        "historicalMaxDate": "2016-10-17",
+        "historicalMaxOI": 779320,
+        "historicalMaxDate": "2023-04-17",
         "dataStart": "2016-06-07",
         "dataRows": 2423,
-        "oiRatio": 0.7085,
+        "oiRatio": 0.846,
         "alert": "normal"
       },
       "CF": {
@@ -479,11 +479,11 @@
         "name": "棉花",
         "exchange": "CZCE",
         "currentOI": 657793,
-        "historicalMaxOI": 1167490,
-        "historicalMaxDate": "2019-12-31",
+        "historicalMaxOI": 925465,
+        "historicalMaxDate": "2026-01-07",
         "dataStart": "2016-06-07",
         "dataRows": 2421,
-        "oiRatio": 0.5634,
+        "oiRatio": 0.7108,
         "alert": "normal"
       },
       "TA": {
@@ -503,11 +503,11 @@
         "name": "甲醇",
         "exchange": "CZCE",
         "currentOI": 694911,
-        "historicalMaxOI": 2391640,
-        "historicalMaxDate": "2019-11-19",
+        "historicalMaxOI": 2021781,
+        "historicalMaxDate": "2023-05-26",
         "dataStart": "2016-06-07",
         "dataRows": 2421,
-        "oiRatio": 0.2906,
+        "oiRatio": 0.3437,
         "alert": "normal"
       },
       "FG": {
@@ -527,12 +527,12 @@
         "name": "菜油",
         "exchange": "CZCE",
         "currentOI": 471405,
-        "historicalMaxOI": 501942,
-        "historicalMaxDate": "2018-05-31",
+        "historicalMaxOI": 471405,
+        "historicalMaxDate": "2026-06-04",
         "dataStart": "2016-06-07",
         "dataRows": 2421,
-        "oiRatio": 0.9392,
-        "alert": "near_high"
+        "oiRatio": 1.0124,
+        "alert": "new_high"
       },
       "RM": {
         "code": "RM",
@@ -563,8 +563,8 @@
         "name": "动力煤",
         "exchange": "CZCE",
         "currentOI": 0,
-        "historicalMaxOI": 518794,
-        "historicalMaxDate": "2017-06-14",
+        "historicalMaxOI": 294273,
+        "historicalMaxDate": "2021-04-29",
         "dataStart": "2016-06-07",
         "dataRows": 1509,
         "oiRatio": 0.0,
@@ -587,11 +587,11 @@
         "name": "苹果",
         "exchange": "CZCE",
         "currentOI": 133260,
-        "historicalMaxOI": 490090,
-        "historicalMaxDate": "2018-05-31",
+        "historicalMaxOI": 470354,
+        "historicalMaxDate": "2021-05-20",
         "dataStart": "2017-12-22",
         "dataRows": 2042,
-        "oiRatio": 0.2719,
+        "oiRatio": 0.2833,
         "alert": "normal"
       },
       "CJ": {
@@ -683,11 +683,11 @@
         "name": "油菜籽",
         "exchange": "CZCE",
         "currentOI": 72,
-        "historicalMaxOI": 2992,
+        "historicalMaxOI": 1496,
         "historicalMaxDate": "2019-06-18",
         "dataStart": "2016-06-07",
         "dataRows": 1884,
-        "oiRatio": 0.0241,
+        "oiRatio": 0.0481,
         "alert": "normal"
       },
       "WH": {
@@ -695,7 +695,7 @@
         "name": "强麦",
         "exchange": "CZCE",
         "currentOI": 0,
-        "historicalMaxOI": 17818,
+        "historicalMaxOI": 8909,
         "historicalMaxDate": "2017-03-02",
         "dataStart": "2016-06-07",
         "dataRows": 1419,
@@ -707,8 +707,8 @@
         "name": "粳稻",
         "exchange": "CZCE",
         "currentOI": 0,
-        "historicalMaxOI": 910,
-        "historicalMaxDate": "2018-08-07",
+        "historicalMaxOI": 696,
+        "historicalMaxDate": "2020-03-31",
         "dataStart": "2016-06-30",
         "dataRows": 832,
         "oiRatio": 0.0,
@@ -719,7 +719,7 @@
         "name": "早籼稻",
         "exchange": "CZCE",
         "currentOI": 0,
-        "historicalMaxOI": 2234,
+        "historicalMaxOI": 1117,
         "historicalMaxDate": "2018-08-06",
         "dataStart": "2016-06-07",
         "dataRows": 712,
@@ -731,7 +731,7 @@
         "name": "晚籼稻",
         "exchange": "CZCE",
         "currentOI": 1,
-        "historicalMaxOI": 15110,
+        "historicalMaxOI": 7555,
         "historicalMaxDate": "2018-08-15",
         "dataStart": "2016-06-07",
         "dataRows": 612,
@@ -743,11 +743,11 @@
         "name": "棉纱",
         "exchange": "CZCE",
         "currentOI": 9255,
-        "historicalMaxOI": 32080,
-        "historicalMaxDate": "2019-10-17",
+        "historicalMaxOI": 25788,
+        "historicalMaxDate": "2025-02-20",
         "dataStart": "2017-08-23",
         "dataRows": 2096,
-        "oiRatio": 0.2885,
+        "oiRatio": 0.3589,
         "alert": "normal"
       },
       "PF": {
@@ -767,11 +767,11 @@
         "name": "原油",
         "exchange": "INE",
         "currentOI": 30622,
-        "historicalMaxOI": 311400,
+        "historicalMaxOI": 155700,
         "historicalMaxDate": "2018-03-26",
         "dataStart": "2018-03-26",
         "dataRows": 1986,
-        "oiRatio": 0.0983,
+        "oiRatio": 0.1967,
         "alert": "normal"
       },
       "LU": {
@@ -862,11 +862,11 @@
         "isAnomaly": true,
         "oiAnalysis": {
           "currentOI": 471405,
-          "historicalMaxOI": 501942,
-          "historicalMaxDate": "2018-05-31",
+          "historicalMaxOI": 471405,
+          "historicalMaxDate": "2026-06-04",
           "dataStart": "2016-06-07",
-          "oiRatio": 0.9392,
-          "alert": "near_high"
+          "oiRatio": 1.0124,
+          "alert": "new_high"
         }
       },
       "SP": {
@@ -904,10 +904,10 @@
         "isAnomaly": false,
         "oiAnalysis": {
           "currentOI": 191537,
-          "historicalMaxOI": 609586,
+          "historicalMaxOI": 304793,
           "historicalMaxDate": "2019-08-29",
           "dataStart": "2016-06-07",
-          "oiRatio": 0.3142,
+          "oiRatio": 0.6284,
           "alert": "normal"
         }
       },
@@ -925,10 +925,10 @@
         "isAnomaly": false,
         "oiAnalysis": {
           "currentOI": 177479,
-          "historicalMaxOI": 356466,
-          "historicalMaxDate": "2016-06-08",
+          "historicalMaxOI": 293381,
+          "historicalMaxDate": "2025-10-27",
           "dataStart": "2016-06-07",
-          "oiRatio": 0.4979,
+          "oiRatio": 0.6049,
           "alert": "normal"
         }
       },
@@ -946,10 +946,10 @@
         "isAnomaly": false,
         "oiAnalysis": {
           "currentOI": 1704591,
-          "historicalMaxOI": 4832902,
-          "historicalMaxDate": "2017-07-13",
+          "historicalMaxOI": 2441388,
+          "historicalMaxDate": "2025-05-28",
           "dataStart": "2016-06-07",
-          "oiRatio": 0.3527,
+          "oiRatio": 0.6982,
           "alert": "normal"
         }
       },
@@ -967,10 +967,10 @@
         "isAnomaly": false,
         "oiAnalysis": {
           "currentOI": 30622,
-          "historicalMaxOI": 311400,
+          "historicalMaxOI": 155700,
           "historicalMaxDate": "2018-03-26",
           "dataStart": "2018-03-26",
-          "oiRatio": 0.0983,
+          "oiRatio": 0.1967,
           "alert": "normal"
         }
       },
@@ -988,10 +988,10 @@
         "isAnomaly": false,
         "oiAnalysis": {
           "currentOI": 659276,
-          "historicalMaxOI": 930538,
-          "historicalMaxDate": "2016-10-17",
+          "historicalMaxOI": 779320,
+          "historicalMaxDate": "2023-04-17",
           "dataStart": "2016-06-07",
-          "oiRatio": 0.7085,
+          "oiRatio": 0.846,
           "alert": "normal"
         }
       },

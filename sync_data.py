@@ -130,6 +130,16 @@ def screen_commodity(ak, pd, code, start_date):
             return None
         df.columns = HIST_COLS[:len(df.columns)]
         df['hold'] = pd.to_numeric(df['hold'], errors='coerce').fillna(0)
+        
+        # Convert pre-2020 bilateral hold to unilateral (Sina database transition date: 2020-01-02)
+        def convert_to_unilateral(row):
+            date_str = str(row['date'])
+            if date_str < '2020-01-02':
+                return row['hold'] / 2.0
+            return row['hold']
+            
+        df['hold'] = df.apply(convert_to_unilateral, axis=1)
+
         df_nz = df[df['hold'] > 0]
         if df_nz.empty:
             return None
