@@ -121,9 +121,9 @@ class FuturesChart {
         // Mouse interactions for crosshair & panning
         this.canvas.addEventListener('mousemove', (e) => {
             const rect = this.canvas.getBoundingClientRect();
-            // Accounts for CSS scaling
-            this.mouseX = (e.clientX - rect.left) * (this.canvas.width / rect.width);
-            this.mouseY = (e.clientY - rect.top) * (this.canvas.height / rect.height);
+            // Accounts for CSS scaling in logical coordinates
+            this.mouseX = e.clientX - rect.left;
+            this.mouseY = e.clientY - rect.top;
             this.updateHoverIndex();
             
             const chartWidth = this.logicalWidth - this.paddingLeft - this.paddingRight;
@@ -136,10 +136,7 @@ class FuturesChart {
                 const chartWidth = this.logicalWidth - this.paddingLeft - this.paddingRight;
                 const visibleCount = this.visibleEnd - this.visibleStart;
                 
-                // Calculate width in client pixels
-                const rectWidth = rect.width * (chartWidth / this.logicalWidth);
-                const clientCandleWidth = rectWidth / visibleCount;
-                
+                const clientCandleWidth = chartWidth / visibleCount;
                 const dx = e.clientX - this.panStartMouseX;
                 const shift = Math.round(dx / clientCandleWidth);
                 
@@ -191,11 +188,9 @@ class FuturesChart {
             const clientMouseX = e.clientX - rect.left;
             
             const chartWidth = this.logicalWidth - this.paddingLeft - this.paddingRight;
-            const clientLeftPadding = rect.width * (this.paddingLeft / this.logicalWidth);
-            const clientChartWidth = rect.width * (chartWidth / this.logicalWidth);
             
             // Percentage of mouse X across chart area
-            let pct = (clientMouseX - clientLeftPadding) / clientChartWidth;
+            let pct = (clientMouseX - this.paddingLeft) / chartWidth;
             if (pct < 0) pct = 0;
             if (pct > 1) pct = 1;
             
@@ -226,6 +221,103 @@ class FuturesChart {
             this.render();
         }, { passive: false });
 
+        // Touch event handlers for gesture pan/zoom
+        this.canvas.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                // Single finger touch -> swipe to pan
+                this.isTouchPanning = true;
+                this.isTouchZooming = false;
+                this.lastTouchX = e.touches[0].clientX;
+                this.panStartStartIdx = this.visibleStart;
+            } else if (e.touches.length === 2) {
+                // Two fingers pinch -> zoom
+                this.isTouchZooming = true;
+                this.isTouchPanning = false;
+                
+                const t1 = e.touches[0];
+                const t2 = e.touches[1];
+                this.touchStartDist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+                
+                // Find midpoint relative to chart
+                const rect = this.canvas.getBoundingClientRect();
+                const midClientX = (t1.clientX + t2.clientX) / 2;
+                const midX = midClientX - rect.left;
+                
+                const chartWidth = this.logicalWidth - this.paddingLeft - this.paddingRight;
+                let pct = (midX - this.paddingLeft) / chartWidth;
+                if (pct < 0) pct = 0;
+                if (pct > 1) pct = 1;
+                this.touchStartMidPct = pct;
+            }
+        }, { passive: true });
+
+        this.canvas.addEventListener('touchmove', (e) => {
+            if (!this.data.length) return;
+            
+            if (this.isTouchPanning && e.touches.length === 1) {
+                const touchX = e.touches[0].clientX;
+                const chartWidth = this.logicalWidth - this.paddingLeft - this.paddingRight;
+                const visibleCount = this.visibleEnd - this.visibleStart;
+                const clientCandleWidth = chartWidth / visibleCount;
+                
+                const dx = touchX - this.lastTouchX;
+                const shift = Math.round(dx / clientCandleWidth);
+                
+                let newStart = this.panStartStartIdx - shift;
+                if (newStart < 0) newStart = 0;
+                let newEnd = newStart + visibleCount;
+                if (newEnd > this.data.length) {
+                    newEnd = this.data.length;
+                    newStart = newEnd - visibleCount;
+                    if (newStart < 0) newStart = 0;
+                }
+                
+                this.visibleStart = newStart;
+                this.visibleEnd = newEnd;
+                this.render();
+            } else if (this.isTouchZooming && e.touches.length === 2) {
+                const t1 = e.touches[0];
+                const t2 = e.touches[1];
+                const newDist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+                
+                if (this.touchStartDist > 0 && newDist > 0) {
+                    const factor = this.touchStartDist / newDist;
+                    
+                    const visibleCount = this.visibleEnd - this.visibleStart;
+                    let newCount = Math.round(visibleCount * factor);
+                    
+                    if (newCount < 10) newCount = 10;
+                    if (newCount > this.data.length) newCount = this.data.length;
+                    
+                    const diff = visibleCount - newCount;
+                    let newStart = this.visibleStart + Math.round(diff * this.touchStartMidPct);
+                    let newEnd = newStart + newCount;
+                    
+                    if (newStart < 0) {
+                        newStart = 0;
+                        newEnd = newStart + newCount;
+                    }
+                    if (newEnd > this.data.length) {
+                        newEnd = this.data.length;
+                        newStart = newEnd - newCount;
+                        if (newStart < 0) newStart = 0;
+                    }
+                    
+                    this.visibleStart = newStart;
+                    this.visibleEnd = newEnd;
+                    this.touchStartDist = newDist;
+                    this.render();
+                }
+            }
+        }, { passive: true });
+
+        const endTouch = () => {
+            this.isTouchPanning = false;
+            this.isTouchZooming = false;
+        };
+        this.canvas.addEventListener('touchend', endTouch);
+        this.canvas.addEventListener('touchcancel', endTouch);
+
         // Double click to reset zoom
         this.canvas.addEventListener('dblclick', () => {
             this.visibleStart = 0;
@@ -243,18 +335,10 @@ class FuturesChart {
     }
 
     initControls() {
-        const zoomInBtn = document.getElementById('chartZoomIn');
-        const zoomOutBtn = document.getElementById('chartZoomOut');
         const fullscreenBtn = document.getElementById('chartFullscreen');
         const track = document.getElementById('scrollbarTrack');
         const handle = document.getElementById('scrollbarHandle');
 
-        if (zoomInBtn) {
-            zoomInBtn.addEventListener('click', () => this.zoom(0.8));
-        }
-        if (zoomOutBtn) {
-            zoomOutBtn.addEventListener('click', () => this.zoom(1.2));
-        }
         if (fullscreenBtn) {
             fullscreenBtn.addEventListener('click', () => {
                 const chartPanel = this.canvas.closest('.chart-panel');
@@ -326,36 +410,6 @@ class FuturesChart {
                 }
             });
         }
-    }
-
-    zoom(factor) {
-        if (!this.data.length) return;
-        const visibleCount = this.visibleEnd - this.visibleStart;
-        let newCount = Math.round(visibleCount * factor);
-
-        if (newCount < 10) newCount = 10;
-        if (newCount > this.data.length) newCount = this.data.length;
-
-        // Center zoom around lastHoverPct if valid, otherwise center at 0.5
-        const pct = (this.lastHoverPct !== undefined) ? this.lastHoverPct : 0.5;
-
-        const diff = visibleCount - newCount;
-        let newStart = this.visibleStart + Math.round(diff * pct);
-        let newEnd = newStart + newCount;
-
-        if (newStart < 0) {
-            newStart = 0;
-            newEnd = newStart + newCount;
-        }
-        if (newEnd > this.data.length) {
-            newEnd = this.data.length;
-            newStart = newEnd - newCount;
-            if (newStart < 0) newStart = 0;
-        }
-
-        this.visibleStart = newStart;
-        this.visibleEnd = newEnd;
-        this.render();
     }
 
     resize() {
