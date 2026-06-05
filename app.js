@@ -508,7 +508,7 @@ function initializeChartComponent() {
     window.activeChart = new FuturesChart('futuresChart');
     
     // Handle chart period change tabs
-    const periodButtons = document.querySelectorAll('#chartPeriodToolbar .btn-tab');
+    const periodButtons = document.querySelectorAll('#chartPeriodGroup .btn-tab:not(.period-toggle-btn)');
     periodButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             periodButtons.forEach(b => b.classList.remove('active'));
@@ -517,6 +517,19 @@ function initializeChartComponent() {
             updateChartData();
         });
     });
+
+    // Expand / collapse the extra periods (15M, 30M, 1H, Month)
+    const periodGroup = document.getElementById('chartPeriodGroup');
+    const periodToggle = document.getElementById('periodToggle');
+    let periodExpanded = false;
+
+    if (periodToggle && periodGroup) {
+        periodToggle.addEventListener('click', () => {
+            periodExpanded = !periodExpanded;
+            periodGroup.classList.toggle('expanded', periodExpanded);
+            periodToggle.textContent = periodExpanded ? '\u00ab' : '\u00bb';
+        });
+    }
 
     // Handle K-line style vs Tick line style
     const typeButtons = document.querySelectorAll('#chartTypeToolbar .btn-tab');

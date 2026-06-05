@@ -76,14 +76,15 @@
                             
                             <!-- Control Toolbar -->
                             <div class="chart-toolbar">
-                                <!-- Period Toggle -->
-                                <div class="btn-group" id="chartPeriodToolbar">
-                                    <button class="btn-tab" data-period="15M">15M</button>
-                                    <button class="btn-tab" data-period="30M">30M</button>
-                                    <button class="btn-tab" data-period="60M">1H</button>
-                                    <button class="btn-tab active" data-period="D">日K</button>
-                                    <button class="btn-tab" data-period="W">周K</button>
-                                    <button class="btn-tab" data-period="Month">月K</button>
+                                <!-- Period Toggle (collapsible) -->
+                                <div class="period-group" id="chartPeriodGroup">
+                                    <button class="btn-tab period-extra" data-period="15M">15M</button>
+                                    <button class="btn-tab period-extra" data-period="30M">30M</button>
+                                    <button class="btn-tab period-extra" data-period="60M">1H</button>
+                                    <button class="btn-tab period-always active" data-period="D">日K</button>
+                                    <button class="btn-tab period-always" data-period="W">周K</button>
+                                    <button class="btn-tab period-extra" data-period="Month">月K</button>
+                                    <button class="btn-tab period-toggle-btn" id="periodToggle">»</button>
                                 </div>
                                 
                                 <!-- Chart Type Toggle -->
