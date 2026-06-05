@@ -46,16 +46,16 @@ const articles = [
             
             <p><strong>已知条件：</strong></p>
             <div class="math-block">
-                P(价格 &gt; 1400 \mid 这周) = 20%
+                P(价格 &gt; 1400  |  这周) = 20%
             </div>
             <div class="math-block">
-                P(价格 &gt; 1500 \mid 这周) = 2%
+                P(价格 &gt; 1500  |  这周) = 2%
             </div>
             
             <p><strong>求解目标：</strong></p>
             <p>在价格成功守住 1400（即 <span class="math-inline">价格 &gt; 1400</span>）的条件下，本周价格能进一步突破 1500 的条件概率：</p>
             <div class="math-block">
-                P(价格 &gt; 1500 \mid 价格 &gt; 1400, 这周)
+                P(价格 &gt; 1500  |  价格 &gt; 1400, 这周)
             </div>
             
             <p><strong>事件设定：</strong></p>
@@ -73,7 +73,7 @@ const articles = [
             <h2>二、 公式推导过程</h2>
             <p>根据条件概率的基本公式：</p>
             <div class="math-block">
-                P(B \mid A, W) = <div class="math-fraction"><span class="math-numerator">P(B, A, W)</span><span class="math-denominator">P(A, W)</span></div>
+                P(B  |  A, W) = <div class="math-fraction"><span class="math-numerator">P(B, A, W)</span><span class="math-denominator">P(A, W)</span></div>
             </div>
             
             <p>又因为 <span class="math-inline">B \subset A</span>，所以联合事件 <span class="math-inline">P(B, A, W)</span> 可以简化为：</p>
@@ -83,22 +83,22 @@ const articles = [
             
             <p>将其带回原式，我们得到：</p>
             <div class="math-block">
-                P(B \mid A, W) = <div class="math-fraction"><span class="math-numerator">P(B, W)</span><span class="math-denominator">P(A, W)</span></div>
+                P(B  |  A, W) = <div class="math-fraction"><span class="math-numerator">P(B, W)</span><span class="math-denominator">P(A, W)</span></div>
             </div>
             
             <p>进一步展开为关于时间的条件概率：</p>
             <div class="math-block">
-                P(B \mid A, W) = <div class="math-fraction"><span class="math-numerator">P(B \mid W) P(W)</span><span class="math-denominator">P(A \mid W) P(W)</span></div>
+                P(B  |  A, W) = <div class="math-fraction"><span class="math-numerator">P(B  |  W) P(W)</span><span class="math-denominator">P(A  |  W) P(W)</span></div>
             </div>
             
             <p>由于在此我们讨论的基准时间段就是本周，因此 <span class="math-inline">P(W) = 1</span>，分子分母的 <span class="math-inline">P(W)</span> 相互抵消，得到最终模型：</p>
             <div class="math-block">
-                P(B \mid A, W) = <div class="math-fraction"><span class="math-numerator">P(B \mid W)</span><span class="math-denominator">P(A \mid W)</span></div>
+                P(B  |  A, W) = <div class="math-fraction"><span class="math-numerator">P(B  |  W)</span><span class="math-denominator">P(A  |  W)</span></div>
             </div>
             
             <p><strong>代入数据计算：</strong></p>
             <div class="math-block">
-                P(价格 &gt; 1500 \mid 价格 &gt; 1400, 这周) = <div class="math-fraction"><span class="math-numerator">2%</span><span class="math-denominator">20%</span></div> = 10%
+                P(价格 &gt; 1500  |  价格 &gt; 1400, 这周) = <div class="math-fraction"><span class="math-numerator">2%</span><span class="math-denominator">20%</span></div> = 10%
             </div>
             
             <h2>三、 贝叶斯视角下的交易思考</h2>
@@ -108,8 +108,8 @@ const articles = [
             
             <p>两者的核心区别在于：</p>
             <ul>
-                <li><strong>无条件问题：</strong> <span class="math-inline">P(价格 &gt; 1500 \mid 这周)</span> —— “这周价格涨到 1500 之上的概率是多少”。</li>
-                <li><strong>条件问题：</strong> <span class="math-inline">P(价格 &gt; 1500 \mid 价格 &gt; 1400, 这周)</span> —— “如果价格守住 1400，那么它进一步涨到 1500 之上的概率是多少”。</li>
+                <li><strong>无条件问题：</strong> <span class="math-inline">P(价格 &gt; 1500  |  这周)</span> —— “这周价格涨到 1500 之上的概率是多少”。</li>
+                <li><strong>条件问题：</strong> <span class="math-inline">P(价格 &gt; 1500  |  价格 &gt; 1400, 这周)</span> —— “如果价格守住 1400，那么它进一步涨到 1500 之上的概率是多少”。</li>
             </ul>
             
             <p>后者排除了跌破 1400 的弱势运行路径，只在“价格仍处于 1400 上方”的子样本空间中重新进行概率计算。因此，1500 的上行概率从 2% 提升到 10%，相当于<strong>提高了 5 倍</strong>。</p>
@@ -117,7 +117,7 @@ const articles = [
             <h2>四、 结论与实盘警示</h2>
             <p>但这并不意味着交易上可以简单得出“只要在 1400 做多即可”的盲目结论。因为：</p>
             <div class="math-block">
-                P(价格 &gt; 1400 \mid 这周) = 20%
+                P(价格 &gt; 1400  |  这周) = 20%
             </div>
             <p>这意味着价格能够守住 1400 本身也并不是高概率事件（仅有 20%）。真正的交易含义是：</p>
             <blockquote>
