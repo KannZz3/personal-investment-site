@@ -46,6 +46,7 @@ class FuturesChart {
 
         // Colors (will check current theme at render time)
         this.theme = 'dark';
+        this.lastHoverPct = 0.5;
         
         this.initEvents();
     }
@@ -124,6 +125,11 @@ class FuturesChart {
             this.mouseX = (e.clientX - rect.left) * (this.canvas.width / rect.width);
             this.mouseY = (e.clientY - rect.top) * (this.canvas.height / rect.height);
             this.updateHoverIndex();
+            
+            const chartWidth = this.logicalWidth - this.paddingLeft - this.paddingRight;
+            if (chartWidth > 0 && this.mouseX >= this.paddingLeft && this.mouseX <= this.logicalWidth - this.paddingRight) {
+                this.lastHoverPct = (this.mouseX - this.paddingLeft) / chartWidth;
+            }
             
             // Panning logic
             if (this.isPanning && this.data.length) {
@@ -220,6 +226,18 @@ class FuturesChart {
             this.render();
         }, { passive: false });
 
+        // Double click to reset zoom
+        this.canvas.addEventListener('dblclick', () => {
+            this.visibleStart = 0;
+            this.visibleEnd = this.data.length;
+            this.render();
+        });
+
+        // Resize when entering/exiting fullscreen mode
+        document.addEventListener('fullscreenchange', () => {
+            this.resize();
+        });
+
         // Bind control elements (zoom buttons & scrollbar slider)
         this.initControls();
     }
@@ -227,7 +245,7 @@ class FuturesChart {
     initControls() {
         const zoomInBtn = document.getElementById('chartZoomIn');
         const zoomOutBtn = document.getElementById('chartZoomOut');
-        const resetBtn = document.getElementById('chartZoomReset');
+        const fullscreenBtn = document.getElementById('chartFullscreen');
         const track = document.getElementById('scrollbarTrack');
         const handle = document.getElementById('scrollbarHandle');
 
@@ -237,11 +255,18 @@ class FuturesChart {
         if (zoomOutBtn) {
             zoomOutBtn.addEventListener('click', () => this.zoom(1.2));
         }
-        if (resetBtn) {
-            resetBtn.addEventListener('click', () => {
-                this.visibleStart = 0;
-                this.visibleEnd = this.data.length;
-                this.render();
+        if (fullscreenBtn) {
+            fullscreenBtn.addEventListener('click', () => {
+                const chartPanel = this.canvas.closest('.chart-panel');
+                if (!chartPanel) return;
+                
+                if (!document.fullscreenElement) {
+                    chartPanel.requestFullscreen().catch(err => {
+                        console.error(`Error attempting to enable fullscreen mode: ${err.message}`);
+                    });
+                } else {
+                    document.exitFullscreen();
+                }
             });
         }
 
@@ -311,8 +336,11 @@ class FuturesChart {
         if (newCount < 10) newCount = 10;
         if (newCount > this.data.length) newCount = this.data.length;
 
+        // Center zoom around lastHoverPct if valid, otherwise center at 0.5
+        const pct = (this.lastHoverPct !== undefined) ? this.lastHoverPct : 0.5;
+
         const diff = visibleCount - newCount;
-        let newStart = this.visibleStart + Math.round(diff / 2);
+        let newStart = this.visibleStart + Math.round(diff * pct);
         let newEnd = newStart + newCount;
 
         if (newStart < 0) {

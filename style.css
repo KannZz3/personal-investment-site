@@ -283,7 +283,7 @@ nav li.active a {
 main {
     flex: 1;
     padding: 2rem;
-    max-width: 1400px;
+    max-width: 100%;
     width: 100%;
     margin: 0 auto;
 }
@@ -1952,4 +1952,23 @@ footer {
     color: var(--text-primary);
     border-color: var(--text-muted);
     background-color: var(--bg-surface-hover);
+}
+
+/* Fullscreen styles for Chart Panel */
+.chart-panel:fullscreen {
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none !important;
+    max-height: none !important;
+    padding: 2rem !important;
+    background-color: var(--bg-surface) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.chart-panel:fullscreen .chart-canvas-wrapper {
+    flex: 1 !important;
 }
