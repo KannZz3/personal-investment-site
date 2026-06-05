@@ -732,7 +732,7 @@ function updateProfileAvailabilityPanel() {
     
     if (tpoStart && tpoStart !== "无数据") {
         if (limitTpoInfo) {
-            limitTpoInfo.textContent = `TPO (30m/日/周) 可用起点: ${tpoStart} 至今`;
+            limitTpoInfo.textContent = `TPO 可用起点: ${tpoStart} 至今`;
             limitTpoInfo.style.display = 'inline-flex';
         }
     } else {
@@ -741,7 +741,7 @@ function updateProfileAvailabilityPanel() {
     
     if ((vp1mStart && vp1mStart !== "无数据") || (vp5mStart && vp5mStart !== "无数据")) {
         if (limitVpInfo) {
-            let vpText = "VP (30m/日/周) 可用起点: ";
+            let vpText = "VP 可用起点: ";
             const parts = [];
             if (vp1mStart && vp1mStart !== "无数据") parts.push(`1m: ${vp1mStart}`);
             if (vp5mStart && vp5mStart !== "无数据") parts.push(`5m: ${vp5mStart}`);

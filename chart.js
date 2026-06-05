@@ -1446,7 +1446,7 @@ class FuturesChart {
         }
 
         // Draw boundary warning overlays for TPO / VP (insufficient or partial)
-        // Format: line 1 = boundary notice, line 2 = current date + quality tag
+        // Format: line 1 = boundary notice, line 2 = current date only (no quality tag in chart area)
         const tpoNeedsWarning = this.tpoLevel !== 'none' && tpoProfile &&
             (!tpoProfile.rows || tpoProfile.rows.length === 0 ||
              tpoProfile.meta.dataQuality === 'insufficient' ||
@@ -1455,7 +1455,6 @@ class FuturesChart {
         if (tpoNeedsWarning) {
             const x = this.paddingLeft + 15;
             const y = this.paddingTop + 45;
-            const quality = (tpoProfile.meta && tpoProfile.meta.dataQuality) || 'insufficient';
             
             ctx.fillStyle = isDark ? 'rgba(148, 163, 184, 0.75)' : 'rgba(100, 116, 139, 0.85)';
             ctx.textAlign = 'left';
@@ -1468,7 +1467,7 @@ class FuturesChart {
             ctx.fillText(`当前区间早于标准 ${lvlName} 数据边界。`, x, y);
             
             ctx.font = '10px Inter, sans-serif';
-            ctx.fillText(`当前区间：${endDate || '未知'} （${quality}）`, x, y + 18);
+            ctx.fillText(`当前区间：${endDate || '未知'}`, x, y + 18);
         }
         
         const vpNeedsWarning = this.vpLevel !== 'none' && vpProfile &&
@@ -1479,7 +1478,6 @@ class FuturesChart {
         if (vpNeedsWarning) {
             const x = w - this.paddingRight - 15;
             const y = this.paddingTop + 45;
-            const quality = (vpProfile.meta && vpProfile.meta.dataQuality) || 'insufficient';
             
             ctx.fillStyle = isDark ? 'rgba(148, 163, 184, 0.75)' : 'rgba(100, 116, 139, 0.85)';
             ctx.textAlign = 'right';
@@ -1492,7 +1490,7 @@ class FuturesChart {
             ctx.fillText(`当前区间早于标准 ${lvlName} 数据边界。`, x, y);
             
             ctx.font = '10px Inter, sans-serif';
-            ctx.fillText(`当前区间：${endDate || '未知'} （${quality}）`, x, y + 18);
+            ctx.fillText(`当前区间：${endDate || '未知'}`, x, y + 18);
         }
 
         // Draw profile tooltips if mouse is hovering on profiles
