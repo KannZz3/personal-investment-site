@@ -302,7 +302,7 @@ async function loadFuturesData() {
         
         if (data.metadata && data.metadata.sync_time) {
             const date = new Date(data.metadata.sync_time);
-            syncTimeText.textContent = `更新: ${date.toLocaleString()} | 市场看板仅显示符合异动条件的合约`;
+            syncTimeText.textContent = `数据更新: ${date.toLocaleString()} | 基于上一交易日收盘数据，每日更新`;
         }
         
         // Build the technical UI table and cards
@@ -315,7 +315,7 @@ async function loadFuturesData() {
         
         statusDot.className = 'status-dot active';
         statusText.textContent = '行情模拟模式';
-        syncTimeText.textContent = '数据已同步接入实时行情演算器';
+        syncTimeText.textContent = '演示模式 · 数据为模拟数据，非实盘按日更新';
         
         startLiveTickerTimer();
     }
@@ -1206,7 +1206,7 @@ function buildTechnicalUI(data) {
     // 1. Scan badge
     const scanStatus = document.getElementById('techScanStatus');
     if (scanStatus) {
-        scanStatus.textContent = `扫描完成: ${meta.sync_time ? new Date(meta.sync_time).toLocaleString() : ''} | 发现 ${meta.anomalies.length} 个异动`;
+        scanStatus.textContent = `扫描完成: ${meta.sync_time ? new Date(meta.sync_time).toLocaleString() : ''} | 基于上一交易日收盘数据 · 发现 ${meta.anomalies.length} 个异动`;
         scanStatus.parentElement.style.color = meta.anomalies.length > 0 ? "var(--primary)" : "var(--text-muted)";
     }
 
