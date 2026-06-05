@@ -164,6 +164,102 @@ class FuturesChart {
             fallbackFrequencies = ['5m']; // Strictly no 15m for all VP
         }
         
+        // ── Special path: Composite VP (Daily / Weekly) ──────────────────────────
+        // AkShare free-tier minute data is naturally limited to ~15 days (5m) or ~2 days (1m).
+        // Rather than requiring a full 20D / 40D window and hiding the profile as
+        // "insufficient", we build with ALL available 1m or 5m bars and flag
+        // dataQuality as "partial" when actual coverage < target.
+        // No 15m / daily / weekly K-line fallback is allowed.
+        if (type === 'volume' && level !== '30m') {
+            const targetLookbackDays = level === 'daily' ? 20 : 40;
+            
+            // Choose best available frequency: 1m preferred, then 5m
+            let activeBars = null;
+            let actualFrequencyUsed = null;
+            let fallbackUsed = false;
+            
+            if (this.bars1m && this.bars1m.length > 0) {
+                activeBars = this.bars1m;
+                actualFrequencyUsed = '1m';
+            } else if (this.bars5m && this.bars5m.length > 0) {
+                activeBars = this.bars5m;
+                actualFrequencyUsed = '5m';
+                fallbackUsed = true;
+            }
+            
+            if (!activeBars || activeBars.length === 0) {
+                const emptyProfile = {
+                    type, level, symbol, endDate,
+                    lookback: level === 'daily' ? '20D' : '8W',
+                    poc: 0, vah: 0, val: 0, rangeHigh: 0, rangeLow: 0,
+                    rows: [],
+                    meta: {
+                        profileLevel: level,
+                        targetLookbackDays,
+                        actualLookbackDays: 0,
+                        dataQuality: 'insufficient',
+                        insufficientReason: 'No 1m or 5m data available'
+                    }
+                };
+                this.profileCache[cacheKey] = emptyProfile;
+                return emptyProfile;
+            }
+            
+            // Count unique trading days in the available bars
+            const coveredDates = new Set(
+                activeBars.map(b => getTradingDate(b.datetime || b.date, dailyDates))
+            );
+            const actualLookbackDays = coveredDates.size;
+            
+            const firstBar = activeBars[0];
+            const lastBar  = activeBars[activeBars.length - 1];
+            const earliestAvailable = firstBar.datetime || firstBar.date;
+            const latestAvailable   = lastBar.datetime  || lastBar.date;
+            
+            const dataQuality = actualLookbackDays >= targetLookbackDays ? 'full' : 'partial';
+            
+            // Build with all available bars.
+            // Pass actualLookbackDays so the builder selects exactly those trading dates.
+            const profile = buildDailyCompositeVolume({
+                bars1m: activeBars, tickSize, symbol, endDate, dailyDates,
+                lookbackDays: actualLookbackDays
+            });
+            
+            if (profile && profile.rows && profile.rows.length > 0) {
+                if (!profile.meta) profile.meta = {};
+                profile.meta.profileLevel         = level;
+                profile.meta.targetLookbackDays   = targetLookbackDays;
+                profile.meta.actualLookbackDays   = actualLookbackDays;
+                profile.meta.dataCoverageDays     = actualLookbackDays;
+                profile.meta.actualFrequencyUsed  = actualFrequencyUsed;
+                profile.meta.fallbackUsed         = fallbackUsed;
+                profile.meta.earliestAvailableTime = earliestAvailable;
+                profile.meta.latestAvailableTime   = latestAvailable;
+                profile.meta.dataQuality           = dataQuality;
+                
+                this.profileCache[cacheKey] = profile;
+                return profile;
+            }
+            
+            // Build returned empty (e.g. endDate outside data range)
+            const emptyProfile = {
+                type, level, symbol, endDate,
+                lookback: level === 'daily' ? '20D' : '8W',
+                poc: 0, vah: 0, val: 0, rangeHigh: 0, rangeLow: 0,
+                rows: [],
+                meta: {
+                    profileLevel: level,
+                    targetLookbackDays,
+                    actualLookbackDays,
+                    dataQuality: 'insufficient',
+                    insufficientReason: 'Profile build returned no rows'
+                }
+            };
+            this.profileCache[cacheKey] = emptyProfile;
+            return emptyProfile;
+        }
+        // ── End Composite VP special path ────────────────────────────────────────
+        
         const availability = checkProfileDataAvailability({
             symbol,
             profileType: type,
@@ -214,10 +310,6 @@ class FuturesChart {
         } else if (type === 'volume') {
             if (level === '30m') {
                 profile = buildVolumeProfile({ bars1m: activeBars, tickSize, symbol, sessionDate: endDate, dailyDates });
-            } else if (level === 'daily') {
-                profile = buildDailyCompositeVolume({ bars1m: activeBars, tickSize, symbol, endDate, dailyDates, lookbackDays: 20 });
-            } else if (level === 'weekly') {
-                profile = buildWeeklyCompositeVolume({ bars1m: activeBars, tickSize, symbol, endDate, dailyDates, lookbackWeeks: 8 });
             }
         }
         
@@ -239,14 +331,9 @@ class FuturesChart {
             
             // Count unique trading days covered in the lookback window
             if (dailyDates) {
-                let lookbackDays = 1;
-                if (level === 'daily') lookbackDays = 20;
-                else if (level === 'weekly') lookbackDays = 40;
-                
                 const endIdx = dailyDates.indexOf(endDate);
                 if (endIdx !== -1) {
-                    const startIdx = Math.max(0, endIdx - lookbackDays + 1);
-                    profile.meta.dataCoverageDays = endIdx - startIdx + 1;
+                    profile.meta.dataCoverageDays = 1; // 30m VP is always 1 day
                 }
             }
             
@@ -268,6 +355,7 @@ class FuturesChart {
         if (meta.dataCoverageDays) linesCount++;
         if (meta.profileStartTime && meta.profileEndTime) linesCount++;
         if (type === 'volume' && meta.fallbackUsed && meta.fallbackReason) linesCount++;
+        if (type === 'volume' && meta.dataQuality === 'partial' && meta.actualLookbackDays && meta.targetLookbackDays) linesCount++;
         
         const tooltipW = 210;
         const tooltipH = 38 + linesCount * 16;
@@ -385,8 +473,15 @@ class FuturesChart {
             
             // Data Quality
             const vpQuality = meta.dataQuality || 'unknown';
-            const vpQualityColor = vpQuality === 'full' ? '#10b981' : vpQuality === 'fallback' ? '#f59e0b' : '#9ca3af';
+            const vpQualityColor = vpQuality === 'full' ? '#10b981' :
+                                   vpQuality === 'partial' ? '#f59e0b' :
+                                   vpQuality === 'fallback' ? '#f59e0b' : '#9ca3af';
             drawLine("Data Quality:", vpQuality.toUpperCase(), vpQualityColor);
+            
+            // Partial coverage: show actual vs target days
+            if (vpQuality === 'partial' && meta.actualLookbackDays && meta.targetLookbackDays) {
+                drawLine("Coverage:", `${meta.actualLookbackDays}D / ${meta.targetLookbackDays}D target`, '#f59e0b');
+            }
             
             drawLine("价格:", row.price.toFixed(1));
             drawLine("估算成交:", this.formatVolume(row.value));
