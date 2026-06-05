@@ -524,10 +524,19 @@ function initializeChartComponent() {
     let periodExpanded = false;
 
     if (periodToggle && periodGroup) {
-        periodToggle.addEventListener('click', () => {
+        periodToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
             periodExpanded = !periodExpanded;
             periodGroup.classList.toggle('expanded', periodExpanded);
             periodToggle.textContent = periodExpanded ? '\u00ab' : '\u00bb';
+        });
+
+        periodGroup.addEventListener('mouseleave', () => {
+            if (periodExpanded) {
+                periodExpanded = false;
+                periodGroup.classList.remove('expanded');
+                periodToggle.textContent = '\u00bb';
+            }
         });
     }
 
