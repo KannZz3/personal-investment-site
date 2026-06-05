@@ -179,6 +179,11 @@ class FuturesChart {
             this.isDraggingScrollbar = false;
         });
 
+        window.addEventListener('touchend', () => {
+            this.isPanning = false;
+            this.isDraggingScrollbar = false;
+        });
+
         // Centered Wheel Zooming
         this.canvas.addEventListener('wheel', (e) => {
             if (!this.data.length) return;
@@ -386,6 +391,13 @@ class FuturesChart {
                 e.stopPropagation();
             });
 
+            handle.addEventListener('touchstart', (e) => {
+                this.isDraggingScrollbar = true;
+                this.dragStartMouseX = e.touches[0].clientX;
+                this.dragStartHandleLeft = handle.offsetLeft;
+                e.stopPropagation();
+            }, { passive: true });
+
             // Handle dragging globally
             window.addEventListener('mousemove', (e) => {
                 if (!this.isDraggingScrollbar || !this.data.length) return;
@@ -409,6 +421,29 @@ class FuturesChart {
                     this.render();
                 }
             });
+
+            window.addEventListener('touchmove', (e) => {
+                if (!this.isDraggingScrollbar || !this.data.length) return;
+
+                const trackWidth = track.getBoundingClientRect().width;
+                const handleWidth = handle.getBoundingClientRect().width;
+                const maxLeft = trackWidth - handleWidth;
+                if (maxLeft <= 0) return;
+
+                const dx = e.touches[0].clientX - this.dragStartMouseX;
+                let newLeft = this.dragStartHandleLeft + dx;
+                if (newLeft < 0) newLeft = 0;
+                if (newLeft > maxLeft) newLeft = maxLeft;
+
+                const visibleCount = this.visibleEnd - this.visibleStart;
+                const scrollableBars = this.data.length - visibleCount;
+
+                if (scrollableBars > 0) {
+                    this.visibleStart = Math.round((newLeft / maxLeft) * scrollableBars);
+                    this.visibleEnd = this.visibleStart + visibleCount;
+                    this.render();
+                }
+            }, { passive: true });
         }
     }
 

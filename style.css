@@ -1409,7 +1409,35 @@ footer {
     
     .chart-toolbar {
         width: 100%;
-        justify-content: space-between;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: flex-start;
+    }
+    
+    .period-group, #chartTypeToolbar, .indicator-group {
+        flex: 1 1 auto;
+        justify-content: center;
+    }
+    
+    .chart-subtitle {
+        white-space: normal;
+        line-height: 1.4;
+    }
+    
+    .tech-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .tech-legend {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .anomaly-cards-grid {
+        grid-template-columns: 1fr;
     }
     
     .reader-content {
@@ -1427,6 +1455,23 @@ footer {
     .footer-right {
         text-align: left;
         margin-top: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .btn-tab {
+        padding: 0.3rem 0.5rem;
+        font-size: 0.75rem;
+        min-width: 38px;
+    }
+    
+    .period-toggle-btn, .indicator-toggle-btn {
+        padding: 0.3rem 0.4rem;
+    }
+    
+    .articles-grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
     }
 }
 
