@@ -798,15 +798,16 @@ class FuturesChart {
     render() {
         if (!this.canvas || !this.ctx || !this.data.length) return;
 
-        // Detect current theme by looking at body data attribute
-        this.theme = document.body.getAttribute('data-theme') || 'dark';
+        try {
+            // Detect current theme by looking at body data attribute
+            this.theme = document.body.getAttribute('data-theme') || 'dark';
 
-        const ctx = this.ctx;
-        const w = this.logicalWidth;
-        const h = this.logicalHeight;
+            const ctx = this.ctx;
+            const w = this.logicalWidth;
+            const h = this.logicalHeight;
 
-        // Clear canvas
-        ctx.clearRect(0, 0, w, h);
+            // Clear canvas
+            ctx.clearRect(0, 0, w, h);
 
         // Define theme-based coloring
         const isDark = this.theme === 'dark';
@@ -1384,6 +1385,15 @@ class FuturesChart {
                     handle.style.left = '0px';
                 }
             }
+        }
+        } catch (err) {
+            console.error("Render crash:", err);
+            const ctx = this.ctx;
+            ctx.fillStyle = '#ef4444';
+            ctx.font = '14px Inter';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            ctx.fillText("Render Error: " + err.message, 20, 50);
         }
     }
 
