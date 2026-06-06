@@ -638,7 +638,7 @@ class FuturesChart {
         document.body.classList.add('has-fullscreen-simulated');
         document.body.style.overflow = 'hidden';
         this.resize();
-        this.render();
+        setTimeout(() => this.resize(), 100);
     }
 
     cleanupFullscreen() {
@@ -670,12 +670,16 @@ class FuturesChart {
         }
         
         this.resize();
-        this.render();
+        setTimeout(() => this.resize(), 100);
     }
 
     initEvents() {
         // Handle resizing
-        window.addEventListener('resize', () => this.resize());
+        window.addEventListener('resize', () => {
+            this.resize();
+            setTimeout(() => this.resize(), 100);
+            setTimeout(() => this.resize(), 250);
+        });
 
         // Mouse interactions for crosshair & panning & drawing
         this.canvas.addEventListener('mousemove', (e) => {
@@ -1166,8 +1170,14 @@ class FuturesChart {
 
         // Double click to reset zoom
         this.canvas.addEventListener('dblclick', () => {
-            this.visibleStart = 0;
-            this.visibleEnd = this.data.length;
+            if (window.innerWidth < 768) {
+                const mobileCount = Math.min(this.data.length, 45);
+                this.visibleStart = this.data.length - mobileCount;
+                this.visibleEnd = this.data.length;
+            } else {
+                this.visibleStart = 0;
+                this.visibleEnd = this.data.length;
+            }
             this.render();
         });
 
@@ -1186,7 +1196,7 @@ class FuturesChart {
                         screen.orientation.lock('landscape').catch(() => {});
                     }
                     this.resize();
-                    this.render();
+                    setTimeout(() => this.resize(), 100);
                 } else {
                     // Exited native fullscreen. Run unified cleanup
                     this.cleanupFullscreen();
