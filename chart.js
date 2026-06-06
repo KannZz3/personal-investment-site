@@ -2023,36 +2023,74 @@ class FuturesChart {
             ctx.setLineDash([]); // Reset line dash
 
             // Draw K-line details banner inside the top-left area of the canvas
-            ctx.fillStyle = isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(241, 245, 249, 0.85)';
-            ctx.fillRect(this.paddingLeft + 5, this.paddingTop + 5, 510, 20);
-            
             ctx.font = '10px Inter, sans-serif';
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'middle';
-            
-            let textX = this.paddingLeft + 10;
-            const drawLabelVal = (lbl, val, color) => {
-                ctx.fillStyle = colorText;
-                ctx.fillText(lbl, textX, this.paddingTop + 15);
-                textX += ctx.measureText(lbl).width + 3;
-                
-                ctx.fillStyle = color;
-                ctx.fillText(val, textX, this.paddingTop + 15);
-                textX += ctx.measureText(val).width + 12;
-            };
-
             const priceColor = d.close >= d.open ? colorUp : colorDown;
-            
-            drawLabelVal('开:', d.open.toFixed(1), priceColor);
-            drawLabelVal('高:', d.high.toFixed(1), colorUp);
-            drawLabelVal('低:', d.low.toFixed(1), colorDown);
-            drawLabelVal('收:', d.close.toFixed(1), priceColor);
-            
             const pct = d.open !== 0 ? ((d.close - d.open) / d.open * 100) : 0;
             const pctText = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
-            drawLabelVal('幅:', pctText, priceColor);
-            drawLabelVal('量:', this.formatVolume(d.volume), colorTextBright);
-            drawLabelVal('仓:', this.formatVolume(d.hold), colorTextBright);
+
+            const items = [
+                { label: '开:', val: d.open.toFixed(1), color: priceColor },
+                { label: '高:', val: d.high.toFixed(1), color: colorUp },
+                { label: '低:', val: d.low.toFixed(1), color: colorDown },
+                { label: '收:', val: d.close.toFixed(1), color: priceColor },
+                { label: '幅:', val: pctText, color: priceColor },
+                { label: '量:', val: this.formatVolume(d.volume), color: colorTextBright },
+                { label: '仓:', val: this.formatVolume(d.hold), color: colorTextBright }
+            ];
+
+            const isNarrow = w < 520;
+            const row1Items = isNarrow ? items.slice(0, 5) : items;
+            const row2Items = isNarrow ? items.slice(5) : [];
+
+            const measureRowWidth = (rowItems) => {
+                let rWidth = 0;
+                rowItems.forEach((item, idx) => {
+                    rWidth += ctx.measureText(item.label).width + 3 + ctx.measureText(item.val).width;
+                    if (idx < rowItems.length - 1) {
+                        rWidth += 10;
+                    }
+                });
+                return rWidth;
+            };
+
+            const r1Width = measureRowWidth(row1Items);
+            const r2Width = isNarrow ? measureRowWidth(row2Items) : 0;
+            const bannerWidth = Math.max(r1Width, r2Width) + 10;
+            const bannerHeight = isNarrow ? 34 : 20;
+
+            ctx.fillStyle = isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(241, 245, 249, 0.85)';
+            ctx.fillRect(this.paddingLeft + 5, this.paddingTop + 5, bannerWidth, bannerHeight);
+
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+
+            // Draw Row 1
+            let textX = this.paddingLeft + 10;
+            const y1 = this.paddingTop + (isNarrow ? 12 : 15);
+            row1Items.forEach((item) => {
+                ctx.fillStyle = colorText;
+                ctx.fillText(item.label, textX, y1);
+                textX += ctx.measureText(item.label).width + 3;
+
+                ctx.fillStyle = item.color;
+                ctx.fillText(item.val, textX, y1);
+                textX += ctx.measureText(item.val).width + 10;
+            });
+
+            // Draw Row 2
+            if (isNarrow) {
+                textX = this.paddingLeft + 10;
+                const y2 = this.paddingTop + 25;
+                row2Items.forEach((item) => {
+                    ctx.fillStyle = colorText;
+                    ctx.fillText(item.label, textX, y2);
+                    textX += ctx.measureText(item.label).width + 3;
+
+                    ctx.fillStyle = item.color;
+                    ctx.fillText(item.val, textX, y2);
+                    textX += ctx.measureText(item.val).width + 10;
+                });
+            }
         }
 
         // Draw boundary warning overlays for TPO / VP (insufficient or partial)
