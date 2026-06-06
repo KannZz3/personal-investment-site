@@ -59,6 +59,7 @@ class FuturesChart {
         this.bars60m = [];
         this.dailyDates = [];
         this.profileCache = {};
+        this.selectedBarIndex = -1;
         
         // Drawing Tool States
         this.drawingMode = 'none'; // 'none', 'hline', 'polyline'
@@ -195,6 +196,7 @@ class FuturesChart {
         });
         
         this.hoverIndex = -1;
+        this.selectedBarIndex = -1;
         this.selectedHLine = null;
         this.selectedPolyline = null;
         this.selectedVertexIndex = null;
@@ -807,6 +809,15 @@ class FuturesChart {
             const mouseX = coords.x;
             const mouseY = coords.y;
 
+            // Click selection for K-lines
+            const isInsideChartX = mouseX >= this.paddingLeft && mouseX <= this.logicalWidth - this.paddingRight;
+            const { priceHeight } = this.getPriceHeightParams();
+            const isInsideChartY = mouseY >= this.paddingTop && mouseY <= this.paddingTop + priceHeight;
+            if (isInsideChartX && isInsideChartY && this.hoverIndex >= 0) {
+                this.selectedBarIndex = this.hoverIndex;
+                this.render();
+            }
+
             if (this.drawingMode !== 'none') {
                 let found = false;
                 const { priceHeight } = this.getPriceHeightParams();
@@ -993,6 +1004,24 @@ class FuturesChart {
             const coords = this.getEventCoords(e.touches[0].clientX, e.touches[0].clientY);
             const touchX = coords.x;
             const touchY = coords.y;
+            
+            // Click selection for K-lines on touch screens
+            const isInsideChartX = touchX >= this.paddingLeft && touchX <= this.logicalWidth - this.paddingRight;
+            const { priceHeight } = this.getPriceHeightParams();
+            const isInsideChartY = touchY >= this.paddingTop && touchY <= this.paddingTop + priceHeight;
+            if (isInsideChartX && isInsideChartY) {
+                const chartWidth = this.logicalWidth - this.paddingLeft - this.paddingRight;
+                const visibleCount = this.visibleEnd - this.visibleStart;
+                const candleWidth = chartWidth / visibleCount;
+                const relativeX = touchX - this.paddingLeft;
+                const offsetIndex = Math.floor(relativeX / candleWidth);
+                const index = this.visibleStart + offsetIndex;
+                if (index >= this.visibleStart && index < this.visibleEnd && index < this.data.length) {
+                    this.selectedBarIndex = index;
+                    this.hoverIndex = index;
+                    this.render();
+                }
+            }
             
             if (this.drawingMode !== 'none') {
                 e.preventDefault();
@@ -1639,11 +1668,21 @@ class FuturesChart {
 
         // Calculate TPO and Volume Profiles if requested
         const lastVisibleBar = visibleData[visibleData.length - 1];
+        
+        let targetBar = null;
+        if (this.hoverIndex >= 0 && this.hoverIndex < this.data.length) {
+            targetBar = this.data[this.hoverIndex];
+        } else if (this.selectedBarIndex >= 0 && this.selectedBarIndex < this.data.length) {
+            targetBar = this.data[this.selectedBarIndex];
+        } else {
+            targetBar = lastVisibleBar;
+        }
+
         let tpoProfile = null;
         let tpoStep = 0;
         let endDate = null;
-        if (this.tpoLevel !== 'none' && lastVisibleBar) {
-            endDate = lastVisibleBar.date || (lastVisibleBar.datetime ? getTradingDate(lastVisibleBar.datetime, this.dailyDates) : null);
+        if (this.tpoLevel !== 'none' && targetBar) {
+            endDate = targetBar.date || (targetBar.datetime ? getTradingDate(targetBar.datetime, this.dailyDates) : null);
             if (endDate) {
                 tpoProfile = this.getProfileData('tpo', this.tpoLevel, endDate);
                 if (tpoProfile && tpoProfile.rows && tpoProfile.rows.length > 1) {
@@ -1654,9 +1693,9 @@ class FuturesChart {
 
         let vpProfile = null;
         let vpStep = 0;
-        if (this.vpLevel !== 'none' && lastVisibleBar) {
+        if (this.vpLevel !== 'none' && targetBar) {
             if (!endDate) {
-                endDate = lastVisibleBar.date || (lastVisibleBar.datetime ? getTradingDate(lastVisibleBar.datetime, this.dailyDates) : null);
+                endDate = targetBar.date || (targetBar.datetime ? getTradingDate(targetBar.datetime, this.dailyDates) : null);
             }
             if (endDate) {
                 vpProfile = this.getProfileData('volume', this.vpLevel, endDate);
@@ -2177,24 +2216,34 @@ class FuturesChart {
         const limitVpWarning = document.getElementById('limitVpWarning');
         const profileLimitsPanel = document.getElementById('profileLimitsPanel');
 
-        let showTpoWarn = false;
-        let showVpWarn = false;
+        let showTpoWarn = this.tpoLevel !== 'none';
+        let showVpWarn = this.vpLevel !== 'none';
 
         if (limitTpoWarning) {
-            if (tpoNeedsWarning) {
-                limitTpoWarning.textContent = `当前区间：${endDate || '未知'}超过${tpoLvlName}数据边界`;
+            if (this.tpoLevel !== 'none' && tpoProfile) {
+                if (tpoNeedsWarning) {
+                    limitTpoWarning.classList.add('warning-item');
+                    limitTpoWarning.textContent = `当前区间：${endDate || '未知'}超过${tpoLvlName}数据边界`;
+                } else {
+                    limitTpoWarning.classList.remove('warning-item');
+                    limitTpoWarning.textContent = `当前区间：${endDate || '未知'}`;
+                }
                 limitTpoWarning.style.display = 'inline-flex';
-                showTpoWarn = true;
             } else {
                 limitTpoWarning.style.display = 'none';
             }
         }
 
         if (limitVpWarning) {
-            if (vpNeedsWarning) {
-                limitVpWarning.textContent = `当前区间：${endDate || '未知'}超过${vpLvlName}数据边界`;
+            if (this.vpLevel !== 'none' && vpProfile) {
+                if (vpNeedsWarning) {
+                    limitVpWarning.classList.add('warning-item');
+                    limitVpWarning.textContent = `当前区间：${endDate || '未知'}超过${vpLvlName}数据边界`;
+                } else {
+                    limitVpWarning.classList.remove('warning-item');
+                    limitVpWarning.textContent = `当前区间：${endDate || '未知'}`;
+                }
                 limitVpWarning.style.display = 'inline-flex';
-                showVpWarn = true;
             } else {
                 limitVpWarning.style.display = 'none';
             }
