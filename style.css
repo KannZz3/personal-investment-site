@@ -633,6 +633,7 @@ main {
     width: 100%;
     height: 100%;
     display: block;
+    touch-action: none;
 }
 
 /* Strategy Sidebar */
@@ -1459,8 +1460,23 @@ footer {
     }
     
     .chart-panel {
-        height: 500px;
+        height: auto;
         padding: 1rem;
+    }
+
+    .chart-canvas-wrapper {
+        height: 320px;
+        flex: none;
+    }
+    
+    .draw-tool-btn .btn-text {
+        display: none;
+    }
+    
+    .draw-tool-btn {
+        width: 28px;
+        padding: 0;
+        justify-content: center;
     }
     
     .chart-header {
@@ -1473,7 +1489,7 @@ footer {
         width: 100%;
         display: flex;
         flex-wrap: wrap;
-        gap: 0.5rem;
+        gap: 0.4rem;
         justify-content: flex-start;
     }
     
@@ -1481,16 +1497,132 @@ footer {
         flex: 1 1 auto;
         justify-content: center;
     }
+
+    .btn-tab {
+        padding: 0.25rem 0.4rem;
+        font-size: 0.7rem;
+        min-width: 32px;
+    }
+    
+    .period-toggle-btn, .indicator-toggle-btn, .tpo-btn, .vp-btn, .period-extra, .indicator-extra {
+        padding: 0.25rem 0.4rem !important;
+        font-size: 0.7rem !important;
+    }
     
     .chart-subtitle {
         white-space: normal;
         line-height: 1.4;
     }
+
+    .scrollbar-container {
+        height: 16px;
+    }
+
+    /* Mobile Simulated Fullscreen Rules */
+    .chart-panel.mobile-fullscreen-simulated {
+        position: fixed !important;
+        z-index: 9999 !important;
+        background-color: var(--bg-surface) !important;
+        margin: 0 !important;
+        border: none !important;
+        border-radius: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        box-shadow: none !important;
+    }
+
+    /* Portrait simulated fullscreen: rotate 90deg, width=100vh, height=100vw, origin=top left, translateY(-100%) */
+    @media (orientation: portrait) {
+        .chart-panel.mobile-fullscreen-simulated {
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vh !important;
+            height: 100vw !important;
+            transform-origin: top left !important;
+            transform: rotate(90deg) translateY(-100%) !important;
+        }
+        .chart-panel.mobile-fullscreen-simulated .chart-canvas-wrapper {
+            flex: 1 !important;
+            height: auto !important;
+        }
+    }
+
+    /* Landscape simulated fullscreen: width=100vw, height=100vh, normal fill */
+    @media (orientation: landscape) {
+        .chart-panel.mobile-fullscreen-simulated {
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            transform: none !important;
+            transform-origin: top left !important;
+        }
+        .chart-panel.mobile-fullscreen-simulated .chart-canvas-wrapper {
+            flex: 1 !important;
+            height: auto !important;
+        }
+    }
+
+    /* Articles Mobile Layout */
+    .articles-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .articles-title-section h1 {
+        font-size: 1.5rem !important;
+    }
+
+    .articles-title-section p {
+        font-size: 0.85rem !important;
+    }
+    
+    .category-filter {
+        display: flex;
+        overflow-x: auto;
+        white-space: nowrap;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+        gap: 0.5rem;
+        padding-bottom: 0.5rem;
+        width: 100%;
+        scrollbar-width: none; /* Firefox */
+    }
+    
+    .category-filter::-webkit-scrollbar {
+        display: none; /* Hide scrollbar in Safari/Chrome */
+    }
+    
+    .category-btn {
+        flex: 0 0 auto;
+        padding: 0.4rem 1rem;
+        font-size: 0.8rem;
+    }
     
     .tech-header {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
+    .tech-header h1 {
+        font-size: 1.5rem !important;
+    }
+
+    .tech-header p {
+        font-size: 0.85rem !important;
+    }
+
+    .tech-scan-badge {
+        align-self: flex-start;
+        max-width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        font-size: 0.75rem !important;
+        padding: 0.4rem 0.8rem !important;
     }
     
     .tech-legend {
@@ -2079,6 +2211,7 @@ footer {
     height: 100%;
     position: relative;
     cursor: pointer;
+    touch-action: none;
 }
 
 .scrollbar-handle {
@@ -2090,6 +2223,7 @@ footer {
     width: 30%;
     cursor: grab;
     transition: background-color var(--transition-fast);
+    touch-action: none;
 }
 
 .scrollbar-handle:hover {

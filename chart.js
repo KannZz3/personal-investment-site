@@ -184,9 +184,15 @@ class FuturesChart {
         this.drawingMode = 'none';
         if (this.updateDrawingBtnStates) this.updateDrawingBtnStates();
 
-        // Default to showing 100% of data (extreme timeframe capability)
-        this.visibleStart = 0;
-        this.visibleEnd = this.data.length;
+        // Default to showing 100% of data on desktop, but only 45 bars on mobile to prevent crowding
+        if (window.innerWidth < 768) {
+            const mobileCount = Math.min(this.data.length, 45);
+            this.visibleStart = this.data.length - mobileCount;
+            this.visibleEnd = this.data.length;
+        } else {
+            this.visibleStart = 0;
+            this.visibleEnd = this.data.length;
+        }
         
         this.resize();
     }
@@ -607,6 +613,42 @@ class FuturesChart {
             this.indicators[indicator] = !this.indicators[indicator];
             this.render();
         }
+    enterSimulatedFullscreen(chartPanel) {
+        chartPanel.classList.add('mobile-fullscreen-simulated');
+        document.body.style.overflow = 'hidden';
+        this.resize();
+        this.render();
+    }
+
+    cleanupFullscreen() {
+        const chartPanel = this.canvas.closest('.chart-panel');
+        if (chartPanel) {
+            chartPanel.classList.remove('mobile-fullscreen-simulated');
+        }
+        document.body.style.overflow = '';
+        
+        // Exit native fullscreen if active
+        const fsElement = document.fullscreenElement || 
+                          document.webkitFullscreenElement || 
+                          document.mozFullScreenElement || 
+                          document.msFullscreenElement;
+        if (fsElement) {
+            const exitFS = document.exitFullscreen || 
+                           document.webkitExitFullscreen || 
+                           document.mozCancelFullScreen || 
+                           document.msExitFullscreen;
+            if (exitFS) {
+                try { exitFS.call(document); } catch (e) { console.error(e); }
+            }
+        }
+        
+        // Unlock screen orientation
+        if (screen.orientation && screen.orientation.unlock) {
+            try { screen.orientation.unlock(); } catch (e) {}
+        }
+        
+        this.resize();
+        this.render();
     }
 
     initEvents() {
@@ -858,6 +900,131 @@ class FuturesChart {
 
         // Touch event handlers for gesture pan/zoom
         this.canvas.addEventListener('touchstart', (e) => {
+            const rect = this.canvas.getBoundingClientRect();
+            const touchX = e.touches[0].clientX - rect.left;
+            const touchY = e.touches[0].clientY - rect.top;
+            
+            if (this.drawingMode !== 'none') {
+                e.preventDefault();
+                let found = false;
+                const { priceHeight } = this.getPriceHeightParams();
+
+                // 1. Check if near horizontal lines
+                const yTol = 15;
+                for (let hl of this.drawings.hlines) {
+                    const y = this.yFromPrice(hl.price);
+                    if (Math.abs(touchY - y) < yTol) {
+                        this.selectedHLine = hl;
+                        this.selectedPolyline = null;
+                        this.selectedVertexIndex = null;
+                        this.isDraggingDrawing = true;
+                        found = true;
+                        break;
+                    }
+                }
+
+                // 2. Check if near polyline vertices
+                if (!found) {
+                    const tol = 18;
+                    for (let pl of this.drawings.polylines) {
+                        for (let idxVal = 0; idxVal < pl.points.length; idxVal++) {
+                            const pt = pl.points[idxVal];
+                            const x = this.xFromIndex(pt.index);
+                            const y = this.yFromPrice(pt.price);
+                            if (Math.sqrt((touchX - x) ** 2 + (touchY - y) ** 2) < tol) {
+                                this.selectedPolyline = pl;
+                                this.selectedVertexIndex = idxVal;
+                                this.selectedHLine = null;
+                                this.isDraggingDrawing = true;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (found) break;
+                    }
+                }
+
+                // 3. Check if near polyline segments
+                if (!found) {
+                    const segTol = 15;
+                    for (let pl of this.drawings.polylines) {
+                        for (let idxVal = 0; idxVal < pl.points.length - 1; idxVal++) {
+                            const x1 = this.xFromIndex(pl.points[idxVal].index);
+                            const y1 = this.yFromPrice(pl.points[idxVal].price);
+                            const x2 = this.xFromIndex(pl.points[idxVal + 1].index);
+                            const y2 = this.yFromPrice(pl.points[idxVal + 1].price);
+
+                            const A = touchX - x1;
+                            const B = touchY - y1;
+                            const C = x2 - x1;
+                            const D = y2 - y1;
+
+                            const dot = A * C + B * D;
+                            const lenSq = C * C + D * D;
+                            let param = -1;
+                            if (lenSq !== 0) param = dot / lenSq;
+
+                            let xx, yy;
+                            if (param < 0) {
+                                xx = x1;
+                                yy = y1;
+                            } else if (param > 1) {
+                                xx = x2;
+                                yy = y2;
+                            } else {
+                                xx = x1 + param * C;
+                                yy = y1 + param * D;
+                            }
+
+                            const dist = Math.sqrt((touchX - xx) ** 2 + (touchY - yy) ** 2);
+                            if (dist < segTol) {
+                                this.selectedPolyline = pl;
+                                this.selectedVertexIndex = null;
+                                this.selectedHLine = null;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (found) break;
+                    }
+                }
+
+                if (found) {
+                    if (this.updateDrawingBtnStates) this.updateDrawingBtnStates();
+                    this.render();
+                    return;
+                }
+
+                // If not clicking an existing drawing, we add a new one
+                const currentPrice = this.priceFromY(touchY);
+                const currentIndex = this.indexFromX(touchX);
+
+                if (touchY >= this.paddingTop && touchY <= this.paddingTop + priceHeight && touchX >= this.paddingLeft && touchX <= this.logicalWidth - this.paddingRight) {
+                    if (this.drawingMode === 'hline') {
+                        const newHLine = { price: currentPrice };
+                        this.drawings.hlines.push(newHLine);
+                        this.selectedHLine = newHLine;
+                        this.selectedPolyline = null;
+                        this.isDraggingDrawing = true;
+                    } else if (this.drawingMode === 'polyline') {
+                        if (!this.activePolyline) {
+                            const newPoly = { points: [{ index: currentIndex, price: currentPrice }] };
+                            this.drawings.polylines.push(newPoly);
+                            this.activePolyline = newPoly;
+                            this.selectedPolyline = newPoly;
+                            this.selectedHLine = null;
+                        } else {
+                            this.activePolyline.points.push({ index: currentIndex, price: currentPrice });
+                            this.selectedPolyline = this.activePolyline;
+                            this.selectedHLine = null;
+                        }
+                    }
+                    if (this.updateDrawingBtnStates) this.updateDrawingBtnStates();
+                    this.render();
+                    return;
+                }
+            }
+
             if (e.touches.length === 1) {
                 // Single finger touch -> swipe to pan
                 this.isTouchPanning = true;
@@ -873,8 +1040,6 @@ class FuturesChart {
                 const t2 = e.touches[1];
                 this.touchStartDist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
                 
-                // Find midpoint relative to chart
-                const rect = this.canvas.getBoundingClientRect();
                 const midClientX = (t1.clientX + t2.clientX) / 2;
                 const midX = midClientX - rect.left;
                 
@@ -883,13 +1048,36 @@ class FuturesChart {
                 if (pct < 0) pct = 0;
                 if (pct > 1) pct = 1;
                 this.touchStartMidPct = pct;
+                
+                // Track initial range for zoom
+                this.zoomStartStartIdx = this.visibleStart;
+                this.zoomStartEndIdx = this.visibleEnd;
             }
-        }, { passive: true });
+        }, { passive: false });
 
         this.canvas.addEventListener('touchmove', (e) => {
             if (!this.data.length) return;
             
-            if (this.isTouchPanning && e.touches.length === 1) {
+            // Prevent default page scroll/bounce ONLY when actively interacting
+            const isInteracting = this.isTouchPanning || this.isTouchZooming || this.isDraggingDrawing;
+            if (isInteracting) {
+                e.preventDefault();
+            }
+            
+            if (this.isDraggingDrawing) {
+                const rect = this.canvas.getBoundingClientRect();
+                const touchX = e.touches[0].clientX - rect.left;
+                const touchY = e.touches[0].clientY - rect.top;
+
+                if (this.selectedHLine) {
+                    this.selectedHLine.price = this.priceFromY(touchY);
+                } else if (this.selectedPolyline && this.selectedVertexIndex !== null) {
+                    this.selectedPolyline.points[this.selectedVertexIndex] = {
+                        index: this.indexFromX(touchX),
+                        price: this.priceFromY(touchY)
+                    };
+                }
+            } else if (this.isTouchPanning && e.touches.length === 1) {
                 const touchX = e.touches[0].clientX;
                 const chartWidth = this.logicalWidth - this.paddingLeft - this.paddingRight;
                 const visibleCount = this.visibleEnd - this.visibleStart;
@@ -918,14 +1106,14 @@ class FuturesChart {
                 if (this.touchStartDist > 0 && newDist > 0) {
                     const factor = this.touchStartDist / newDist;
                     
-                    const visibleCount = this.visibleEnd - this.visibleStart;
-                    let newCount = Math.round(visibleCount * factor);
+                    const startCount = this.zoomStartEndIdx - this.zoomStartStartIdx;
+                    let newCount = Math.round(startCount * factor);
                     
                     if (newCount < 10) newCount = 10;
                     if (newCount > this.data.length) newCount = this.data.length;
                     
-                    const diff = visibleCount - newCount;
-                    let newStart = this.visibleStart + Math.round(diff * this.touchStartMidPct);
+                    const diff = startCount - newCount;
+                    let newStart = this.zoomStartStartIdx + Math.round(diff * this.touchStartMidPct);
                     let newEnd = newStart + newCount;
                     
                     if (newStart < 0) {
@@ -940,11 +1128,10 @@ class FuturesChart {
                     
                     this.visibleStart = newStart;
                     this.visibleEnd = newEnd;
-                    this.touchStartDist = newDist;
                     this.render();
                 }
             }
-        }, { passive: true });
+        }, { passive: false });
 
         const endTouch = () => {
             this.isTouchPanning = false;
@@ -960,9 +1147,27 @@ class FuturesChart {
             this.render();
         });
 
-        // Resize when entering/exiting fullscreen mode
-        document.addEventListener('fullscreenchange', () => {
-            this.resize();
+        // Handle resizing and locking/cleanup when entering/exiting native fullscreen mode
+        const fsEvents = ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'];
+        fsEvents.forEach(evtName => {
+            document.addEventListener(evtName, () => {
+                const fsElement = document.fullscreenElement || 
+                                  document.webkitFullscreenElement || 
+                                  document.mozFullScreenElement || 
+                                  document.msFullscreenElement;
+                
+                if (fsElement) {
+                    // Entered native fullscreen. If on mobile, attempt to lock orientation
+                    if (window.innerWidth < 768 && screen.orientation && screen.orientation.lock) {
+                        screen.orientation.lock('landscape').catch(() => {});
+                    }
+                    this.resize();
+                    this.render();
+                } else {
+                    // Exited native fullscreen. Run unified cleanup
+                    this.cleanupFullscreen();
+                }
+            });
         });
 
         // Bind control elements (zoom buttons & scrollbar slider)
@@ -1081,12 +1286,40 @@ class FuturesChart {
                 const chartPanel = this.canvas.closest('.chart-panel');
                 if (!chartPanel) return;
                 
-                if (!document.fullscreenElement) {
-                    chartPanel.requestFullscreen().catch(err => {
-                        console.error(`Error attempting to enable fullscreen mode: ${err.message}`);
-                    });
+                const isNativeFS = !!(document.fullscreenElement || 
+                                     document.webkitFullscreenElement || 
+                                     document.mozFullScreenElement || 
+                                     document.msFullscreenElement);
+                const isSimulatedFS = chartPanel.classList.contains('mobile-fullscreen-simulated');
+                
+                if (isNativeFS || isSimulatedFS) {
+                    // Unified exit from fullscreen
+                    this.cleanupFullscreen();
+                    return;
+                }
+                
+                // Entering fullscreen
+                // Detect iOS Safari / mobile view to force simulated fullscreen
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                              (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+                const useSimulated = isIOS && window.innerWidth < 768;
+                
+                if (!useSimulated) {
+                    const requestFS = chartPanel.requestFullscreen || 
+                                      chartPanel.webkitRequestFullscreen || 
+                                      chartPanel.mozRequestFullScreen || 
+                                      chartPanel.msRequestFullscreen;
+                    if (requestFS) {
+                        requestFS.call(chartPanel).catch(err => {
+                            console.error(`Error attempting to enable fullscreen mode: ${err.message}`);
+                            this.enterSimulatedFullscreen(chartPanel);
+                        });
+                    } else {
+                        this.enterSimulatedFullscreen(chartPanel);
+                    }
                 } else {
-                    document.exitFullscreen();
+                    // iOS mobile Safari uses simulated fullscreen to enable custom portrait rotation
+                    this.enterSimulatedFullscreen(chartPanel);
                 }
             });
         }
@@ -1156,6 +1389,9 @@ class FuturesChart {
 
             window.addEventListener('touchmove', (e) => {
                 if (!this.isDraggingScrollbar || !this.data.length) return;
+                
+                // Prevent default scrolling only when actively dragging the scrollbar
+                e.preventDefault();
 
                 const trackWidth = track.getBoundingClientRect().width;
                 const handleWidth = handle.getBoundingClientRect().width;
@@ -1175,7 +1411,7 @@ class FuturesChart {
                     this.visibleEnd = this.visibleStart + visibleCount;
                     this.render();
                 }
-            }, { passive: true });
+            }, { passive: false });
         }
     }
 

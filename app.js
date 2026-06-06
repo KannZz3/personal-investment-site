@@ -456,6 +456,15 @@ function initRouting() {
 function switchTab(tabId) {
     state.activeTab = tabId;
     
+    // Unified exit/cleanup of any fullscreen or simulated fullscreen mode
+    if (window.activeChart) {
+        try {
+            window.activeChart.cleanupFullscreen();
+        } catch(e) {
+            console.error(e);
+        }
+    }
+    
     // Update active nav item
     document.querySelectorAll('nav li').forEach(item => {
         if (item.getAttribute('data-tab') === tabId) {
