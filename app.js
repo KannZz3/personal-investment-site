@@ -542,7 +542,9 @@ async function loadFuturesData() {
         statusDot.className = 'status-dot synced';
         statusText.textContent = '全市场持仓异动扫描 ✓';
         
-        syncTimeText.innerHTML = '';
+        if (data.metadata && data.metadata.sync_time) {
+            syncTimeText.innerHTML = '';
+        }
         
         // Build the technical UI table and cards
         buildTechnicalUI(data);
