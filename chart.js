@@ -275,18 +275,62 @@ class FuturesChart {
         if (type === 'volume' && level !== '30m') {
             const targetLookbackDays = level === 'daily' ? 20 : 40;
             
-            // Choose best available frequency: 1m preferred, then 5m
+            // Find target lookback dates for the requested endDate
+            let targetDates = [];
+            if (dailyDates && dailyDates.length > 0) {
+                const endIdx = dailyDates.indexOf(endDate);
+                if (endIdx !== -1) {
+                    const startIdx = Math.max(0, endIdx - targetLookbackDays + 1);
+                    targetDates = dailyDates.slice(startIdx, endIdx + 1);
+                }
+            }
+            
+            // Choose best available frequency dynamically based on coverage of targetDates
             let activeBars = null;
             let actualFrequencyUsed = null;
             let fallbackUsed = false;
             
-            if (this.bars1m && this.bars1m.length > 0) {
-                activeBars = this.bars1m;
-                actualFrequencyUsed = '1m';
-            } else if (this.bars5m && this.bars5m.length > 0) {
-                activeBars = this.bars5m;
-                actualFrequencyUsed = '5m';
-                fallbackUsed = true;
+            if (targetDates.length > 0) {
+                let cov1m = 0;
+                if (this.bars1m && this.bars1m.length > 0) {
+                    const dates1m = new Set(this.bars1m.map(b => getTradingDate(b.datetime || b.date, dailyDates)));
+                    targetDates.forEach(d => {
+                        if (dates1m.has(d)) cov1m++;
+                    });
+                }
+                
+                let cov5m = 0;
+                if (this.bars5m && this.bars5m.length > 0) {
+                    const dates5m = new Set(this.bars5m.map(b => getTradingDate(b.datetime || b.date, dailyDates)));
+                    targetDates.forEach(d => {
+                        if (dates5m.has(d)) cov5m++;
+                    });
+                }
+                
+                if (cov1m > 0 || cov5m > 0) {
+                    if (cov1m >= cov5m) {
+                        activeBars = this.bars1m;
+                        actualFrequencyUsed = '1m';
+                        fallbackUsed = false;
+                    } else {
+                        activeBars = this.bars5m;
+                        actualFrequencyUsed = '5m';
+                        fallbackUsed = true;
+                    }
+                }
+            }
+            
+            // Static fallback if targetDates is empty or no coverage was found
+            if (!activeBars) {
+                if (this.bars1m && this.bars1m.length > 0) {
+                    activeBars = this.bars1m;
+                    actualFrequencyUsed = '1m';
+                    fallbackUsed = false;
+                } else if (this.bars5m && this.bars5m.length > 0) {
+                    activeBars = this.bars5m;
+                    actualFrequencyUsed = '5m';
+                    fallbackUsed = true;
+                }
             }
             
             if (!activeBars || activeBars.length === 0) {
@@ -307,11 +351,31 @@ class FuturesChart {
                 return emptyProfile;
             }
             
-            // Count unique trading days in the available bars
+            // Count unique trading days <= endDate in the available bars
             const coveredDates = new Set(
-                activeBars.map(b => getTradingDate(b.datetime || b.date, dailyDates))
+                activeBars
+                    .map(b => getTradingDate(b.datetime || b.date, dailyDates))
+                    .filter(d => d <= endDate)
             );
             const actualLookbackDays = coveredDates.size;
+            
+            if (actualLookbackDays === 0) {
+                const emptyProfile = {
+                    type, level, symbol, endDate,
+                    lookback: level === 'daily' ? '20D' : '8W',
+                    poc: 0, vah: 0, val: 0, rangeHigh: 0, rangeLow: 0,
+                    rows: [],
+                    meta: {
+                        profileLevel: level,
+                        targetLookbackDays,
+                        actualLookbackDays: 0,
+                        dataQuality: 'insufficient',
+                        insufficientReason: 'No data available before or at ' + endDate
+                    }
+                };
+                this.profileCache[cacheKey] = emptyProfile;
+                return emptyProfile;
+            }
             
             const firstBar = activeBars[0];
             const lastBar  = activeBars[activeBars.length - 1];
