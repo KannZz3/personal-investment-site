@@ -2096,16 +2096,14 @@ class FuturesChart {
         // Determine boundary warning status for TPO / VP (insufficient or partial)
         const tpoNeedsWarning = this.tpoLevel !== 'none' && tpoProfile &&
             (!tpoProfile.rows || tpoProfile.rows.length === 0 ||
-             tpoProfile.meta.dataQuality === 'insufficient' ||
-             tpoProfile.meta.dataQuality === 'partial');
+             tpoProfile.meta.dataQuality === 'insufficient');
         
         const levelNamesTpo = { '30m': '30m TPO', 'daily': '日 TPO', 'weekly': '周 TPO' };
         const tpoLvlName = levelNamesTpo[this.tpoLevel] || this.tpoLevel;
         
         const vpNeedsWarning = this.vpLevel !== 'none' && vpProfile &&
             (!vpProfile.rows || vpProfile.rows.length === 0 ||
-             vpProfile.meta.dataQuality === 'insufficient' ||
-             vpProfile.meta.dataQuality === 'partial');
+             vpProfile.meta.dataQuality === 'insufficient');
         
         const levelNamesVp = { '30m': '30m VP', 'daily': '日 VP', 'weekly': '周 VP' };
         const vpLvlName = levelNamesVp[this.vpLevel] || this.vpLevel;
