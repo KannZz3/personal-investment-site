@@ -457,6 +457,7 @@ main {
 
 .btn-group {
     display: flex;
+    gap: 2px;
     background: var(--bg-app);
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -492,6 +493,7 @@ main {
 /* Collapsible Indicator Group */
 .indicator-group {
     display: flex;
+    gap: 2px;
     background: var(--bg-app);
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -540,6 +542,7 @@ main {
 /* Collapsible Period Group */
 .period-group {
     display: flex;
+    gap: 2px;
     background: var(--bg-app);
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -2599,21 +2602,21 @@ body.has-fullscreen-simulated .page-section {
 
 /* Ensure buttons in toolbar groups have uniform widths globally */
 #chartTypeToolbar .btn-tab {
-    width: 56px !important;
+    width: 46px !important;
 }
 #chartPeriodGroup .btn-tab:not(.period-toggle-btn) {
-    width: 50px !important;
+    width: 42px !important;
 }
 #chartTpoGroup .tpo-btn {
-    width: 72px !important;
-    max-width: 72px !important;
+    width: 62px !important;
+    max-width: 62px !important;
 }
 #chartVpGroup .vp-btn {
-    width: 72px !important;
-    max-width: 72px !important;
+    width: 62px !important;
+    max-width: 62px !important;
 }
 #indicatorGroup .btn-tab:not(.indicator-toggle-btn) {
-    width: 50px !important;
+    width: 44px !important;
 }
 
 /* On portrait/mobile viewports, let buttons flex and stretch to fill width instead of using fixed widths */
