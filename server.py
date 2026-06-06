@@ -36,8 +36,15 @@ def start_server():
         input("按回车键退出...")
         sys.exit(1)
         
-    # 定义标准 HTTP 请求处理器
-    handler = http.server.SimpleHTTPRequestHandler
+    # 定义带禁用缓存的请求处理器
+    class NoCacheHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
+        def end_headers(self):
+            self.send_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            self.send_header('Pragma', 'no-cache')
+            self.send_header('Expires', '0')
+            super().end_headers()
+
+    handler = NoCacheHTTPRequestHandler
     
     print("=" * 60)
     print("           山风蛊小站 | 本地静态 HTTP 服务")
