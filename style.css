@@ -1563,6 +1563,29 @@ footer {
         }
     }
 
+    /* Fix containing block constraints & prevent iOS underlying scrolling */
+    body.fullscreen-active {
+        overflow: hidden !important;
+        position: fixed !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+    body.fullscreen-active header {
+        display: none !important;
+    }
+    body.fullscreen-active main,
+    body.fullscreen-active .page-section,
+    body.fullscreen-active .dashboard-grid {
+        transform: none !important;
+        animation: none !important;
+        perspective: none !important;
+        filter: none !important;
+        backdrop-filter: none !important;
+    }
+    body.fullscreen-active .tickers-scroll-container {
+        display: none !important;
+    }
+
     /* Articles Mobile Layout */
     .articles-header {
         flex-direction: column;

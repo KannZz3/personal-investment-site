@@ -1,0 +1,54 @@
+app.js:21:chartPeriod: 'D', // 'D' (日K), 'W' (周K), 'Month' (月K), '15M', '30M', '60M'
+app.js:25:selectedTpoProfileLevel: 'none', // 'none', '30m', 'daily', 'weekly'
+app.js:26:selectedVolumeProfileLevel: 'none' // 'none', '30m', 'daily', 'weekly'
+app.js:514:// Handle chart period change tabs
+app.js:515:const periodButtons = document.querySelectorAll('#chartPeriodGroup .btn-tab:not(.period-toggle-btn)');
+app.js:516:periodButtons.forEach(btn => {
+app.js:518:periodButtons.forEach(b => b.classList.remove('active'));
+app.js:520:state.chartPeriod = btn.getAttribute('data-period');
+app.js:525:// Expand / collapse the extra periods (15M, 30M, 1H, Month)
+app.js:526:const periodGroup = document.getElementById('chartPeriodGroup');
+app.js:527:const periodToggle = document.getElementById('periodToggle');
+app.js:528:let periodExpanded = false;
+app.js:530:if (periodToggle && periodGroup) {
+app.js:531:periodToggle.addEventListener('click', (e) => {
+app.js:533:periodExpanded = !periodExpanded;
+app.js:534:periodGroup.classList.toggle('expanded', periodExpanded);
+app.js:535:periodToggle.textContent = periodExpanded ? '\u00ab' : '\u00bb';
+app.js:538:periodGroup.addEventListener('mouseleave', () => {
+app.js:539:if (periodExpanded) {
+app.js:540:periodExpanded = false;
+app.js:541:periodGroup.classList.remove('expanded');
+app.js:542:periodToggle.textContent = '\u00bb';
+app.js:676:if (state.chartPeriod === 'D') {
+app.js:678:} else if (state.chartPeriod === '15M') {
+app.js:680:} else if (state.chartPeriod === '30M') {
+app.js:682:} else if (state.chartPeriod === '60M') {
+app.js:684:} else if (state.chartPeriod === 'W') {
+app.js:685:dataset = compressToWeekly(dataContainer.daily);
+app.js:686:} else if (state.chartPeriod === 'Month') {
+app.js:687:dataset = compressToMonthly(dataContainer.daily);
+app.js:708:window.activeChart.chartPeriod = state.chartPeriod;
+app.js:766:// Compress Daily datasets to Weekly aggregates
+app.js:767:function compressToWeekly(dailyData) {
+app.js:770:const weekly = [];
+app.js:800:weekly.push({
+app.js:814:return weekly;
+app.js:825:// Compress Daily datasets to Monthly aggregates
+app.js:826:function compressToMonthly(dailyData) {
+app.js:829:const monthly = [];
+app.js:846:monthly.push({
+app.js:864:monthly.push({
+app.js:872:return monthly;
+chart.js:86:const getMA = (period) => {
+chart.js:87:if (index < period - 1) return null;
+chart.js:89:for (let i = 0; i < period; i++) {
+chart.js:92:return sum / period;
+chart.js:167:// ── Special path: Composite VP (Daily / Weekly) ──────────────────────────
+chart.js:172:// No 15m / daily / weekly K-line fallback is allowed.
+chart.js:307:} else if (level === 'weekly') {
+chart.js:308:profile = buildWeeklyCompositeTpo({ bars30m: activeBars, tickSize, symbol, endDate, dailyDates, lookbackWeeks: 8 });
+chart.js:423:meta.profileLevel === 'weekly' ? 'Weekly Composite TPO' : '30m TPO';
+chart.js:466:meta.profileLevel === 'weekly' ? 'Weekly Composite VP' : '30m VP';
+chart.js:1463:const levelNames = { '30m': '30m TPO', 'daily': '日 TPO', 'weekly': '周 TPO' };
+chart.js:1486:const levelNames = { '30m': '30m VP', 'daily': '日 VP', 'weekly': '周 VP' };

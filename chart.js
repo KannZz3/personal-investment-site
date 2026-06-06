@@ -615,11 +615,81 @@ class FuturesChart {
         }
     }
 
+    getCanvasCoords(e) {
+        const rect = this.canvas.getBoundingClientRect();
+        let clientX = 0;
+        let clientY = 0;
+
+        if (e.touches && e.touches.length > 0) {
+            clientX = e.touches[0].clientX;
+            clientY = e.touches[0].clientY;
+        } else if (e.changedTouches && e.changedTouches.length > 0) {
+            clientX = e.changedTouches[0].clientX;
+            clientY = e.changedTouches[0].clientY;
+        } else {
+            clientX = e.clientX;
+            clientY = e.clientY;
+        }
+
+        const chartPanel = this.canvas.closest('.chart-panel');
+        const isSimulatedFS = chartPanel && chartPanel.classList.contains('mobile-fullscreen-simulated');
+        const isPortrait = window.matchMedia('(orientation: portrait)').matches;
+
+        if (isSimulatedFS && isPortrait) {
+            // Rotated 90deg + translateY(-100%).
+            // Local X (u) = Y_viewport - rect.top
+            // Local Y (v) = rect.width - (X_viewport - rect.left)
+            const xLocal = clientY - rect.top;
+            const yLocal = rect.width - (clientX - rect.left);
+            return { x: xLocal, y: yLocal };
+        } else {
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+    }
+
+    getScrollbarPointerPos(e) {
+        const chartPanel = this.canvas.closest('.chart-panel');
+        const isSimulatedFS = chartPanel && chartPanel.classList.contains('mobile-fullscreen-simulated');
+        const isPortrait = window.matchMedia('(orientation: portrait)').matches;
+        
+        let clientX = 0;
+        let clientY = 0;
+
+        if (e.touches && e.touches.length > 0) {
+            clientX = e.touches[0].clientX;
+            clientY = e.touches[0].clientY;
+        } else if (e.changedTouches && e.changedTouches.length > 0) {
+            clientX = e.changedTouches[0].clientX;
+            clientY = e.changedTouches[0].clientY;
+        } else {
+            clientX = e.clientX;
+            clientY = e.clientY;
+        }
+
+        if (isSimulatedFS && isPortrait) {
+            return clientY;
+        } else {
+            return clientX;
+        }
+    }
+
     enterSimulatedFullscreen(chartPanel) {
         chartPanel.classList.add('mobile-fullscreen-simulated');
+        document.body.classList.add('fullscreen-active');
         document.body.style.overflow = 'hidden';
+        
+        // Immediate resize and render
         this.resize();
         this.render();
+        
+        // Secondary delayed resize and render
+        setTimeout(() => {
+            this.resize();
+            this.render();
+        }, 100);
     }
 
     cleanupFullscreen() {
@@ -627,6 +697,7 @@ class FuturesChart {
         if (chartPanel) {
             chartPanel.classList.remove('mobile-fullscreen-simulated');
         }
+        document.body.classList.remove('fullscreen-active');
         document.body.style.overflow = '';
         
         // Exit native fullscreen if active
@@ -649,8 +720,15 @@ class FuturesChart {
             try { screen.orientation.unlock(); } catch (e) {}
         }
         
+        // Immediate resize and render
         this.resize();
         this.render();
+        
+        // Secondary delayed resize and render
+        setTimeout(() => {
+            this.resize();
+            this.render();
+        }, 100);
     }
 
     initEvents() {
@@ -659,10 +737,9 @@ class FuturesChart {
 
         // Mouse interactions for crosshair & panning & drawing
         this.canvas.addEventListener('mousemove', (e) => {
-            const rect = this.canvas.getBoundingClientRect();
-            // Accounts for CSS scaling in logical coordinates
-            this.mouseX = e.clientX - rect.left;
-            this.mouseY = e.clientY - rect.top;
+            const coords = this.getCanvasCoords(e);
+            this.mouseX = coords.x;
+            this.mouseY = coords.y;
             this.updateHoverIndex();
             
             const chartWidth = this.logicalWidth - this.paddingLeft - this.paddingRight;
@@ -684,7 +761,7 @@ class FuturesChart {
                 const visibleCount = this.visibleEnd - this.visibleStart;
                 
                 const clientCandleWidth = chartWidth / visibleCount;
-                const dx = e.clientX - this.panStartMouseX;
+                const dx = this.mouseX - this.panStartMouseX;
                 const shift = Math.round(dx / clientCandleWidth);
                 
                 let newStart = this.panStartStartIdx - shift;
@@ -715,9 +792,9 @@ class FuturesChart {
 
         // Start panning / drawing / selection
         this.canvas.addEventListener('mousedown', (e) => {
-            const rect = this.canvas.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
+            const coords = this.getCanvasCoords(e);
+            const mouseX = coords.x;
+            const mouseY = coords.y;
 
             if (this.drawingMode !== 'none') {
                 let found = false;
@@ -841,7 +918,7 @@ class FuturesChart {
 
             // Normal panning start
             this.isPanning = true;
-            this.panStartMouseX = e.clientX;
+            this.panStartMouseX = mouseX;
             this.panStartStartIdx = this.visibleStart;
         });
 
@@ -863,8 +940,8 @@ class FuturesChart {
             if (!this.data.length) return;
             e.preventDefault();
             
-            const rect = this.canvas.getBoundingClientRect();
-            const clientMouseX = e.clientX - rect.left;
+            const coords = this.getCanvasCoords(e);
+            const clientMouseX = coords.x;
             
             const chartWidth = this.logicalWidth - this.paddingLeft - this.paddingRight;
             
@@ -902,9 +979,9 @@ class FuturesChart {
 
         // Touch event handlers for gesture pan/zoom
         this.canvas.addEventListener('touchstart', (e) => {
-            const rect = this.canvas.getBoundingClientRect();
-            const touchX = e.touches[0].clientX - rect.left;
-            const touchY = e.touches[0].clientY - rect.top;
+            const coords = this.getCanvasCoords(e);
+            const touchX = coords.x;
+            const touchY = coords.y;
             
             if (this.drawingMode !== 'none') {
                 e.preventDefault();
@@ -1031,7 +1108,7 @@ class FuturesChart {
                 // Single finger touch -> swipe to pan
                 this.isTouchPanning = true;
                 this.isTouchZooming = false;
-                this.lastTouchX = e.touches[0].clientX;
+                this.lastTouchX = touchX;
                 this.panStartStartIdx = this.visibleStart;
             } else if (e.touches.length === 2) {
                 // Two fingers pinch -> zoom
@@ -1042,8 +1119,9 @@ class FuturesChart {
                 const t2 = e.touches[1];
                 this.touchStartDist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
                 
-                const midClientX = (t1.clientX + t2.clientX) / 2;
-                const midX = midClientX - rect.left;
+                const coords1 = this.getCanvasCoords({ touches: [t1] });
+                const coords2 = this.getCanvasCoords({ touches: [t2] });
+                const midX = (coords1.x + coords2.x) / 2;
                 
                 const chartWidth = this.logicalWidth - this.paddingLeft - this.paddingRight;
                 let pct = (midX - this.paddingLeft) / chartWidth;
@@ -1067,9 +1145,9 @@ class FuturesChart {
             }
             
             if (this.isDraggingDrawing) {
-                const rect = this.canvas.getBoundingClientRect();
-                const touchX = e.touches[0].clientX - rect.left;
-                const touchY = e.touches[0].clientY - rect.top;
+                const coords = this.getCanvasCoords(e);
+                const touchX = coords.x;
+                const touchY = coords.y;
 
                 if (this.selectedHLine) {
                     this.selectedHLine.price = this.priceFromY(touchY);
@@ -1080,7 +1158,8 @@ class FuturesChart {
                     };
                 }
             } else if (this.isTouchPanning && e.touches.length === 1) {
-                const touchX = e.touches[0].clientX;
+                const coords = this.getCanvasCoords(e);
+                const touchX = coords.x;
                 const chartWidth = this.logicalWidth - this.paddingLeft - this.paddingRight;
                 const visibleCount = this.visibleEnd - this.visibleStart;
                 const clientCandleWidth = chartWidth / visibleCount;
@@ -1353,14 +1432,14 @@ class FuturesChart {
             // Start dragging handle
             handle.addEventListener('mousedown', (e) => {
                 this.isDraggingScrollbar = true;
-                this.dragStartMouseX = e.clientX;
+                this.dragStartMouseX = this.getScrollbarPointerPos(e);
                 this.dragStartHandleLeft = handle.offsetLeft;
                 e.stopPropagation();
             });
 
             handle.addEventListener('touchstart', (e) => {
                 this.isDraggingScrollbar = true;
-                this.dragStartMouseX = e.touches[0].clientX;
+                this.dragStartMouseX = this.getScrollbarPointerPos(e);
                 this.dragStartHandleLeft = handle.offsetLeft;
                 e.stopPropagation();
             }, { passive: true });
@@ -1374,7 +1453,7 @@ class FuturesChart {
                 const maxLeft = trackWidth - handleWidth;
                 if (maxLeft <= 0) return;
 
-                const dx = e.clientX - this.dragStartMouseX;
+                const dx = this.getScrollbarPointerPos(e) - this.dragStartMouseX;
                 let newLeft = this.dragStartHandleLeft + dx;
                 if (newLeft < 0) newLeft = 0;
                 if (newLeft > maxLeft) newLeft = maxLeft;
@@ -1400,7 +1479,7 @@ class FuturesChart {
                 const maxLeft = trackWidth - handleWidth;
                 if (maxLeft <= 0) return;
 
-                const dx = e.touches[0].clientX - this.dragStartMouseX;
+                const dx = this.getScrollbarPointerPos(e) - this.dragStartMouseX;
                 let newLeft = this.dragStartHandleLeft + dx;
                 if (newLeft < 0) newLeft = 0;
                 if (newLeft > maxLeft) newLeft = maxLeft;
@@ -2143,8 +2222,26 @@ class FuturesChart {
             const trackWidth = track.getBoundingClientRect().width;
             if (trackWidth > 0) {
                 const visibleCount = this.visibleEnd - this.visibleStart;
-                const widthPct = visibleCount / this.data.length;
-                const handleWidth = Math.max(20, trackWidth * widthPct);
+                let handleWidth;
+                
+                if (visibleCount >= this.data.length) {
+                    handleWidth = trackWidth;
+                } else {
+                    const minRatio = 0.20;
+                    const maxRatio = 0.50;
+                    let ratio = maxRatio;
+                    
+                    if (this.data.length > 50) {
+                        const t = (this.data.length - 50) / (1000 - 50);
+                        ratio = maxRatio - t * (maxRatio - minRatio);
+                        if (ratio < minRatio) ratio = minRatio;
+                    }
+                    
+                    handleWidth = trackWidth * ratio;
+                    if (handleWidth < 30) handleWidth = 30;
+                    if (handleWidth > trackWidth) handleWidth = trackWidth;
+                }
+                
                 handle.style.width = `${handleWidth}px`;
                 
                 const maxLeft = trackWidth - handleWidth;

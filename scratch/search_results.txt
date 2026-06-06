@@ -1,0 +1,58 @@
+app.js:272:// 动态更新 state.contracts 中的合约信息（月份/持仓量）
+app.js:305:syncTimeText.textContent = `数据更新: ${date.toLocaleString()} | 基于上一交易日收盘数据，每日更新`;
+app.js:318:syncTimeText.textContent = '演示模式 · 数据为模拟数据，非实盘按日更新';
+app.js:415:const scrollContainer = document.getElementById('tickersScrollContainer');
+app.js:466:card.className = `ticker-card ${baseCode === state.activeContract ? 'active' : ''} ${cardClass}`;
+app.js:467:card.id = `ticker-${baseCode}`;
+app.js:469:<div class="ticker-card-header" style="margin-bottom: 0;">
+app.js:471:<span class="ticker-name">${contract.name}</span>
+app.js:472:<span class="ticker-symbol">${displaySym}</span>
+app.js:474:<span class="ticker-exchange">${contract.exchange}</span>
+app.js:476:<div class="ticker-card-badges">${badgeHtml}</div>
+app.js:477:<div class="ticker-price ${colorClass}" id="price-${baseCode}" style="margin-top: 0.5rem;">${lastDay.close.toFixed(1)}</div>
+app.js:478:<div class="ticker-change ${colorClass}" id="change-${baseCode}">
+app.js:496:// Toggle active classes in ticker list
+app.js:497:const prevActiveCard = document.getElementById(`ticker-${state.activeContract}`);
+app.js:502:const activeCard = document.getElementById(`ticker-${baseCode}`);
+app.js:969:// Randomly choose 1-2 contracts to update on this tick
+app.js:987:const tickChange = (Math.random() - 0.5) * 2 * volatility;
+app.js:990:last.close = parseFloat((last.close * (1 + tickChange)).toFixed(1));
+app.js:994:// Randomly increase trade volume on each tick
+app.js:1019:priceEl.className = `ticker-price ${isUp ? 'price-up' : 'price-down'}`;
+app.js:1020:changeEl.className = `ticker-change ${isUp ? 'price-up' : 'price-down'}`;
+app.js:1028:const cardEl = document.getElementById(`ticker-${sym}`);
+app.js:1265:<p>市场看板监控显示，当前所有品种主力合约的持仓量均未达到历史峰值的90%。请等待下个交易日的全市场扫描更新。</p>
+chart.js:145:const tickSize = getTickSize(symbol);
+chart.js:224:bars1m: activeBars, tickSize, symbol, endDate, dailyDates,
+chart.js:304:profile = buildTpoProfile({ bars30m: activeBars, tickSize, symbol, sessionDate: endDate, dailyDates });
+chart.js:306:profile = buildDailyCompositeTpo({ bars30m: activeBars, tickSize, symbol, endDate, dailyDates, lookbackDays: 20 });
+chart.js:308:profile = buildWeeklyCompositeTpo({ bars30m: activeBars, tickSize, symbol, endDate, dailyDates, lookbackWeeks: 8 });
+chart.js:312:profile = buildVolumeProfile({ bars1m: activeBars, tickSize, symbol, sessionDate: endDate, dailyDates });
+chart.js:1032:// Render Data Points (Candlesticks / Line Chart)
+chart.js:1087:// 1. Draw Candlesticks or Close Price line
+index.html:9:<meta name="description" content="一个简约优美的个人投资空间。展示个人投资思考文章与中国商品期货数据可视化分析，包含市场看板、K线图表、TPO/VP Market Profile、仓位计算器。全站数据基于上一交易日收盘数据按日更新。">
+index.html:48:<div class="sync-status" title="显示系统当前的数据同步状态">
+index.html:64:<div class="tickers-scroll-container" id="tickersScrollContainer">
+index.html:264:- **行情同步**: 可通过底层的 `sync_data.py` (Python &amp; AkShare) 按日拉取国内四大期货交易所主连合约行情，全站数据基于上一交易日收盘数据按日更新，打通 Python 投研端与 Web 展示端的数据闭环。<br>
+profile.js:85:function getOptimalStep(rangeLow, rangeHigh, tickSize) {
+profile.js:86:const ticks = (rangeHigh - rangeLow) / tickSize;
+profile.js:87:if (ticks <= 150) {
+profile.js:88:return tickSize;
+profile.js:91:const multiplier = Math.ceil(rawStep / tickSize);
+profile.js:92:return tickSize * multiplier;
+profile.js:98:function buildTpoProfile({ bars30m, tickSize, symbol, sessionDate, dailyDates }) {
+profile.js:121:const step = getOptimalStep(rangeLow, rangeHigh, tickSize);
+profile.js:269:if (totalRange < tickSize * 15) {
+profile.js:317:function buildVolumeProfile({ bars1m, tickSize, symbol, sessionDate, dailyDates, allocationMethod = "uniform" }) {
+profile.js:340:const step = getOptimalStep(rangeLow, rangeHigh, tickSize);
+profile.js:507:function buildDailyCompositeTpo({ bars30m, tickSize, symbol, endDate, dailyDates, lookbackDays = 20 }) {
+profile.js:535:const step = getOptimalStep(rangeLow, rangeHigh, tickSize);
+profile.js:642:function buildDailyCompositeVolume({ bars1m, tickSize, symbol, endDate, dailyDates, lookbackDays = 20 }) {
+profile.js:668:const step = getOptimalStep(rangeLow, rangeHigh, tickSize);
+profile.js:828:function buildWeeklyCompositeTpo({ bars30m, tickSize, symbol, endDate, dailyDates, lookbackWeeks = 8 }) {
+profile.js:832:tickSize,
+profile.js:843:function buildWeeklyCompositeVolume({ bars1m, tickSize, symbol, endDate, dailyDates, lookbackWeeks = 8 }) {
+profile.js:847:tickSize,
+server.py:6:本脚本会自动寻找本地闲置端口，启动静态 HTTP 服务，并自动在默认浏览器中打开小站。
+server.py:7:这能完美避开固定端口被占用的情况，且支持错误拦截以防止终端闪退。
+server.py:43:print("           山风蛊小站 | 本地静态 HTTP 服务")
