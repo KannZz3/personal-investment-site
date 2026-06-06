@@ -1531,6 +1531,24 @@ footer {
         box-shadow: none !important;
     }
 
+    body.has-fullscreen-simulated .page-section {
+        transform: none !important;
+        animation: none !important;
+    }
+
+    .chart-panel.mobile-fullscreen-simulated .chart-header {
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+        gap: 1rem !important;
+    }
+
+    .chart-panel.mobile-fullscreen-simulated .chart-toolbar {
+        width: auto !important;
+        flex-wrap: nowrap !important;
+    }
+
     /* Portrait simulated fullscreen: rotate 90deg, width=100vh, height=100vw, origin=top left, translateY(-100%) */
     @media (orientation: portrait) {
         .chart-panel.mobile-fullscreen-simulated {
@@ -1561,29 +1579,6 @@ footer {
             flex: 1 !important;
             height: auto !important;
         }
-    }
-
-    /* Fix containing block constraints & prevent iOS underlying scrolling */
-    body.fullscreen-active {
-        overflow: hidden !important;
-        position: fixed !important;
-        width: 100% !important;
-        height: 100% !important;
-    }
-    body.fullscreen-active header {
-        display: none !important;
-    }
-    body.fullscreen-active main,
-    body.fullscreen-active .page-section,
-    body.fullscreen-active .dashboard-grid {
-        transform: none !important;
-        animation: none !important;
-        perspective: none !important;
-        filter: none !important;
-        backdrop-filter: none !important;
-    }
-    body.fullscreen-active .tickers-scroll-container {
-        display: none !important;
     }
 
     /* Articles Mobile Layout */
