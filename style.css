@@ -468,14 +468,13 @@ main {
     background: none;
     border: none;
     color: var(--text-secondary);
-    padding: 0.35rem 0.85rem;
+    padding: 4px 8px;
     font-size: 0.8rem;
     border-radius: 6px;
     cursor: pointer;
     font-weight: 500;
     transition: all var(--transition-fast);
     white-space: nowrap;
-    min-width: 48px;
     text-align: center;
 }
 
@@ -514,8 +513,8 @@ main {
 
 .indicator-group.expanded .indicator-extra {
     display: block;
-    max-width: 70px;
-    padding: 0.35rem 0.85rem;
+    max-width: 100px;
+    padding: 4px 8px;
     opacity: 1;
     pointer-events: auto;
 }
@@ -563,8 +562,8 @@ main {
 
 .period-group.expanded .period-extra {
     display: block;
-    max-width: 70px;
-    padding: 0.35rem 0.85rem;
+    max-width: 100px;
+    padding: 4px 8px;
     opacity: 1;
     pointer-events: auto;
 }
@@ -602,8 +601,8 @@ main {
 #chartTpoGroup:not(.expanded) .tpo-btn.active,
 #chartVpGroup:not(.expanded) .vp-btn.active {
     display: block !important;
-    max-width: 70px !important;
-    padding: 0.35rem 0.85rem !important;
+    max-width: 100px !important;
+    padding: 4px 8px !important;
     opacity: 1 !important;
     pointer-events: auto !important;
 }
@@ -611,8 +610,8 @@ main {
 #chartTpoGroup:not(.expanded):not(.has-active) .tpo-btn[data-tpo="30m"],
 #chartVpGroup:not(.expanded):not(.has-active) .vp-btn[data-vp="30m"] {
     display: block !important;
-    max-width: 70px !important;
-    padding: 0.35rem 0.85rem !important;
+    max-width: 100px !important;
+    padding: 4px 8px !important;
     opacity: 1 !important;
     pointer-events: auto !important;
 }
@@ -620,8 +619,8 @@ main {
 #chartTpoGroup.expanded .tpo-btn,
 #chartVpGroup.expanded .vp-btn {
     display: block;
-    max-width: 70px;
-    padding: 0.35rem 0.85rem;
+    max-width: 100px;
+    padding: 4px 8px;
     opacity: 1;
     pointer-events: auto;
 }
@@ -2600,26 +2599,7 @@ body.has-fullscreen-simulated .page-section {
     padding-right: 6px !important;
 }
 
-/* Ensure buttons in toolbar groups have uniform widths globally */
-#chartTypeToolbar .btn-tab {
-    width: 46px !important;
-}
-#chartPeriodGroup .btn-tab:not(.period-toggle-btn) {
-    width: 42px !important;
-}
-#chartTpoGroup .tpo-btn {
-    width: 62px !important;
-    max-width: 62px !important;
-}
-#chartVpGroup .vp-btn {
-    width: 62px !important;
-    max-width: 62px !important;
-}
-#indicatorGroup .btn-tab:not(.indicator-toggle-btn) {
-    width: 44px !important;
-}
-
-/* On portrait/mobile viewports, let buttons flex and stretch to fill width instead of using fixed widths */
+/* On portrait/mobile viewports, let buttons flex and stretch to fill width */
 @media (orientation: portrait) {
     .chart-toolbar .btn-tab:not(.period-toggle-btn):not(.indicator-toggle-btn) {
         width: auto !important;
