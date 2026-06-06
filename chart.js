@@ -613,6 +613,8 @@ class FuturesChart {
             this.indicators[indicator] = !this.indicators[indicator];
             this.render();
         }
+    }
+
     enterSimulatedFullscreen(chartPanel) {
         chartPanel.classList.add('mobile-fullscreen-simulated');
         document.body.style.overflow = 'hidden';
