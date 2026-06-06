@@ -187,6 +187,7 @@ class FuturesChart {
                 low: parseFloat(d.low),
                 close: parseFloat(d.close),
                 volume: parseFloat(d.volume),
+                hold: d.hold ? parseFloat(d.hold) : 0,
                 ma5: getMA(5),
                 ma10: getMA(10),
                 ma20: getMA(20)
@@ -2023,7 +2024,7 @@ class FuturesChart {
 
             // Draw K-line details banner inside the top-left area of the canvas
             ctx.fillStyle = isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(241, 245, 249, 0.85)';
-            ctx.fillRect(this.paddingLeft + 5, this.paddingTop + 5, 450, 20);
+            ctx.fillRect(this.paddingLeft + 5, this.paddingTop + 5, 510, 20);
             
             ctx.font = '10px Inter, sans-serif';
             ctx.textAlign = 'left';
@@ -2051,6 +2052,7 @@ class FuturesChart {
             const pctText = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
             drawLabelVal('幅:', pctText, priceColor);
             drawLabelVal('量:', this.formatVolume(d.volume), colorTextBright);
+            drawLabelVal('仓:', this.formatVolume(d.hold), colorTextBright);
         }
 
         // Draw boundary warning overlays for TPO / VP (insufficient or partial)
