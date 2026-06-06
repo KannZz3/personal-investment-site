@@ -10,7 +10,7 @@
     <meta name="keywords" content="个人投资, 商品期货, 行情分析, K线图, 仓位计算器, CTA策略, 量化交易">
     
     <!-- Premium Fonts and Icons -->
-    <link rel="stylesheet" href="./style.css?v=33">
+    <link rel="stylesheet" href="./style.css?v=34">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body data-theme="dark">
@@ -144,6 +144,8 @@
                         <div class="profile-limits-panel" id="profileLimitsPanel" style="display: none;">
                             <span class="profile-limit-item" id="limitTpoInfo">--</span>
                             <span class="profile-limit-item" id="limitVpInfo">--</span>
+                            <span class="profile-limit-item warning-item" id="limitTpoWarning" style="display: none;">--</span>
+                            <span class="profile-limit-item warning-item" id="limitVpWarning" style="display: none;">--</span>
                         </div>
                     </div>
                 </div>
@@ -324,7 +326,7 @@
 
     <!-- Script Entrypoint -->
     <script src="./profile.js?v=26"></script>
-    <script src="./chart.js?v=29"></script>
+    <script src="./chart.js?v=30"></script>
     <script src="./app.js?v=26"></script>
     <script>
         // Trigger initial lucide icons compilation

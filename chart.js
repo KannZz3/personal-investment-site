@@ -2093,52 +2093,62 @@ class FuturesChart {
             }
         }
 
-        // Draw boundary warning overlays for TPO / VP (insufficient or partial)
-        // Format: line 1 = boundary notice, line 2 = current date only (no quality tag in chart area)
+        // Determine boundary warning status for TPO / VP (insufficient or partial)
         const tpoNeedsWarning = this.tpoLevel !== 'none' && tpoProfile &&
             (!tpoProfile.rows || tpoProfile.rows.length === 0 ||
              tpoProfile.meta.dataQuality === 'insufficient' ||
              tpoProfile.meta.dataQuality === 'partial');
         
-        if (tpoNeedsWarning) {
-            const x = this.paddingLeft + 15;
-            const y = this.paddingTop + 45;
-            
-            ctx.fillStyle = isDark ? 'rgba(148, 163, 184, 0.75)' : 'rgba(100, 116, 139, 0.85)';
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'top';
-            
-            const levelNames = { '30m': '30m TPO', 'daily': '日 TPO', 'weekly': '周 TPO' };
-            const lvlName = levelNames[this.tpoLevel] || this.tpoLevel;
-            
-            ctx.font = 'bold 11px Inter, sans-serif';
-            ctx.fillText(`当前区间早于标准 ${lvlName} 数据边界。`, x, y);
-            
-            ctx.font = '10px Inter, sans-serif';
-            ctx.fillText(`当前区间：${endDate || '未知'}`, x, y + 18);
-        }
+        const levelNamesTpo = { '30m': '30m TPO', 'daily': '日 TPO', 'weekly': '周 TPO' };
+        const tpoLvlName = levelNamesTpo[this.tpoLevel] || this.tpoLevel;
         
         const vpNeedsWarning = this.vpLevel !== 'none' && vpProfile &&
             (!vpProfile.rows || vpProfile.rows.length === 0 ||
              vpProfile.meta.dataQuality === 'insufficient' ||
              vpProfile.meta.dataQuality === 'partial');
         
-        if (vpNeedsWarning) {
-            const x = w - this.paddingRight - 15;
-            const y = this.paddingTop + 45;
+        const levelNamesVp = { '30m': '30m VP', 'daily': '日 VP', 'weekly': '周 VP' };
+        const vpLvlName = levelNamesVp[this.vpLevel] || this.vpLevel;
+
+        // Update DOM warning items in the profile Limits Panel
+        const limitTpoWarning = document.getElementById('limitTpoWarning');
+        const limitVpWarning = document.getElementById('limitVpWarning');
+        const profileLimitsPanel = document.getElementById('profileLimitsPanel');
+
+        let showTpoWarn = false;
+        let showVpWarn = false;
+
+        if (limitTpoWarning) {
+            if (tpoNeedsWarning) {
+                limitTpoWarning.textContent = `当前区间：${endDate || '未知'}超过${tpoLvlName}数据边界`;
+                limitTpoWarning.style.display = 'inline-flex';
+                showTpoWarn = true;
+            } else {
+                limitTpoWarning.style.display = 'none';
+            }
+        }
+
+        if (limitVpWarning) {
+            if (vpNeedsWarning) {
+                limitVpWarning.textContent = `当前区间：${endDate || '未知'}超过${vpLvlName}数据边界`;
+                limitVpWarning.style.display = 'inline-flex';
+                showVpWarn = true;
+            } else {
+                limitVpWarning.style.display = 'none';
+            }
+        }
+
+        if (profileLimitsPanel) {
+            const limitTpoInfo = document.getElementById('limitTpoInfo');
+            const limitVpInfo = document.getElementById('limitVpInfo');
+            const hasVisibleInfo = (limitTpoInfo && limitTpoInfo.style.display !== 'none') || 
+                                   (limitVpInfo && limitVpInfo.style.display !== 'none');
             
-            ctx.fillStyle = isDark ? 'rgba(148, 163, 184, 0.75)' : 'rgba(100, 116, 139, 0.85)';
-            ctx.textAlign = 'right';
-            ctx.textBaseline = 'top';
-            
-            const levelNames = { '30m': '30m VP', 'daily': '日 VP', 'weekly': '周 VP' };
-            const lvlName = levelNames[this.vpLevel] || this.vpLevel;
-            
-            ctx.font = 'bold 11px Inter, sans-serif';
-            ctx.fillText(`当前区间早于标准 ${lvlName} 数据边界。`, x, y);
-            
-            ctx.font = '10px Inter, sans-serif';
-            ctx.fillText(`当前区间：${endDate || '未知'}`, x, y + 18);
+            if (showTpoWarn || showVpWarn || hasVisibleInfo) {
+                profileLimitsPanel.style.display = 'flex';
+            } else {
+                profileLimitsPanel.style.display = 'none';
+            }
         }
 
         // Draw profile tooltips if mouse is hovering on profiles

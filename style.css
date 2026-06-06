@@ -2260,6 +2260,10 @@ footer {
     line-height: 1;
 }
 
+.profile-limit-item.warning-item::before {
+    color: #ef4444;
+}
+
 /* Math styles for article rendering */
 .math-block {
     display: flex;
