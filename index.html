@@ -10,7 +10,7 @@
     <meta name="keywords" content="个人投资, 商品期货, 行情分析, K线图, 仓位计算器, CTA策略, 量化交易">
     
     <!-- Premium Fonts and Icons -->
-    <link rel="stylesheet" href="./style.css?v=27">
+    <link rel="stylesheet" href="./style.css?v=28">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body data-theme="dark">
@@ -76,21 +76,21 @@
                             
                             <!-- Control Toolbar -->
                             <div class="chart-toolbar">
+                                <!-- Chart Type Toggle -->
+                                <div class="btn-group" id="chartTypeToolbar">
+                                    <button class="btn-tab active" data-type="candle">K线</button>
+                                    <button class="btn-tab" data-type="line">分时</button>
+                                </div>
+                                
                                 <!-- Period Toggle (collapsible) -->
                                 <div class="period-group" id="chartPeriodGroup">
                                     <button class="btn-tab period-extra" data-period="15M">15M</button>
                                     <button class="btn-tab period-extra" data-period="30M">30M</button>
                                     <button class="btn-tab period-extra" data-period="60M">1H</button>
                                     <button class="btn-tab period-always active" data-period="D">日K</button>
-                                    <button class="btn-tab period-always" data-period="W">周K</button>
+                                    <button class="btn-tab period-extra" data-period="W">周K</button>
                                     <button class="btn-tab period-extra" data-period="Month">月K</button>
                                     <button class="btn-tab period-toggle-btn" id="periodToggle">»</button>
-                                </div>
-                                
-                                <!-- Chart Type Toggle -->
-                                <div class="btn-group" id="chartTypeToolbar">
-                                    <button class="btn-tab active" data-type="candle">K线</button>
-                                    <button class="btn-tab" data-type="line">分时</button>
                                 </div>
                                 
                                 <!-- TPO Profile Toggle (collapsible) -->
@@ -111,7 +111,7 @@
                                 
                                 <!-- Indicators Toggles (collapsible) -->
                                 <div class="indicator-group" id="indicatorGroup">
-                                    <button class="btn-tab indicator-always active" id="indicatorMA5" title="5日均线">MA5</button>
+                                    <button class="btn-tab indicator-extra active" id="indicatorMA5" title="5日均线">MA5</button>
                                     <button class="btn-tab indicator-extra" id="indicatorMA10" title="10日均线">MA10</button>
                                     <button class="btn-tab indicator-extra" id="indicatorMA20" title="20日均线">MA20</button>
                                     <button class="btn-tab indicator-always active" id="indicatorVolume" title="成交量副图">VOL</button>

@@ -2589,4 +2589,12 @@ body.has-fullscreen-simulated .page-section {
     }
 }
 
+/* Optimize expand/collapse toggle buttons spacing globally */
+.period-toggle-btn,
+.indicator-toggle-btn {
+    min-width: auto !important;
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+}
+
 
