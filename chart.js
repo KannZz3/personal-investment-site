@@ -2212,62 +2212,51 @@ class FuturesChart {
         const vpLvlName = levelNamesVp[this.vpLevel] || this.vpLevel;
 
         // Update DOM warning items in the profile Limits Panel
-        const limitTpoWarning = document.getElementById('limitTpoWarning');
-        const limitVpWarning = document.getElementById('limitVpWarning');
+        const profileLimitWarning = document.getElementById('profileLimitWarning');
         const profileLimitsPanel = document.getElementById('profileLimitsPanel');
 
         let showTpoWarn = this.tpoLevel !== 'none';
         let showVpWarn = this.vpLevel !== 'none';
 
-        if (limitTpoWarning && limitVpWarning) {
+        if (profileLimitWarning) {
             const isTpoActive = this.tpoLevel !== 'none' && tpoProfile;
             const isVpActive = this.vpLevel !== 'none' && vpProfile;
 
             if (isTpoActive && isVpActive) {
                 if (tpoNeedsWarning && vpNeedsWarning) {
-                    limitTpoWarning.classList.add('warning-item');
-                    limitTpoWarning.textContent = `当前区间：${endDate || '未知'} 超过 ${vpLvlName}/${tpoLvlName}数据边界`;
-                    limitTpoWarning.style.display = 'inline-flex';
-                    limitVpWarning.style.display = 'none';
-                } else if (tpoNeedsWarning && !vpNeedsWarning) {
-                    limitTpoWarning.classList.add('warning-item');
-                    limitTpoWarning.textContent = `当前区间：${endDate || '未知'} 超过 ${tpoLvlName}数据边界`;
-                    limitTpoWarning.style.display = 'inline-flex';
-                    limitVpWarning.style.display = 'none';
-                } else if (!tpoNeedsWarning && vpNeedsWarning) {
-                    limitVpWarning.classList.add('warning-item');
-                    limitVpWarning.textContent = `当前区间：${endDate || '未知'} 超过 ${vpLvlName}数据边界`;
-                    limitVpWarning.style.display = 'inline-flex';
-                    limitTpoWarning.style.display = 'none';
+                    profileLimitWarning.classList.add('warning-item');
+                    profileLimitWarning.textContent = `当前区间：${endDate || '未知'} 超过 ${vpLvlName}/${tpoLvlName}数据边界`;
+                } else if (tpoNeedsWarning) {
+                    profileLimitWarning.classList.add('warning-item');
+                    profileLimitWarning.textContent = `当前区间：${endDate || '未知'} 超过 ${tpoLvlName}数据边界`;
+                } else if (vpNeedsWarning) {
+                    profileLimitWarning.classList.add('warning-item');
+                    profileLimitWarning.textContent = `当前区间：${endDate || '未知'} 超过 ${vpLvlName}数据边界`;
                 } else {
-                    limitTpoWarning.classList.remove('warning-item');
-                    limitTpoWarning.textContent = `当前区间：${endDate || '未知'}`;
-                    limitTpoWarning.style.display = 'inline-flex';
-                    limitVpWarning.style.display = 'none';
+                    profileLimitWarning.classList.remove('warning-item');
+                    profileLimitWarning.textContent = `当前区间：${endDate || '未知'}`;
                 }
+                profileLimitWarning.style.display = 'inline-flex';
             } else if (isTpoActive) {
                 if (tpoNeedsWarning) {
-                    limitTpoWarning.classList.add('warning-item');
-                    limitTpoWarning.textContent = `当前区间：${endDate || '未知'} 超过 ${tpoLvlName}数据边界`;
+                    profileLimitWarning.classList.add('warning-item');
+                    profileLimitWarning.textContent = `当前区间：${endDate || '未知'} 超过 ${tpoLvlName}数据边界`;
                 } else {
-                    limitTpoWarning.classList.remove('warning-item');
-                    limitTpoWarning.textContent = `当前区间：${endDate || '未知'}`;
+                    profileLimitWarning.classList.remove('warning-item');
+                    profileLimitWarning.textContent = `当前区间：${endDate || '未知'}`;
                 }
-                limitTpoWarning.style.display = 'inline-flex';
-                limitVpWarning.style.display = 'none';
+                profileLimitWarning.style.display = 'inline-flex';
             } else if (isVpActive) {
                 if (vpNeedsWarning) {
-                    limitVpWarning.classList.add('warning-item');
-                    limitVpWarning.textContent = `当前区间：${endDate || '未知'} 超过 ${vpLvlName}数据边界`;
+                    profileLimitWarning.classList.add('warning-item');
+                    profileLimitWarning.textContent = `当前区间：${endDate || '未知'} 超过 ${vpLvlName}数据边界`;
                 } else {
-                    limitVpWarning.classList.remove('warning-item');
-                    limitVpWarning.textContent = `当前区间：${endDate || '未知'}`;
+                    profileLimitWarning.classList.remove('warning-item');
+                    profileLimitWarning.textContent = `当前区间：${endDate || '未知'}`;
                 }
-                limitVpWarning.style.display = 'inline-flex';
-                limitTpoWarning.style.display = 'none';
+                profileLimitWarning.style.display = 'inline-flex';
             } else {
-                limitTpoWarning.style.display = 'none';
-                limitVpWarning.style.display = 'none';
+                profileLimitWarning.style.display = 'none';
             }
         }
 
