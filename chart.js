@@ -1826,6 +1826,7 @@ class FuturesChart {
                     this.drawProfileTooltip('volume', row, vpProfile, this.mouseX, this.mouseY, w, h);
                 }
             }
+        }
         // Render drawings
         if (this.drawings) {
             // 1. Draw Horizontal Lines
