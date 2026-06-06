@@ -542,11 +542,7 @@ async function loadFuturesData() {
         statusDot.className = 'status-dot synced';
         statusText.textContent = '全市场持仓异动扫描 ✓';
         
-        if (data.metadata && data.metadata.sync_time) {
-            const date = new Date(data.metadata.sync_time);
-            syncTimeText.innerHTML = `在当前数据源覆盖范围内，本站为按日更新的动态数据页面。<br>` +
-                                     `每日收盘后更新 data/futures_data.json，所有基于该数据源的筛选结果、技术异动、市场看板、K线图、MA/VOL、TPO/VP 等都会重新计算和刷新。(数据同步时间: ${date.toLocaleString()})`;
-        }
+        syncTimeText.innerHTML = '';
         
         // Build the technical UI table and cards
         buildTechnicalUI(data);
@@ -558,8 +554,7 @@ async function loadFuturesData() {
         
         statusDot.className = 'status-dot active';
         statusText.textContent = '行情模拟模式';
-        syncTimeText.innerHTML = `演示模式 · 数据为模拟数据。<br>` +
-                                 `在当前数据源覆盖范围内，本站为按日更新的动态数据页面。每日收盘后更新 data/futures_data.json，所有基于该数据源的筛选结果、技术异动、市场看板、K线图、MA/VOL、TPO/VP 等都会重新计算和刷新。`;
+        syncTimeText.innerHTML = `演示模式 · 数据为模拟数据。`;
         
         startLiveTickerTimer();
     }
