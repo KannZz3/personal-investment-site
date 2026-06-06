@@ -2597,4 +2597,10 @@ body.has-fullscreen-simulated .page-section {
     padding-right: 6px !important;
 }
 
+/* Ensure all text buttons within toolbar groups are evenly distributed */
+.chart-toolbar .btn-tab:not(.period-toggle-btn):not(.indicator-toggle-btn) {
+    flex: 1 1 0% !important;
+    text-align: center !important;
+}
+
 
