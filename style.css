@@ -1541,12 +1541,34 @@ footer {
         align-items: center !important;
         justify-content: space-between !important;
         width: 100% !important;
-        gap: 1rem !important;
+        gap: 0.25rem !important;
+        padding: 4px 8px !important;
     }
 
     .chart-panel.mobile-fullscreen-simulated .chart-toolbar {
         width: auto !important;
         flex-wrap: nowrap !important;
+        gap: 2px !important;
+    }
+
+    .chart-panel.mobile-fullscreen-simulated .chart-title-area h2 {
+        font-size: 0.95rem !important;
+    }
+    
+    .chart-panel.mobile-fullscreen-simulated .chart-title-area span {
+        font-size: 0.6rem !important;
+    }
+
+    .chart-panel.mobile-fullscreen-simulated .btn-tab,
+    .chart-panel.mobile-fullscreen-simulated .period-toggle-btn,
+    .chart-panel.mobile-fullscreen-simulated .indicator-toggle-btn,
+    .chart-panel.mobile-fullscreen-simulated .tpo-btn,
+    .chart-panel.mobile-fullscreen-simulated .vp-btn,
+    .chart-panel.mobile-fullscreen-simulated .period-extra,
+    .chart-panel.mobile-fullscreen-simulated .indicator-extra {
+        padding: 2px 4px !important;
+        font-size: 0.65rem !important;
+        min-width: 24px !important;
     }
 
     /* Portrait simulated fullscreen: rotate 90deg, width=100vh, height=100vw, origin=top left, translateY(-100%) */
