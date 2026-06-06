@@ -2445,3 +2445,148 @@ body.has-fullscreen-simulated .page-section {
     }
 }
 
+/* Mobile embedded layout in landscape orientation (not fullscreen) */
+@media (max-width: 1150px) and (orientation: landscape) {
+    header {
+        position: relative !important;
+        height: auto !important;
+        padding: 0.5rem 1rem !important;
+    }
+    
+    main {
+        padding: 0.5rem !important;
+    }
+    
+    .tickers-scroll-container {
+        margin-bottom: 0.5rem !important;
+        padding-bottom: 0.25rem !important;
+    }
+    
+    .ticker-card {
+        flex: 0 0 160px !important;
+        padding: 0.5rem !important;
+        border-radius: 8px !important;
+    }
+    
+    .ticker-name {
+        font-size: 0.9rem !important;
+    }
+    
+    .ticker-price {
+        font-size: 1.1rem !important;
+    }
+    
+    .ticker-change {
+        font-size: 0.75rem !important;
+    }
+    
+    .ticker-oi-mini {
+        font-size: 0.65rem !important;
+    }
+
+    .chart-panel:not(.mobile-fullscreen-simulated) {
+        height: auto !important;
+        padding: 0.5rem !important;
+        border-radius: 12px !important;
+    }
+    
+    .chart-panel:not(.mobile-fullscreen-simulated) .chart-header {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.5rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+    
+    .chart-panel:not(.mobile-fullscreen-simulated) .chart-title-area {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        gap: 0.75rem !important;
+        flex: 1 1 auto !important;
+        margin-bottom: 0 !important;
+    }
+    
+    .chart-panel:not(.mobile-fullscreen-simulated) .chart-title {
+        font-size: 0.95rem !important;
+        white-space: nowrap !important;
+    }
+    
+    .chart-panel:not(.mobile-fullscreen-simulated) .chart-title br {
+        display: none !important;
+    }
+    
+    .chart-panel:not(.mobile-fullscreen-simulated) .chart-title span {
+        margin-left: 4px !important;
+        font-size: 0.8rem !important;
+    }
+    
+    .chart-panel:not(.mobile-fullscreen-simulated) .chart-subtitle {
+        font-size: 0.75rem !important;
+        color: var(--text-muted) !important;
+        white-space: nowrap !important;
+    }
+    
+    .chart-panel:not(.mobile-fullscreen-simulated) .chart-toolbar {
+        width: 100% !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: flex-start !important;
+        gap: 0.4rem !important;
+    }
+    
+    .chart-panel:not(.mobile-fullscreen-simulated) .period-group,
+    .chart-panel:not(.mobile-fullscreen-simulated) #chartTypeToolbar,
+    .chart-panel:not(.mobile-fullscreen-simulated) .indicator-group,
+    .chart-panel:not(.mobile-fullscreen-simulated) #chartTpoGroup,
+    .chart-panel:not(.mobile-fullscreen-simulated) #chartVpGroup {
+        flex: 1 1 auto !important;
+        justify-content: center !important;
+        min-width: fit-content !important;
+    }
+    
+    .chart-panel:not(.mobile-fullscreen-simulated) .btn-tab,
+    .chart-panel:not(.mobile-fullscreen-simulated) .period-toggle-btn,
+    .chart-panel:not(.mobile-fullscreen-simulated) .indicator-toggle-btn,
+    .chart-panel:not(.mobile-fullscreen-simulated) .tpo-btn,
+    .chart-panel:not(.mobile-fullscreen-simulated) .vp-btn,
+    .chart-panel:not(.mobile-fullscreen-simulated) .period-extra,
+    .chart-panel:not(.mobile-fullscreen-simulated) .indicator-extra {
+        padding: 4px 6px !important;
+        font-size: 0.7rem !important;
+        min-width: 28px !important;
+    }
+    
+    .chart-panel:not(.mobile-fullscreen-simulated) .chart-canvas-wrapper {
+        height: 220px !important;
+        flex: none !important;
+    }
+    
+    .chart-panel:not(.mobile-fullscreen-simulated) .chart-navigation-bar {
+        margin-top: 0.5rem !important;
+        gap: 4px !important;
+    }
+    
+    .chart-panel:not(.mobile-fullscreen-simulated) .draw-tool-btn {
+        height: 24px !important;
+        width: 24px !important;
+        padding: 0 !important;
+        justify-content: center !important;
+    }
+    
+    .chart-panel:not(.mobile-fullscreen-simulated) .draw-tool-btn .btn-text {
+        display: none !important;
+    }
+    
+    .chart-panel:not(.mobile-fullscreen-simulated) .nav-btn {
+        height: 24px !important;
+        width: 24px !important;
+    }
+    
+    .chart-panel:not(.mobile-fullscreen-simulated) .scrollbar-container {
+        height: 16px !important;
+    }
+}
+
+
