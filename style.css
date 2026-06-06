@@ -2603,4 +2603,25 @@ body.has-fullscreen-simulated .page-section {
     text-align: center !important;
 }
 
+/* Ensure buttons in toolbar groups have uniform widths on desktop viewports */
+@media (min-width: 1025px) {
+    #chartTypeToolbar .btn-tab {
+        width: 56px !important;
+    }
+    #chartPeriodGroup .btn-tab:not(.period-toggle-btn) {
+        width: 50px !important;
+    }
+    #chartTpoGroup .tpo-btn {
+        width: 72px !important;
+        max-width: 72px !important;
+    }
+    #chartVpGroup .vp-btn {
+        width: 72px !important;
+        max-width: 72px !important;
+    }
+    #indicatorGroup .btn-tab:not(.indicator-toggle-btn) {
+        width: 50px !important;
+    }
+}
+
 
