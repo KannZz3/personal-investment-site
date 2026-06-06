@@ -60,7 +60,76 @@ class FuturesChart {
         this.dailyDates = [];
         this.profileCache = {};
         
+        // Drawing Tool States
+        this.drawingMode = 'none'; // 'none', 'hline', 'polyline'
+        this.allDrawings = {}; // { [symbol]: { hlines: [], polylines: [] } }
+        this.selectedHLine = null;
+        this.selectedPolyline = null;
+        this.selectedVertexIndex = null;
+        this.activePolyline = null;
+        this.isDraggingDrawing = false;
+        
         this.initEvents();
+    }
+
+    get drawings() {
+        if (!this.symbol) return { hlines: [], polylines: [] };
+        if (!this.allDrawings[this.symbol]) {
+            this.allDrawings[this.symbol] = { hlines: [], polylines: [] };
+        }
+        return this.allDrawings[this.symbol];
+    }
+
+    getPriceHeightParams() {
+        const w = this.logicalWidth || this.canvas.getBoundingClientRect().width;
+        const h = this.logicalHeight || this.canvas.getBoundingClientRect().height;
+        const hasVolume = this.indicators.volume;
+        const priceChartHeightRatio = hasVolume ? 0.72 : 0.95;
+        const chartWidth = w - this.paddingLeft - this.paddingRight;
+        const totalChartHeight = h - this.paddingTop - this.paddingBottom;
+        const priceHeight = totalChartHeight * priceChartHeightRatio;
+        
+        let maxPrice = -Infinity;
+        let minPrice = Infinity;
+        const visibleData = this.data.slice(this.visibleStart, this.visibleEnd);
+        visibleData.forEach(d => {
+            if (d.high > maxPrice) maxPrice = d.high;
+            if (d.low < minPrice) minPrice = d.low;
+        });
+        const priceRange = maxPrice - minPrice;
+        maxPrice += priceRange * 0.05;
+        minPrice -= priceRange * 0.05;
+        if (minPrice < 0) minPrice = 0;
+        
+        const candleWidth = chartWidth / Math.max(1, visibleData.length);
+        
+        return { w, h, chartWidth, priceHeight, maxPrice, minPrice, candleWidth };
+    }
+
+    priceFromY(y) {
+        const { priceHeight, maxPrice, minPrice } = this.getPriceHeightParams();
+        if (priceHeight <= 0) return 0;
+        return maxPrice - ((y - this.paddingTop) / priceHeight) * (maxPrice - minPrice);
+    }
+    
+    yFromPrice(price) {
+        const { priceHeight, maxPrice, minPrice } = this.getPriceHeightParams();
+        const range = maxPrice - minPrice;
+        if (range <= 0) return this.paddingTop;
+        return this.paddingTop + priceHeight * (1 - (price - minPrice) / range);
+    }
+
+    indexFromX(x) {
+        const { candleWidth } = this.getPriceHeightParams();
+        if (candleWidth <= 0) return 0;
+        const relativeX = x - this.paddingLeft;
+        const offsetIndex = Math.floor(relativeX / candleWidth);
+        return Math.max(0, Math.min(this.data.length - 1, this.visibleStart + offsetIndex));
+    }
+    
+    xFromIndex(index) {
+        const { candleWidth } = this.getPriceHeightParams();
+        return this.paddingLeft + ((index - this.visibleStart) * candleWidth) + (candleWidth / 2);
     }
 
     setData(data) {
@@ -107,6 +176,14 @@ class FuturesChart {
         });
         
         this.hoverIndex = -1;
+        this.selectedHLine = null;
+        this.selectedPolyline = null;
+        this.selectedVertexIndex = null;
+        this.activePolyline = null;
+        this.isDraggingDrawing = false;
+        this.drawingMode = 'none';
+        if (this.updateDrawingBtnStates) this.updateDrawingBtnStates();
+
         // Default to showing 100% of data (extreme timeframe capability)
         this.visibleStart = 0;
         this.visibleEnd = this.data.length;
@@ -536,7 +613,7 @@ class FuturesChart {
         // Handle resizing
         window.addEventListener('resize', () => this.resize());
 
-        // Mouse interactions for crosshair & panning
+        // Mouse interactions for crosshair & panning & drawing
         this.canvas.addEventListener('mousemove', (e) => {
             const rect = this.canvas.getBoundingClientRect();
             // Accounts for CSS scaling in logical coordinates
@@ -549,9 +626,17 @@ class FuturesChart {
                 this.lastHoverPct = (this.mouseX - this.paddingLeft) / chartWidth;
             }
             
-            // Panning logic
-            if (this.isPanning && this.data.length) {
-                const chartWidth = this.logicalWidth - this.paddingLeft - this.paddingRight;
+            // Dragging logic for drawings
+            if (this.isDraggingDrawing) {
+                if (this.selectedHLine) {
+                    this.selectedHLine.price = this.priceFromY(this.mouseY);
+                } else if (this.selectedPolyline && this.selectedVertexIndex !== null) {
+                    this.selectedPolyline.points[this.selectedVertexIndex] = {
+                        index: this.indexFromX(this.mouseX),
+                        price: this.priceFromY(this.mouseY)
+                    };
+                }
+            } else if (this.isPanning && this.data.length) { // Panning logic
                 const visibleCount = this.visibleEnd - this.visibleStart;
                 
                 const clientCandleWidth = chartWidth / visibleCount;
@@ -584,8 +669,133 @@ class FuturesChart {
             this.triggerHoverCallback(null);
         });
 
-        // Start panning
+        // Start panning / drawing / selection
         this.canvas.addEventListener('mousedown', (e) => {
+            const rect = this.canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            if (this.drawingMode !== 'none') {
+                let found = false;
+                const { priceHeight } = this.getPriceHeightParams();
+
+                // 1. Check if near horizontal lines
+                const yTol = 8;
+                for (let hl of this.drawings.hlines) {
+                    const y = this.yFromPrice(hl.price);
+                    if (Math.abs(mouseY - y) < yTol) {
+                        this.selectedHLine = hl;
+                        this.selectedPolyline = null;
+                        this.selectedVertexIndex = null;
+                        this.isDraggingDrawing = true;
+                        found = true;
+                        break;
+                    }
+                }
+
+                // 2. Check if near polyline vertices
+                if (!found) {
+                    const tol = 10;
+                    for (let pl of this.drawings.polylines) {
+                        for (let idxVal = 0; idxVal < pl.points.length; idxVal++) {
+                            const pt = pl.points[idxVal];
+                            const x = this.xFromIndex(pt.index);
+                            const y = this.yFromPrice(pt.price);
+                            if (Math.sqrt((mouseX - x) ** 2 + (mouseY - y) ** 2) < tol) {
+                                this.selectedPolyline = pl;
+                                this.selectedVertexIndex = idxVal;
+                                this.selectedHLine = null;
+                                this.isDraggingDrawing = true;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (found) break;
+                    }
+                }
+
+                // 3. Check if near polyline segments (distance from point to line segment)
+                if (!found) {
+                    const segTol = 8;
+                    for (let pl of this.drawings.polylines) {
+                        for (let idxVal = 0; idxVal < pl.points.length - 1; idxVal++) {
+                            const x1 = this.xFromIndex(pl.points[idxVal].index);
+                            const y1 = this.yFromPrice(pl.points[idxVal].price);
+                            const x2 = this.xFromIndex(pl.points[idxVal + 1].index);
+                            const y2 = this.yFromPrice(pl.points[idxVal + 1].price);
+
+                            const A = mouseX - x1;
+                            const B = mouseY - y1;
+                            const C = x2 - x1;
+                            const D = y2 - y1;
+
+                            const dot = A * C + B * D;
+                            const lenSq = C * C + D * D;
+                            let param = -1;
+                            if (lenSq !== 0) param = dot / lenSq;
+
+                            let xx, yy;
+                            if (param < 0) {
+                                xx = x1;
+                                yy = y1;
+                            } else if (param > 1) {
+                                xx = x2;
+                                yy = y2;
+                            } else {
+                                xx = x1 + param * C;
+                                yy = y1 + param * D;
+                            }
+
+                            const dist = Math.sqrt((mouseX - xx) ** 2 + (mouseY - yy) ** 2);
+                            if (dist < segTol) {
+                                this.selectedPolyline = pl;
+                                this.selectedVertexIndex = null;
+                                this.selectedHLine = null;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (found) break;
+                    }
+                }
+
+                if (found) {
+                    if (this.updateDrawingBtnStates) this.updateDrawingBtnStates();
+                    this.render();
+                    return;
+                }
+
+                // If not clicking an existing drawing, we add a new one
+                const currentPrice = this.priceFromY(mouseY);
+                const currentIndex = this.indexFromX(mouseX);
+
+                if (mouseY >= this.paddingTop && mouseY <= this.paddingTop + priceHeight && mouseX >= this.paddingLeft && mouseX <= this.logicalWidth - this.paddingRight) {
+                    if (this.drawingMode === 'hline') {
+                        const newHLine = { price: currentPrice };
+                        this.drawings.hlines.push(newHLine);
+                        this.selectedHLine = newHLine;
+                        this.selectedPolyline = null;
+                        this.isDraggingDrawing = true;
+                    } else if (this.drawingMode === 'polyline') {
+                        if (!this.activePolyline) {
+                            const newPoly = { points: [{ index: currentIndex, price: currentPrice }] };
+                            this.drawings.polylines.push(newPoly);
+                            this.activePolyline = newPoly;
+                            this.selectedPolyline = newPoly;
+                            this.selectedHLine = null;
+                        } else {
+                            this.activePolyline.points.push({ index: currentIndex, price: currentPrice });
+                            this.selectedPolyline = this.activePolyline;
+                            this.selectedHLine = null;
+                        }
+                    }
+                    if (this.updateDrawingBtnStates) this.updateDrawingBtnStates();
+                    this.render();
+                    return;
+                }
+            }
+
+            // Normal panning start
             this.isPanning = true;
             this.panStartMouseX = e.clientX;
             this.panStartStartIdx = this.visibleStart;
@@ -595,11 +805,13 @@ class FuturesChart {
         window.addEventListener('mouseup', () => {
             this.isPanning = false;
             this.isDraggingScrollbar = false;
+            this.isDraggingDrawing = false;
         });
 
         window.addEventListener('touchend', () => {
             this.isPanning = false;
             this.isDraggingScrollbar = false;
+            this.isDraggingDrawing = false;
         });
 
         // Centered Wheel Zooming
@@ -758,6 +970,108 @@ class FuturesChart {
     }
 
     initControls() {
+        const drawHLineBtn = document.getElementById('drawHLineBtn');
+        const drawPolylineBtn = document.getElementById('drawPolylineBtn');
+        const finishPolylineBtn = document.getElementById('finishPolylineBtn');
+        const deleteDrawingBtn = document.getElementById('deleteDrawingBtn');
+
+        const updateBtnStates = () => {
+            if (drawHLineBtn) {
+                if (this.drawingMode === 'hline') {
+                    drawHLineBtn.classList.add('active');
+                } else {
+                    drawHLineBtn.classList.remove('active');
+                }
+            }
+            if (drawPolylineBtn) {
+                if (this.drawingMode === 'polyline') {
+                    drawPolylineBtn.classList.add('active');
+                } else {
+                    drawPolylineBtn.classList.remove('active');
+                }
+            }
+            if (finishPolylineBtn) {
+                if (this.drawingMode === 'polyline') {
+                    finishPolylineBtn.style.display = 'inline-flex';
+                } else {
+                    finishPolylineBtn.style.display = 'none';
+                }
+            }
+            if (deleteDrawingBtn) {
+                if (this.drawingMode !== 'none' && (this.selectedHLine !== null || this.selectedPolyline !== null)) {
+                    deleteDrawingBtn.style.display = 'inline-flex';
+                } else {
+                    deleteDrawingBtn.style.display = 'none';
+                }
+            }
+        };
+
+        if (drawHLineBtn) {
+            drawHLineBtn.addEventListener('click', () => {
+                if (this.drawingMode === 'hline') {
+                    this.drawingMode = 'none';
+                } else {
+                    this.drawingMode = 'hline';
+                    if (this.activePolyline) {
+                        this.activePolyline = null;
+                    }
+                }
+                this.selectedHLine = null;
+                this.selectedPolyline = null;
+                this.selectedVertexIndex = null;
+                updateBtnStates();
+                this.render();
+            });
+        }
+
+        if (drawPolylineBtn) {
+            drawPolylineBtn.addEventListener('click', () => {
+                if (this.drawingMode === 'polyline') {
+                    this.drawingMode = 'none';
+                    this.activePolyline = null;
+                } else {
+                    this.drawingMode = 'polyline';
+                }
+                this.selectedHLine = null;
+                this.selectedPolyline = null;
+                this.selectedVertexIndex = null;
+                updateBtnStates();
+                this.render();
+            });
+        }
+
+        if (finishPolylineBtn) {
+            finishPolylineBtn.addEventListener('click', () => {
+                this.activePolyline = null;
+                this.drawingMode = 'none';
+                this.selectedHLine = null;
+                this.selectedPolyline = null;
+                this.selectedVertexIndex = null;
+                updateBtnStates();
+                this.render();
+            });
+        }
+
+        if (deleteDrawingBtn) {
+            deleteDrawingBtn.addEventListener('click', () => {
+                if (this.selectedHLine) {
+                    const idx = this.drawings.hlines.indexOf(this.selectedHLine);
+                    if (idx > -1) this.drawings.hlines.splice(idx, 1);
+                    this.selectedHLine = null;
+                } else if (this.selectedPolyline) {
+                    const idx = this.drawings.polylines.indexOf(this.selectedPolyline);
+                    if (idx > -1) this.drawings.polylines.splice(idx, 1);
+                    this.selectedPolyline = null;
+                    this.selectedVertexIndex = null;
+                    this.activePolyline = null;
+                }
+                updateBtnStates();
+                this.render();
+            });
+        }
+
+        this.updateDrawingBtnStates = updateBtnStates;
+
         const fullscreenBtn = document.getElementById('chartFullscreen');
         const track = document.getElementById('scrollbarTrack');
         const handle = document.getElementById('scrollbarHandle');
@@ -1512,6 +1826,75 @@ class FuturesChart {
                     this.drawProfileTooltip('volume', row, vpProfile, this.mouseX, this.mouseY, w, h);
                 }
             }
+        // Render drawings
+        if (this.drawings) {
+            // 1. Draw Horizontal Lines
+            this.drawings.hlines.forEach(hline => {
+                const y = this.yFromPrice(hline.price);
+                if (y >= this.paddingTop && y <= this.paddingTop + priceHeight) {
+                    const isSelected = (hline === this.selectedHLine);
+                    ctx.strokeStyle = isSelected ? '#3b82f6' : 'rgba(245, 158, 11, 0.85)';
+                    ctx.lineWidth = isSelected ? 2 : 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(this.paddingLeft, y);
+                    ctx.lineTo(w - this.paddingRight, y);
+                    ctx.stroke();
+
+                    // Draw handle in the middle of the line
+                    const midX = this.paddingLeft + (w - this.paddingRight - this.paddingLeft) / 2;
+                    ctx.fillStyle = '#ffffff';
+                    ctx.strokeStyle = isSelected ? '#3b82f6' : '#f59e0b';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(midX, y, isSelected ? 5 : 3.5, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.stroke();
+                    
+                    // Show price text label on the left side of the line
+                    ctx.fillStyle = isSelected ? '#3b82f6' : '#f59e0b';
+                    ctx.font = '9px Inter';
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'bottom';
+                    ctx.fillText(hline.price.toFixed(1), this.paddingLeft + 5, y - 3);
+                }
+            });
+
+            // 2. Draw Polylines
+            this.drawings.polylines.forEach(polyline => {
+                if (polyline.points && polyline.points.length > 0) {
+                    const isSelected = (polyline === this.selectedPolyline);
+                    ctx.strokeStyle = isSelected ? '#3b82f6' : 'rgba(16, 185, 129, 0.85)';
+                    ctx.lineWidth = isSelected ? 2 : 1.5;
+                    
+                    // Draw lines
+                    ctx.beginPath();
+                    polyline.points.forEach((pt, idxVal) => {
+                        const x = this.xFromIndex(pt.index);
+                        const y = this.yFromPrice(pt.price);
+                        if (idxVal === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    });
+                    ctx.stroke();
+
+                    // Draw vertices
+                    polyline.points.forEach((pt, idxVal) => {
+                        const x = this.xFromIndex(pt.index);
+                        const y = this.yFromPrice(pt.price);
+                        
+                        // Only draw if within bounds
+                        if (x >= this.paddingLeft && x <= w - this.paddingRight && y >= this.paddingTop && y <= this.paddingTop + priceHeight) {
+                            const isVertexSelected = isSelected && (idxVal === this.selectedVertexIndex);
+                            ctx.fillStyle = '#ffffff';
+                            ctx.strokeStyle = isVertexSelected ? '#ef4444' : '#3b82f6';
+                            ctx.lineWidth = 1.5;
+                            ctx.beginPath();
+                            ctx.arc(x, y, isVertexSelected ? 5 : 4, 0, 2 * Math.PI);
+                            ctx.fill();
+                            ctx.stroke();
+                        }
+                    });
+                }
+            });
         }
 
         // Update custom scrollbar handle position

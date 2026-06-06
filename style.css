@@ -2209,3 +2209,63 @@ footer {
 .math-denominator {
     padding-top: 2px;
 }
+
+/* ==========================================================================
+   DRAWING TOOLS FOR CHARTS
+   ========================================================================== */
+.draw-tool-btn {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    transition: all var(--transition-fast);
+}
+
+.draw-tool-btn i {
+    width: 13px;
+    height: 13px;
+}
+
+.draw-tool-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--text-muted);
+    background-color: var(--bg-surface-hover);
+}
+
+.draw-tool-btn.active {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: #ffffff;
+}
+
+.draw-tool-btn.active-finish {
+    background-color: #10b981;
+    border-color: #10b981;
+    color: #ffffff;
+}
+
+.draw-tool-btn.active-finish:hover {
+    background-color: #059669;
+    border-color: #059669;
+}
+
+.draw-tool-btn.active-delete {
+    background-color: #ef4444;
+    border-color: #ef4444;
+    color: #ffffff;
+}
+
+.draw-tool-btn.active-delete:hover {
+    background-color: #dc2626;
+    border-color: #dc2626;
+}
+

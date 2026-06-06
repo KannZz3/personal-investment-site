@@ -189,13 +189,13 @@ const articles = [
             </ul>
             <p>真正决定价格方向的是：</p>
             <div class="math-block">
-                Q<sub>L</sub> vs Q<sub>S</sub>
+                Q<sub>L</sub> &nbsp;vs&nbsp; Q<sub>S</sub>
             </div>
             <p><strong>情景推演逻辑：</strong></p>
             <ul>
-                <li>若 <span class="math-inline">Q<sub>L</sub> &gt; Q<sub>S</sub></span>，则价格倾向于继续上行；</li>
-                <li>若 <span class="math-inline">Q<sub>L</sub> &lt; Q<sub>S</sub></span>，则价格容易出现回调或反转；</li>
-                <li>若 <span class="math-inline">Q<sub>L</sub> ≈ Q<sub>S</sub></span>，则价格更容易进入震荡或高位分歧状态。</li>
+                <li>若 <span class="math-inline">Q<sub>L</sub> &nbsp;&gt;&nbsp; Q<sub>S</sub></span>，则价格倾向于继续上行；</li>
+                <li>若 <span class="math-inline">Q<sub>L</sub> &nbsp;&lt;&nbsp; Q<sub>S</sub></span>，则价格容易出现回调或反转；</li>
+                <li>若 <span class="math-inline">Q<sub>L</sub> &nbsp;≈&nbsp; Q<sub>S</sub></span>，则价格更容易进入震荡或高位分歧状态。</li>
             </ul>
             <blockquote>
                 “人数优势只有在能够转化为有效订单优势时，才会推动价格变化。”
@@ -226,21 +226,21 @@ const articles = [
             <p>非完全理性多头的选择可以表示为集合：<span class="math-inline">C<sup>+</sup> = (L<sup>+</sup>, w<sup>+</sup>, T<sup>+</sup>, R<sup>+</sup>)</span>。</p>
             <p>在趋势刚刚确立、价格尚未到达 1600 的条件下，非完全理性多头大概率不会立刻大规模反手做空，因此：</p>
             <div class="math-block">
-                P(R<sup>+</sup>) ≈ 0
+                P(R<sup>+</sup>) &nbsp;≈&nbsp; 0
             </div>
             <p>但这并不意味着多头完全没有止盈卖压。多头止盈平仓 <span class="math-inline">T<sup>+</sup></span> 是真实存在的，只是在本文设定的阶段中，由于价格距离目标预期 1600 仍有空间，且趋势刚刚确立，止盈卖压暂时不是主要力量。自然，可近似写成：</p>
             <div class="math-block">
-                P(L<sup>+</sup>) + P(w<sup>+</sup>) + P(T<sup>+</sup>) ≈ 1
+                P(L<sup>+</sup>) + P(w<sup>+</sup>) + P(T<sup>+</sup>) &nbsp;≈&nbsp; 1
             </div>
             <p>且在趋势确认初期：</p>
             <div class="math-block">
-                P(T<sup>+</sup>) &lt; P(L<sup>+</sup>) + P(w<sup>+</sup>)
+                P(T<sup>+</sup>) &nbsp;&lt;&nbsp; P(L<sup>+</sup>) + P(w<sup>+</sup>)
             </div>
             <p>也就是说，多头赢家整体仍以持有或加仓为主，止盈为辅。我们将主要行为简化为 <span class="math-inline">P(L<sup>+</sup>) + P(w<sup>+</sup>)</span> 占主导，对应三种主要情况：</p>
             <ul>
-                <li><strong>情况 1：</strong> <span class="math-inline">P(L<sup>+</sup>) &lt; P(w<sup>+</sup>)</span> —— 多数多头选择继续持有，少数多头选择加仓。</li>
+                <li><strong>情况 1：</strong> <span class="math-inline">P(L<sup>+</sup>) &nbsp;&lt;&nbsp; P(w<sup>+</sup>)</span> —— 多数多头选择继续持有，少数多头选择加仓。</li>
                 <li><strong>情况 2：</strong> <span class="math-inline">P(L<sup>+</sup>) = P(w<sup>+</sup>)</span> —— 选择加仓和继续持有的人数大致相当。</li>
-                <li><strong>情况 3：</strong> <span class="math-inline">P(L<sup>+</sup>) &gt; P(w<sup>+</sup>)</span> —— 多数多头选择继续加仓，少数多头选择持有。</li>
+                <li><strong>情况 3：</strong> <span class="math-inline">P(L<sup>+</sup>) &nbsp;&gt;&nbsp; P(w<sup>+</sup>)</span> —— 多数多头选择继续加仓，少数多头选择持有。</li>
             </ul>
             <p>在大级别多头趋势已经确立，且市场资金高度沉淀的前提下，非完全理性多头大概率位于情况 1 或情况 3。也就是说，多头赢家整体仍表现为<strong>持有锁仓 + 部分加仓 - 少量止盈</strong>的净多头态势，不容易成为趋势反转的主导力量。</p>
             
@@ -266,13 +266,13 @@ const articles = [
             <h3>2. 非完全理性空头输家</h3>
             <p>剩余 9980 位空头属于非完全理性参与者。他们受<strong>亏损厌恶</strong>、<strong>成本锚定</strong>（认为价格会回踩成本区）与<strong>侥幸心理</strong>（希望等回落再平仓）影响，在趋势刚确认且价格尚未明显远离其成本区间时，不愿主动止损：</p>
             <div class="math-block">
-                P(L<sup>-</sup>) ≈ 0
+                P(L<sup>-</sup>) &nbsp;≈&nbsp; 0
             </div>
-            <p>他们主要在继续扛单 and 继续加空之间选择，满足：<span class="math-inline">P(w<sup>-</sup>) + P(S<sup>-</sup>) ≈ 1</span>，对应三种情况：</p>
+            <p>他们主要在继续扛单 and 继续加空之间选择，满足：<span class="math-inline">P(w<sup>-</sup>) + P(S<sup>-</sup>) &nbsp;≈&nbsp; 1</span>，对应三种情况：</p>
             <ul>
-                <li><strong>情况 1：</strong> <span class="math-inline">P(S<sup>-</sup>) &lt; P(w<sup>-</sup>)</span> —— 多数空头选择继续扛单，少数空头选择加空。</li>
+                <li><strong>情况 1：</strong> <span class="math-inline">P(S<sup>-</sup>) &nbsp;&lt;&nbsp; P(w<sup>-</sup>)</span> —— 多数空头选择继续扛单，少数空头选择加空。</li>
                 <li><strong>情况 2：</strong> <span class="math-inline">P(S<sup>-</sup>) = P(w<sup>-</sup>)</span> —— 继续扛单和继续加空的人数大致相当。</li>
-                <li><strong>情况 3：</strong> <span class="math-inline">P(S<sup>-</sup>) &gt; P(w<sup>-</sup>)</span> —— 多数空头选择继续加空，少数空头选择扛单。</li>
+                <li><strong>情况 3：</strong> <span class="math-inline">P(S<sup>-</sup>) &nbsp;&gt;&nbsp; P(w<sup>-</sup>)</span> —— 多数空头选择继续加空，少数空头选择扛单。</li>
             </ul>
             <p>在大级别多头趋势确立初期，非完全理性空头大概率为<strong>情况 1</strong>：多数选择扛单，少数选择加空。这表明：<strong>非完全理性空头短期内不一定立即贡献买盘，但他们构成了未来潜在的止损买盘。</strong></p>
             <p>当价格继续上行时，空头亏损扩大，保证金压力与心理压力直线上升，其主动或被迫止损的概率会随之增加（即 <span class="math-inline">P(L<sup>-</sup>) ↑</span>）。因此，空头在上涨过程中极易转化为趋势延续的燃料。</p>
@@ -292,7 +292,7 @@ const articles = [
             <h3>2. 场外非完全理性人</h3>
             <p>场外非完全理性资金是趋势能否从场内博弈扩散为市场共识的关键变量。因此，需要先完整枚举其可能行为状态，再判断在本文前提下哪一种状态最可能出现。</p>
             <p>剩余 998 位场外参与者，其选择为：<span class="math-inline">P(L) + P(S) + P(w) = 1</span>，他们的参与方向可以表示为做多与做空的对比（存在九种多空组合情况）。</p>
-            <p>在多头大级别趋势确立、赚钱效应扩散的条件下，场外非完全理性资金大概率处于<strong>做多人数多于做空人数，且积极参与的黄金状态</strong>（即 <span class="math-inline">P(L) + P(S) &gt; P(w)</span> 且 <span class="math-inline">P(L) &gt; P(S)</span>）。这就是趋势向场外扩散的阶段。</p>
+            <p>在多头大级别趋势确立、赚钱效应扩散的条件下，场外非完全理性资金大概率处于<strong>做多人数多于做空人数，且积极参与的黄金状态</strong>（即 <span class="math-inline">P(L) + P(S) &nbsp;&gt;&nbsp; P(w)</span> 且 <span class="math-inline">P(L) &nbsp;&gt;&nbsp; P(S)</span>）。这就是趋势向场外扩散的阶段。</p>
             
             <h2>六、 场内外合并后的边际力量</h2>
             <p>市场合并后的边际力量对比：</p>
@@ -302,33 +302,33 @@ const articles = [
             </ul>
             <p>趋势能够延续的本质，在于总边际买盘能够压倒总边际卖盘，即：</p>
             <div class="math-block">
-                Q<sub>L</sub> &gt; Q<sub>S</sub>
+                Q<sub>L</sub> &nbsp;&gt;&nbsp; Q<sub>S</sub>
             </div>
             
             <h2>七、 结论情景一：趋势强延续</h2>
-            <p>在空头未成多数加空（<span class="math-inline">0 &lt; N(S<sup>-</sup>) &lt; 4990</span>）、场内多头大比例加仓（<span class="math-inline">N(L<sup>+</sup>) &gt; 4990</span>）的条件下，叠加理性人的行为偏向，我们可以得到核心顺势买盘的保守下限：</p>
+            <p>在空头未成多数加空（<span class="math-inline">0 &nbsp;&lt;&nbsp; N(S<sup>-</sup>) &nbsp;&lt;&nbsp; 4990</span>）、场内多头大比例加仓（<span class="math-inline">N(L<sup>+</sup>) &nbsp;&gt;&nbsp; 4990</span>）的条件下，叠加理性人的行为偏向，我们可以得到核心顺势买盘的保守下限：</p>
             <div class="math-block">
-                N(L<sup>*</sup>)<sub>core</sub> &gt; 4990 + 20 + 2 = 5012
+                N(L<sup>*</sup>)<sub>core</sub> &nbsp;&gt;&nbsp; 4990 + 20 + 2 = 5012
             </div>
-            <p>这个 5012 尚未计入空头被迫爆仓平仓买盘 and 场外其他追随资金。若此核心买盘成功转化为订单优势，且卖压没有异常放大，则 <span class="math-inline">Q<sub>L</sub> &gt; Q<sub>S</sub></span> 强力成立，<strong>趋势将大概率强劲延续，价格继续上行</strong>。</p>
+            <p>这个 5012 尚未计入空头被迫爆仓平仓买盘 and 场外其他追随资金。若此核心买盘成功转化为订单优势，且卖压没有异常放大，则 <span class="math-inline">Q<sub>L</sub> &nbsp;&gt;&nbsp; Q<sub>S</sub></span> 强力成立，<strong>趋势将大概率强劲延续，价格继续上行</strong>。</p>
             
             <h2>八、 结论情景二：阶段性回调</h2>
-            <p>若场内多头赢家未进入强力加仓状态，而是以观望持有为主，导致多头加仓力量未过半数（<span class="math-inline">20 &lt; N(L<sup>+</sup>)<sub>total</sub> &lt; 5010</span>），核心顺势买盘退化到弱加仓区间：</p>
+            <p>若场内多头赢家未进入强力加仓状态，而是以观望持有为主，导致多头加仓力量未过半数（<span class="math-inline">20 &nbsp;&lt;&nbsp; N(L<sup>+</sup>)<sub>total</sub> &nbsp;&lt;&nbsp; 5010</span>），核心顺势买盘退化到弱加仓区间：</p>
             <div class="math-block">
-                273 &lt; N(L<sup>*</sup>)<sub>core</sub> &lt; 5263
+                273 &nbsp;&lt;&nbsp; N(L<sup>*</sup>)<sub>core</sub> &nbsp;&lt;&nbsp; 5263
             </div>
-            <p>在此情景下，若场内多头出现一定程度的获利止盈，或者空头加空卖盘短期占据上风，使得边际卖压超过买盘（<span class="math-inline">Q<sub>L</sub> &lt; Q<sub>S</sub></span>），则<strong>价格容易出现阶段性回调或高位震荡</strong>。但这并不代表趋势立即反转，只要不破坏深层结构，回调多表现为趋势的整理中继。</p>
+            <p>在此情景下，若场内多头出现一定程度的获利止盈，或者空头加空卖盘短期占据上风，使得边际卖压超过买盘（<span class="math-inline">Q<sub>L</sub> &nbsp;&lt;&nbsp; Q<sub>S</sub></span>），则<strong>价格容易出现阶段性回调或高位震荡</strong>。但这并不代表趋势立即反转，只要不破坏深层结构，回调多表现为趋势的整理中继。</p>
             
             <h2>九、 回调发生后的二次推导</h2>
             <p>当回调发生且没有破坏大级别多头趋势（未跌破关键成本区 and 趋势防守位）时，市场的行为会发生二次演变：</p>
             <p>1. <strong>场外非完全理性资金：</strong> 往往将回调视为低吸上车的良机（即 <span class="math-inline">P(L) ↑</span> 增加）。</p>
-            <p>2. <strong>场内非完全理性空头：</strong> 回调强化了侥幸心理，空头选择继续死扛（<span class="math-inline">0 &lt; N(S<sup>-</sup>) &lt; 4990</span>），使得空头的潜在止损买盘被完整保留并延迟至更高的价位。</p>
-            <p>3. <strong>场内非完全理性多头：</strong> 多头在回调后认为安全边际提高，行为概率极易从“观望”转化为“逢低加仓”（即 <span class="math-inline">P(L<sup>+</sup>) &gt; P(w<sup>+</sup>)</span>，人数过半数）。</p>
+            <p>2. <strong>场内非完全理性空头：</strong> 回调强化了侥幸心理，空头选择继续死扛（<span class="math-inline">0 &nbsp;&lt;&nbsp; N(S<sup>-</sup>) &nbsp;&lt;&nbsp; 4990</span>），使得空头的潜在止损买盘被完整保留并延迟至更高的价位。</p>
+            <p>3. <strong>场内非完全理性多头：</strong> 多头在回调后认为安全边际提高，行为概率极易从“观望”转化为“逢低加仓”（即 <span class="math-inline">P(L<sup>+</sup>) &nbsp;&gt;&nbsp; P(w<sup>+</sup>)</span>，人数过半数）。</p>
             
             <h2>十、 回调后的综合结果</h2>
             <p>回调重新积蓄了多头力量。场内外逢低加仓与低吸追随，合并为更稳固的保守核心买盘下限：</p>
             <div class="math-block">
-                N(L<sup>*</sup>)<sub>core</sub> &gt; 5012
+                N(L<sup>*</sup>)<sub>core</sub> &nbsp;&gt;&nbsp; 5012
             </div>
             <p>只要这一买盘能转化为边际订单 of 优势，回调后价格重新向上运行并进一步击穿空头止损防守线的概率极高。也就是说：<strong>回调并没有破坏多头结构，反而在行为金融层面为大级别趋势重新提供了燃料。</strong></p>
             
