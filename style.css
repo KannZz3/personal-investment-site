@@ -2597,30 +2597,32 @@ body.has-fullscreen-simulated .page-section {
     padding-right: 6px !important;
 }
 
-/* Ensure all text buttons within toolbar groups are evenly distributed */
-.chart-toolbar .btn-tab:not(.period-toggle-btn):not(.indicator-toggle-btn) {
-    flex: 1 1 0% !important;
-    text-align: center !important;
+/* Ensure buttons in toolbar groups have uniform widths globally */
+#chartTypeToolbar .btn-tab {
+    width: 56px !important;
+}
+#chartPeriodGroup .btn-tab:not(.period-toggle-btn) {
+    width: 50px !important;
+}
+#chartTpoGroup .tpo-btn {
+    width: 72px !important;
+    max-width: 72px !important;
+}
+#chartVpGroup .vp-btn {
+    width: 72px !important;
+    max-width: 72px !important;
+}
+#indicatorGroup .btn-tab:not(.indicator-toggle-btn) {
+    width: 50px !important;
 }
 
-/* Ensure buttons in toolbar groups have uniform widths on desktop viewports */
-@media (min-width: 1025px) {
-    #chartTypeToolbar .btn-tab {
-        width: 56px !important;
-    }
-    #chartPeriodGroup .btn-tab:not(.period-toggle-btn) {
-        width: 50px !important;
-    }
-    #chartTpoGroup .tpo-btn {
-        width: 72px !important;
-        max-width: 72px !important;
-    }
-    #chartVpGroup .vp-btn {
-        width: 72px !important;
-        max-width: 72px !important;
-    }
-    #indicatorGroup .btn-tab:not(.indicator-toggle-btn) {
-        width: 50px !important;
+/* On portrait/mobile viewports, let buttons flex and stretch to fill width instead of using fixed widths */
+@media (orientation: portrait) {
+    .chart-toolbar .btn-tab:not(.period-toggle-btn):not(.indicator-toggle-btn) {
+        width: auto !important;
+        max-width: none !important;
+        flex: 1 1 0% !important;
+        text-align: center !important;
     }
 }
 
