@@ -2690,7 +2690,10 @@ function buildTechnicalUI(data) {
     // 3. Anomaly Cards (placeholder for future analysis)
     const cardsContainer = document.getElementById('techAnomalyCards');
     if (cardsContainer) {
-        if (!meta.anomalies || meta.anomalies.length === 0) {
+        const failedScans = meta.failed_scans || [];
+        const hasAnomalies = meta.anomalies && meta.anomalies.length > 0;
+        
+        if (!hasAnomalies && failedScans.length === 0) {
             cardsContainer.innerHTML = `
                 <div class="tech-empty-state">
                     <div class="tech-empty-radar">
@@ -2705,6 +2708,66 @@ function buildTechnicalUI(data) {
         
         cardsContainer.innerHTML = '<div class="anomaly-cards-grid"></div>';
         const grid = cardsContainer.querySelector('.anomaly-cards-grid');
+        
+        // Render warning card first if there are failed scans (leftmost position)
+        if (failedScans.length > 0) {
+            const failedNames = failedScans.map(code => {
+                const contract = meta.contracts[code];
+                return contract ? contract.name.replace('主力', '') : code;
+            }).join(', ');
+            
+            const successCount = 69 - failedScans.length;
+            const successRate = (successCount / 69 * 100).toFixed(1);
+            
+            grid.innerHTML += `
+                <div class="anomaly-card card-warning" style="border-color: rgba(239, 68, 68, 0.45); background: linear-gradient(135deg, rgba(239, 68, 68, 0.03) 0%, rgba(245, 158, 11, 0.03) 100%); display: flex; flex-direction: column; height: 100%;">
+                    <div class="anomaly-card-header">
+                        <div class="anomaly-card-header-left">
+                            <h3 style="color: #ef4444;"><i data-lucide="alert-triangle" style="display: inline-block; vertical-align: middle; width: 18px; height: 18px; margin-right: 6px; stroke: #ef4444;"></i>全市场扫描异常</h3>
+                            <div class="card-meta" style="color: #f59e0b; font-weight: 500;">数据同步未完全覆盖</div>
+                        </div>
+                        <span class="oi-badge" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 600;">扫描未完成</span>
+                    </div>
+                    
+                    <div class="anomaly-card-stats" style="flex: 1;">
+                        <div class="anomaly-stat">
+                            <span class="anomaly-stat-label">失败合约数</span>
+                            <span class="anomaly-stat-value" style="color: #ef4444; font-weight: 700;">${failedScans.length} 个品种</span>
+                        </div>
+                        <div class="anomaly-stat">
+                            <span class="anomaly-stat-label">检验覆盖率</span>
+                            <span class="anomaly-stat-value" style="color: #10b981; font-weight: 700;">${successRate}%</span>
+                        </div>
+                        <div class="anomaly-stat" style="grid-column: 1/-1;">
+                            <span class="anomaly-stat-label">未顺利扫描合约</span>
+                            <span class="anomaly-stat-value" style="font-size: 0.85rem; color: #ef4444; white-space: normal; line-height: 1.4; word-break: break-all;">
+                                ${failedNames}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="anomaly-oi-bar" style="padding: 1rem 1.5rem;">
+                        <div class="anomaly-oi-bar-label" style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.8rem;">
+                            <span>已扫描校验品种</span>
+                            <span style="font-weight: 700; color: #ef4444;">${successCount} / 69</span>
+                        </div>
+                        <div class="anomaly-oi-bar-bg" style="height: 6px; background: rgba(255, 255, 255, 0.08); border-radius: 3px; overflow: hidden;">
+                            <div class="anomaly-oi-bar-fill" style="height: 100%; width: ${successRate}%; background: linear-gradient(90deg, #f59e0b 0%, #ef4444 100%); border-radius: 3px;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="anomaly-analysis-placeholder" style="color: #f59e0b; background: rgba(245, 158, 11, 0.06); border: 1px solid rgba(245, 158, 11, 0.15); border-radius: 8px; margin: 0 1.5rem 1rem; padding: 0.75rem 1rem; font-size: 0.78rem; line-height: 1.45;">
+                        <i data-lucide="info" style="display: inline-block; width: 14px; height: 14px; vertical-align: middle; margin-right: 4px; stroke: #f59e0b;"></i>
+                        提示：上述品种由于接口超时或网络故障，未能获取到最新收盘数据，未完成异动验证。
+                    </div>
+                    
+                    <div class="anomaly-card-footer" style="border-top: 1px solid var(--border-color); padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted);">
+                        <span><i data-lucide="help-circle" style="display: inline-block; width: 12px; height: 12px; vertical-align: middle; margin-right: 4px;"></i>请检查后台 GitHub Actions</span>
+                        <span>v4.0</span>
+                    </div>
+                </div>
+            `;
+        }
         
         meta.anomalies.forEach(code => {
             const contract = meta.contracts[code];

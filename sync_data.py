@@ -129,71 +129,80 @@ def screen_commodity(ak, pd, code, start_date):
     Pull 10-year continuous main-contract history and compute OI significance.
     Returns a dict of screening results, or None on failure.
     """
+    import time
     cfg = ALL_CFG[code]
     sym = f"{code}0"
-    try:
-        df = ak.futures_main_sina(symbol=sym, start_date=start_date)
-        if df is None or df.empty:
-            return None
-        df.columns = HIST_COLS[:len(df.columns)]
-        df['hold'] = pd.to_numeric(df['hold'], errors='coerce').fillna(0)
-        
-        # Convert pre-2020 bilateral hold to unilateral (Sina database transition date: 2020-01-02)
-        def convert_to_unilateral(row):
-            date_str = str(row['date'])
-            if date_str < '2020-01-02':
-                return row['hold'] / 2.0
-            return row['hold']
+    for attempt in range(3):
+        try:
+            df = ak.futures_main_sina(symbol=sym, start_date=start_date)
+            if df is None or df.empty:
+                time.sleep(1)
+                continue
+            df.columns = HIST_COLS[:len(df.columns)]
+            df['hold'] = pd.to_numeric(df['hold'], errors='coerce').fillna(0)
             
-        df['hold'] = df.apply(convert_to_unilateral, axis=1)
-
-        df_nz = df[df['hold'] > 0]
-        if df_nz.empty:
-            return None
-
-        if len(df_nz) > 1:
-            past_df = df_nz.iloc[:-1]
-            hist_max_oi_past = int(past_df['hold'].max())
-            hist_max_date = str(past_df.loc[past_df['hold'].idxmax(), 'date'])
-        else:
-            hist_max_oi_past = 0
-            hist_max_date = ''
-            
-        curr_oi       = int(df.iloc[-1]['hold'])
-        data_start    = str(df['date'].min())
-        data_rows     = len(df)
-        
-        data_start_dt = pd.to_datetime(data_start)
-        last_date_dt  = pd.to_datetime(str(df.iloc[-1]['date']))
-        years_history = (last_date_dt - data_start_dt).days / 365.25
-
-        ratio = curr_oi / hist_max_oi_past if hist_max_oi_past > 0 else 0
-        
-        alert = 'normal'
-        if years_history >= 1.0:
-            if curr_oi > hist_max_oi_past and hist_max_oi_past > 0:
-                alert = 'new_high'
-            elif years_history >= 3.0 and hist_max_oi_past > 0 and ratio >= NEAR_HIGH_THRESH:
-                alert = 'near_high'
+            # Convert pre-2020 bilateral hold to unilateral (Sina database transition date: 2020-01-02)
+            def convert_to_unilateral(row):
+                date_str = str(row['date'])
+                if date_str < '2020-01-02':
+                    return row['hold'] / 2.0
+                return row['hold']
                 
-        # For display
-        display_hist_max = max(hist_max_oi_past, curr_oi)
-        display_hist_date = str(df.loc[df['hold'].idxmax(), 'date'])
+            df['hold'] = df.apply(convert_to_unilateral, axis=1)
 
-        return {
-            'code':            code,
-            'name':            cfg['name'],
-            'exchange':        cfg['exch'],
-            'currentOI':       curr_oi,
-            'historicalMaxOI': display_hist_max,
-            'historicalMaxDate': display_hist_date,
-            'dataStart':       data_start,
-            'dataRows':        data_rows,
-            'oiRatio':         round(ratio, 4),
-            'alert':           alert,
-        }
-    except Exception as e:
-        return None
+            df_nz = df[df['hold'] > 0]
+            if df_nz.empty:
+                time.sleep(1)
+                continue
+
+            if len(df_nz) > 1:
+                past_df = df_nz.iloc[:-1]
+                hist_max_oi_past = int(past_df['hold'].max())
+                hist_max_date = str(past_df.loc[past_df['hold'].idxmax(), 'date'])
+            else:
+                hist_max_oi_past = 0
+                hist_max_date = ''
+                
+            curr_oi       = int(df.iloc[-1]['hold'])
+            data_start    = str(df['date'].min())
+            data_rows     = len(df)
+            
+            data_start_dt = pd.to_datetime(data_start)
+            last_date_dt  = pd.to_datetime(str(df.iloc[-1]['date']))
+            years_history = (last_date_dt - data_start_dt).days / 365.25
+
+            ratio = curr_oi / hist_max_oi_past if hist_max_oi_past > 0 else 0
+            
+            alert = 'normal'
+            if years_history >= 1.0:
+                if curr_oi > hist_max_oi_past and hist_max_oi_past > 0:
+                    alert = 'new_high'
+                elif years_history >= 3.0 and hist_max_oi_past > 0 and ratio >= NEAR_HIGH_THRESH:
+                    alert = 'near_high'
+                    
+            # For display
+            display_hist_max = max(hist_max_oi_past, curr_oi)
+            display_hist_date = str(df.loc[df['hold'].idxmax(), 'date'])
+
+            return {
+                'code':            code,
+                'name':            cfg['name'],
+                'exchange':        cfg['exch'],
+                'currentOI':       curr_oi,
+                'historicalMaxOI': display_hist_max,
+                'historicalMaxDate': display_hist_date,
+                'dataStart':       data_start,
+                'dataRows':        data_rows,
+                'oiRatio':         round(ratio, 4),
+                'alert':           alert,
+            }
+        except Exception as e:
+            if attempt < 2:
+                time.sleep(1.5)
+            else:
+                print(f"\n      [!] {code} screening failed final attempt: {e}")
+                return None
+    return None
 
 
 def find_main_contract(ak, pd, code, realtime_name):
@@ -230,58 +239,74 @@ def fetch_daily(ak, pd, code, start_date):
     Fetch full daily K-line via continuous main contract (futures_main_sina).
     Uses the same API call as the OI screener so data is consistent.
     """
+    import time
     sym = f"{code}0"
-    df = ak.futures_main_sina(symbol=sym, start_date=start_date)
-    if df is None or df.empty:
-        raise ValueError(f"Empty daily data: {sym}")
-    df.columns = HIST_COLS[:len(df.columns)]
-    df['date']   = pd.to_datetime(df['date'])
-    df['open']   = pd.to_numeric(df['open'],   errors='coerce')
-    df['high']   = pd.to_numeric(df['high'],   errors='coerce')
-    df['low']    = pd.to_numeric(df['low'],    errors='coerce')
-    df['close']  = pd.to_numeric(df['close'],  errors='coerce')
-    df['volume'] = pd.to_numeric(df['volume'], errors='coerce').fillna(0).astype(int)
-    df['hold']   = pd.to_numeric(df['hold'],   errors='coerce').fillna(0)
-    # Convert pre-2020 bilateral hold to unilateral (consistent with OI screener)
-    def _to_unilateral(row):
-        return row['hold'] / 2.0 if str(row['date']) < '2020-01-02' else row['hold']
-    df['hold'] = df.apply(_to_unilateral, axis=1)
-    df = df.sort_values('date').dropna(subset=['open', 'close'])
-    out = []
-    for _, row in df.iterrows():
-        out.append({
-            'date':   row['date'].strftime('%Y-%m-%d'),
-            'open':   float(row['open']),
-            'high':   float(row['high']),
-            'low':    float(row['low']),
-            'close':  float(row['close']),
-            'volume': int(row['volume']),
-            'hold':   int(row['hold']),
-        })
-    return out
+    for attempt in range(3):
+        try:
+            df = ak.futures_main_sina(symbol=sym, start_date=start_date)
+            if df is None or df.empty:
+                time.sleep(1)
+                continue
+            df.columns = HIST_COLS[:len(df.columns)]
+            df['date']   = pd.to_datetime(df['date'])
+            df['open']   = pd.to_numeric(df['open'],   errors='coerce')
+            df['high']   = pd.to_numeric(df['high'],   errors='coerce')
+            df['low']    = pd.to_numeric(df['low'],    errors='coerce')
+            df['close']  = pd.to_numeric(df['close'],  errors='coerce')
+            df['volume'] = pd.to_numeric(df['volume'], errors='coerce').fillna(0).astype(int)
+            df['hold']   = pd.to_numeric(df['hold'],   errors='coerce').fillna(0)
+            # Convert pre-2020 bilateral hold to unilateral (consistent with OI screener)
+            def _to_unilateral(row):
+                return row['hold'] / 2.0 if str(row['date']) < '2020-01-02' else row['hold']
+            df['hold'] = df.apply(_to_unilateral, axis=1)
+            df = df.sort_values('date').dropna(subset=['open', 'close'])
+            out = []
+            for _, row in df.iterrows():
+                out.append({
+                    'date':   row['date'].strftime('%Y-%m-%d'),
+                    'open':   float(row['open']),
+                    'high':   float(row['high']),
+                    'low':    float(row['low']),
+                    'close':  float(row['close']),
+                    'volume': int(row['volume']),
+                    'hold':   int(row['hold']),
+                })
+            return out
+        except Exception as e:
+            if attempt < 2:
+                time.sleep(1.5)
+            else:
+                raise e
 
 
 def fetch_minute(ak, pd, symbol, period='15', n=1500):
     """Fetch intraday K-line bars for given period ('15'/'30'/'60')."""
-    try:
-        df = ak.futures_zh_minute_sina(symbol=symbol, period=period)
-        if df is None or df.empty:
-            return []
-        df['datetime'] = pd.to_datetime(df['datetime'])
-        df = df.sort_values('datetime').tail(n)
-        out = []
-        for _, row in df.iterrows():
-            out.append({
-                'datetime': row['datetime'].strftime('%Y-%m-%d %H:%M:%S'),
-                'open':  float(row['open']),
-                'high':  float(row['high']),
-                'low':   float(row['low']),
-                'close': float(row['close']),
-                'volume':int(row['volume']),
-            })
-        return out
-    except Exception:
-        return []
+    import time
+    for attempt in range(3):
+        try:
+            df = ak.futures_zh_minute_sina(symbol=symbol, period=period)
+            if df is None or df.empty:
+                time.sleep(1)
+                continue
+            df['datetime'] = pd.to_datetime(df['datetime'])
+            df = df.sort_values('datetime').tail(n)
+            out = []
+            for _, row in df.iterrows():
+                out.append({
+                    'datetime': row['datetime'].strftime('%Y-%m-%d %H:%M:%S'),
+                    'open':  float(row['open']),
+                    'high':  float(row['high']),
+                    'low':   float(row['low']),
+                    'close': float(row['close']),
+                    'volume':int(row['volume']),
+                })
+            return out
+        except Exception:
+            if attempt < 2:
+                time.sleep(1.5)
+            else:
+                return []
+    return []
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -418,6 +443,8 @@ def sync_futures():
     # ──────────────────────────────────────────────────────────
     # OUTPUT JSON
     # ──────────────────────────────────────────────────────────
+    failed_scans = sorted([code for code in ALL_CFG.keys() if code not in screening])
+    
     output = {
         'metadata': {
             'sync_time':      now_str,
@@ -427,6 +454,7 @@ def sync_futures():
             'nearHighThresh': NEAR_HIGH_THRESH,
             'watchlist':      WATCHLIST,
             'anomalies':      anomalies,
+            'failed_scans':   failed_scans,
             'screening':      screening,    # OI stats for ALL screened commodities
             'contracts':      contracts_meta,
         },

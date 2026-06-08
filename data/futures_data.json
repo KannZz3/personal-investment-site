@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "sync_time": "2026-06-08T09:19:08.585216",
+    "sync_time": "2026-06-08T09:37:58.271126",
     "version": "4.0",
     "description": "Full market OI screen | watchlist + anomaly K-line data",
     "historyYears": 10,
@@ -9,6 +9,7 @@
     "anomalies": [
       "SP"
     ],
+    "failed_scans": [],
     "screening": {
       "AU": {
         "code": "AU",
@@ -32,6 +33,18 @@
         "dataStart": "2016-06-13",
         "dataRows": 2424,
         "oiRatio": 0.4068,
+        "alert": "normal"
+      },
+      "CU": {
+        "code": "CU",
+        "name": "沪铜",
+        "exchange": "SHFE",
+        "currentOI": 173561,
+        "historicalMaxOI": 293381,
+        "historicalMaxDate": "2025-10-27",
+        "dataStart": "2016-06-13",
+        "dataRows": 2424,
+        "oiRatio": 0.5916,
         "alert": "normal"
       },
       "AL": {
@@ -370,6 +383,18 @@
         "oiRatio": 0.5571,
         "alert": "normal"
       },
+      "PG": {
+        "code": "PG",
+        "name": "液化气",
+        "exchange": "DCE",
+        "currentOI": 77513,
+        "historicalMaxOI": 159226,
+        "historicalMaxDate": "2023-07-06",
+        "dataStart": "2020-03-30",
+        "dataRows": 1499,
+        "oiRatio": 0.4868,
+        "alert": "normal"
+      },
       "JD": {
         "code": "JD",
         "name": "鸡蛋",
@@ -620,6 +645,18 @@
         "dataStart": "2023-09-15",
         "dataRows": 655,
         "oiRatio": 0.5835,
+        "alert": "normal"
+      },
+      "SH": {
+        "code": "SH",
+        "name": "烧碱",
+        "exchange": "CZCE",
+        "currentOI": 229198,
+        "historicalMaxOI": 318135,
+        "historicalMaxDate": "2025-02-06",
+        "dataStart": "2023-09-15",
+        "dataRows": 655,
+        "oiRatio": 0.7204,
         "alert": "normal"
       },
       "PR": {
@@ -1106,17 +1143,17 @@
         "multiplier": 5,
         "marginRate": 0.1,
         "unit": "吨",
-        "openInterest": 0,
+        "openInterest": 173561,
         "latestPrice": 0.0,
         "isWatchlist": false,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 0,
-          "historicalMaxOI": 0,
-          "historicalMaxDate": "",
-          "dataStart": "",
-          "oiRatio": 0,
-          "alert": "unknown"
+          "currentOI": 173561,
+          "historicalMaxOI": 293381,
+          "historicalMaxDate": "2025-10-27",
+          "dataStart": "2016-06-13",
+          "oiRatio": 0.5916,
+          "alert": "normal"
         }
       },
       "CY": {
@@ -1673,17 +1710,17 @@
         "multiplier": 20,
         "marginRate": 0.08,
         "unit": "吨",
-        "openInterest": 0,
+        "openInterest": 77513,
         "latestPrice": 0.0,
         "isWatchlist": false,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 0,
-          "historicalMaxOI": 0,
-          "historicalMaxDate": "",
-          "dataStart": "",
-          "oiRatio": 0,
-          "alert": "unknown"
+          "currentOI": 77513,
+          "historicalMaxOI": 159226,
+          "historicalMaxDate": "2023-07-06",
+          "dataStart": "2020-03-30",
+          "oiRatio": 0.4868,
+          "alert": "normal"
         }
       },
       "PK": {
@@ -1967,17 +2004,17 @@
         "multiplier": 30,
         "marginRate": 0.09,
         "unit": "吨",
-        "openInterest": 0,
+        "openInterest": 229198,
         "latestPrice": 0.0,
         "isWatchlist": false,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 0,
-          "historicalMaxOI": 0,
-          "historicalMaxDate": "",
-          "dataStart": "",
-          "oiRatio": 0,
-          "alert": "unknown"
+          "currentOI": 229198,
+          "historicalMaxOI": 318135,
+          "historicalMaxDate": "2025-02-06",
+          "dataStart": "2023-09-15",
+          "oiRatio": 0.7204,
+          "alert": "normal"
         }
       },
       "SI": {
@@ -2051,8 +2088,8 @@
         "multiplier": 10,
         "marginRate": 0.1,
         "unit": "吨",
-        "openInterest": 427171,
-        "latestPrice": 4842.0,
+        "openInterest": 426561,
+        "latestPrice": 4844.0,
         "isWatchlist": false,
         "isAnomaly": true,
         "oiAnalysis": {
@@ -19130,190 +19167,6 @@
     ],
     "min1": [
       {
-        "datetime": "2026-06-03 09:32:00",
-        "open": 4874.0,
-        "high": 4876.0,
-        "low": 4874.0,
-        "close": 4874.0,
-        "volume": 411
-      },
-      {
-        "datetime": "2026-06-03 09:33:00",
-        "open": 4874.0,
-        "high": 4876.0,
-        "low": 4874.0,
-        "close": 4874.0,
-        "volume": 85
-      },
-      {
-        "datetime": "2026-06-03 09:34:00",
-        "open": 4876.0,
-        "high": 4876.0,
-        "low": 4874.0,
-        "close": 4874.0,
-        "volume": 53
-      },
-      {
-        "datetime": "2026-06-03 09:35:00",
-        "open": 4876.0,
-        "high": 4878.0,
-        "low": 4874.0,
-        "close": 4878.0,
-        "volume": 398
-      },
-      {
-        "datetime": "2026-06-03 09:36:00",
-        "open": 4880.0,
-        "high": 4880.0,
-        "low": 4876.0,
-        "close": 4880.0,
-        "volume": 680
-      },
-      {
-        "datetime": "2026-06-03 09:37:00",
-        "open": 4878.0,
-        "high": 4880.0,
-        "low": 4878.0,
-        "close": 4878.0,
-        "volume": 104
-      },
-      {
-        "datetime": "2026-06-03 09:38:00",
-        "open": 4880.0,
-        "high": 4880.0,
-        "low": 4878.0,
-        "close": 4880.0,
-        "volume": 107
-      },
-      {
-        "datetime": "2026-06-03 09:39:00",
-        "open": 4880.0,
-        "high": 4880.0,
-        "low": 4876.0,
-        "close": 4878.0,
-        "volume": 1821
-      },
-      {
-        "datetime": "2026-06-03 09:40:00",
-        "open": 4878.0,
-        "high": 4880.0,
-        "low": 4876.0,
-        "close": 4880.0,
-        "volume": 250
-      },
-      {
-        "datetime": "2026-06-03 09:41:00",
-        "open": 4880.0,
-        "high": 4884.0,
-        "low": 4878.0,
-        "close": 4884.0,
-        "volume": 869
-      },
-      {
-        "datetime": "2026-06-03 09:42:00",
-        "open": 4884.0,
-        "high": 4884.0,
-        "low": 4880.0,
-        "close": 4882.0,
-        "volume": 1191
-      },
-      {
-        "datetime": "2026-06-03 09:43:00",
-        "open": 4882.0,
-        "high": 4884.0,
-        "low": 4882.0,
-        "close": 4882.0,
-        "volume": 290
-      },
-      {
-        "datetime": "2026-06-03 09:44:00",
-        "open": 4882.0,
-        "high": 4884.0,
-        "low": 4882.0,
-        "close": 4884.0,
-        "volume": 618
-      },
-      {
-        "datetime": "2026-06-03 09:45:00",
-        "open": 4884.0,
-        "high": 4884.0,
-        "low": 4880.0,
-        "close": 4882.0,
-        "volume": 374
-      },
-      {
-        "datetime": "2026-06-03 09:46:00",
-        "open": 4880.0,
-        "high": 4882.0,
-        "low": 4880.0,
-        "close": 4882.0,
-        "volume": 392
-      },
-      {
-        "datetime": "2026-06-03 09:47:00",
-        "open": 4882.0,
-        "high": 4884.0,
-        "low": 4880.0,
-        "close": 4882.0,
-        "volume": 529
-      },
-      {
-        "datetime": "2026-06-03 09:48:00",
-        "open": 4884.0,
-        "high": 4884.0,
-        "low": 4882.0,
-        "close": 4882.0,
-        "volume": 477
-      },
-      {
-        "datetime": "2026-06-03 09:49:00",
-        "open": 4882.0,
-        "high": 4884.0,
-        "low": 4882.0,
-        "close": 4882.0,
-        "volume": 338
-      },
-      {
-        "datetime": "2026-06-03 09:50:00",
-        "open": 4882.0,
-        "high": 4884.0,
-        "low": 4882.0,
-        "close": 4882.0,
-        "volume": 379
-      },
-      {
-        "datetime": "2026-06-03 09:51:00",
-        "open": 4882.0,
-        "high": 4884.0,
-        "low": 4882.0,
-        "close": 4882.0,
-        "volume": 476
-      },
-      {
-        "datetime": "2026-06-03 09:52:00",
-        "open": 4882.0,
-        "high": 4884.0,
-        "low": 4882.0,
-        "close": 4882.0,
-        "volume": 92
-      },
-      {
-        "datetime": "2026-06-03 09:53:00",
-        "open": 4882.0,
-        "high": 4882.0,
-        "low": 4878.0,
-        "close": 4880.0,
-        "volume": 453
-      },
-      {
-        "datetime": "2026-06-03 09:54:00",
-        "open": 4880.0,
-        "high": 4880.0,
-        "low": 4878.0,
-        "close": 4878.0,
-        "volume": 489
-      },
-      {
         "datetime": "2026-06-03 09:55:00",
         "open": 4878.0,
         "high": 4880.0,
@@ -27308,53 +27161,197 @@
       {
         "datetime": "2026-06-08 09:19:00",
         "open": 4838.0,
-        "high": 4842.0,
+        "high": 4844.0,
         "low": 4838.0,
+        "close": 4844.0,
+        "volume": 1248
+      },
+      {
+        "datetime": "2026-06-08 09:20:00",
+        "open": 4842.0,
+        "high": 4844.0,
+        "low": 4840.0,
         "close": 4842.0,
-        "volume": 423
+        "volume": 1323
+      },
+      {
+        "datetime": "2026-06-08 09:21:00",
+        "open": 4840.0,
+        "high": 4844.0,
+        "low": 4840.0,
+        "close": 4844.0,
+        "volume": 442
+      },
+      {
+        "datetime": "2026-06-08 09:22:00",
+        "open": 4844.0,
+        "high": 4844.0,
+        "low": 4842.0,
+        "close": 4844.0,
+        "volume": 318
+      },
+      {
+        "datetime": "2026-06-08 09:23:00",
+        "open": 4844.0,
+        "high": 4846.0,
+        "low": 4842.0,
+        "close": 4844.0,
+        "volume": 369
+      },
+      {
+        "datetime": "2026-06-08 09:24:00",
+        "open": 4844.0,
+        "high": 4846.0,
+        "low": 4844.0,
+        "close": 4846.0,
+        "volume": 274
+      },
+      {
+        "datetime": "2026-06-08 09:25:00",
+        "open": 4846.0,
+        "high": 4848.0,
+        "low": 4846.0,
+        "close": 4848.0,
+        "volume": 426
+      },
+      {
+        "datetime": "2026-06-08 09:26:00",
+        "open": 4846.0,
+        "high": 4852.0,
+        "low": 4846.0,
+        "close": 4850.0,
+        "volume": 1708
+      },
+      {
+        "datetime": "2026-06-08 09:27:00",
+        "open": 4850.0,
+        "high": 4850.0,
+        "low": 4848.0,
+        "close": 4848.0,
+        "volume": 615
+      },
+      {
+        "datetime": "2026-06-08 09:28:00",
+        "open": 4850.0,
+        "high": 4850.0,
+        "low": 4846.0,
+        "close": 4850.0,
+        "volume": 899
+      },
+      {
+        "datetime": "2026-06-08 09:29:00",
+        "open": 4850.0,
+        "high": 4852.0,
+        "low": 4850.0,
+        "close": 4852.0,
+        "volume": 688
+      },
+      {
+        "datetime": "2026-06-08 09:30:00",
+        "open": 4850.0,
+        "high": 4852.0,
+        "low": 4850.0,
+        "close": 4852.0,
+        "volume": 1259
+      },
+      {
+        "datetime": "2026-06-08 09:31:00",
+        "open": 4852.0,
+        "high": 4854.0,
+        "low": 4850.0,
+        "close": 4854.0,
+        "volume": 496
+      },
+      {
+        "datetime": "2026-06-08 09:32:00",
+        "open": 4854.0,
+        "high": 4854.0,
+        "low": 4852.0,
+        "close": 4854.0,
+        "volume": 465
+      },
+      {
+        "datetime": "2026-06-08 09:33:00",
+        "open": 4854.0,
+        "high": 4856.0,
+        "low": 4854.0,
+        "close": 4856.0,
+        "volume": 442
+      },
+      {
+        "datetime": "2026-06-08 09:34:00",
+        "open": 4854.0,
+        "high": 4854.0,
+        "low": 4852.0,
+        "close": 4852.0,
+        "volume": 367
+      },
+      {
+        "datetime": "2026-06-08 09:35:00",
+        "open": 4854.0,
+        "high": 4854.0,
+        "low": 4850.0,
+        "close": 4850.0,
+        "volume": 308
+      },
+      {
+        "datetime": "2026-06-08 09:36:00",
+        "open": 4852.0,
+        "high": 4852.0,
+        "low": 4848.0,
+        "close": 4848.0,
+        "volume": 1221
+      },
+      {
+        "datetime": "2026-06-08 09:37:00",
+        "open": 4848.0,
+        "high": 4850.0,
+        "low": 4848.0,
+        "close": 4848.0,
+        "volume": 697
+      },
+      {
+        "datetime": "2026-06-08 09:38:00",
+        "open": 4850.0,
+        "high": 4852.0,
+        "low": 4850.0,
+        "close": 4852.0,
+        "volume": 254
+      },
+      {
+        "datetime": "2026-06-08 09:39:00",
+        "open": 4850.0,
+        "high": 4852.0,
+        "low": 4848.0,
+        "close": 4848.0,
+        "volume": 462
+      },
+      {
+        "datetime": "2026-06-08 09:40:00",
+        "open": 4848.0,
+        "high": 4850.0,
+        "low": 4846.0,
+        "close": 4848.0,
+        "volume": 341
+      },
+      {
+        "datetime": "2026-06-08 09:41:00",
+        "open": 4846.0,
+        "high": 4846.0,
+        "low": 4844.0,
+        "close": 4844.0,
+        "volume": 1117
+      },
+      {
+        "datetime": "2026-06-08 09:42:00",
+        "open": 4846.0,
+        "high": 4846.0,
+        "low": 4844.0,
+        "close": 4844.0,
+        "volume": 138
       }
     ],
     "min5": [
-      {
-        "datetime": "2026-05-18 10:40:00",
-        "open": 5052.0,
-        "high": 5056.0,
-        "low": 5050.0,
-        "close": 5056.0,
-        "volume": 2608
-      },
-      {
-        "datetime": "2026-05-18 10:45:00",
-        "open": 5056.0,
-        "high": 5056.0,
-        "low": 5050.0,
-        "close": 5056.0,
-        "volume": 2387
-      },
-      {
-        "datetime": "2026-05-18 10:50:00",
-        "open": 5056.0,
-        "high": 5056.0,
-        "low": 5052.0,
-        "close": 5054.0,
-        "volume": 1433
-      },
-      {
-        "datetime": "2026-05-18 10:55:00",
-        "open": 5054.0,
-        "high": 5060.0,
-        "low": 5052.0,
-        "close": 5052.0,
-        "volume": 4142
-      },
-      {
-        "datetime": "2026-05-18 11:00:00",
-        "open": 5052.0,
-        "high": 5054.0,
-        "low": 5050.0,
-        "close": 5052.0,
-        "volume": 1066
-      },
       {
         "datetime": "2026-05-18 11:05:00",
         "open": 5052.0,
@@ -35497,18 +35494,50 @@
         "high": 4848.0,
         "low": 4838.0,
         "close": 4842.0,
-        "volume": 4526
+        "volume": 6679
+      },
+      {
+        "datetime": "2026-06-08 09:25:00",
+        "open": 4840.0,
+        "high": 4848.0,
+        "low": 4840.0,
+        "close": 4848.0,
+        "volume": 2427
+      },
+      {
+        "datetime": "2026-06-08 09:30:00",
+        "open": 4846.0,
+        "high": 4852.0,
+        "low": 4846.0,
+        "close": 4852.0,
+        "volume": 5212
+      },
+      {
+        "datetime": "2026-06-08 09:35:00",
+        "open": 4852.0,
+        "high": 4856.0,
+        "low": 4850.0,
+        "close": 4850.0,
+        "volume": 308
+      },
+      {
+        "datetime": "2026-06-08 09:40:00",
+        "open": 4852.0,
+        "high": 4852.0,
+        "low": 4846.0,
+        "close": 4848.0,
+        "volume": 3089
+      },
+      {
+        "datetime": "2026-06-08 09:45:00",
+        "open": 4846.0,
+        "high": 4846.0,
+        "low": 4844.0,
+        "close": 4844.0,
+        "volume": 1298
       }
     ],
     "min15": [
-      {
-        "datetime": "2026-03-30 22:45:00",
-        "open": 5246.0,
-        "high": 5252.0,
-        "low": 5246.0,
-        "close": 5248.0,
-        "volume": 342
-      },
       {
         "datetime": "2026-03-30 23:00:00",
         "open": 5248.0,
@@ -43680,21 +43709,21 @@
       {
         "datetime": "2026-06-08 09:30:00",
         "open": 4844.0,
-        "high": 4848.0,
+        "high": 4852.0,
         "low": 4838.0,
-        "close": 4842.0,
-        "volume": 4526
+        "close": 4852.0,
+        "volume": 14343
+      },
+      {
+        "datetime": "2026-06-08 09:45:00",
+        "open": 4852.0,
+        "high": 4856.0,
+        "low": 4844.0,
+        "close": 4846.0,
+        "volume": 17
       }
     ],
     "min30": [
-      {
-        "datetime": "2026-01-22 22:30:00",
-        "open": 5432.0,
-        "high": 5450.0,
-        "low": 5424.0,
-        "close": 5446.0,
-        "volume": 475
-      },
       {
         "datetime": "2026-01-22 23:00:00",
         "open": 5446.0,
@@ -51868,8 +51897,16 @@
         "open": 4856.0,
         "high": 4856.0,
         "low": 4832.0,
-        "close": 4842.0,
-        "volume": 43113
+        "close": 4852.0,
+        "volume": 52930
+      },
+      {
+        "datetime": "2026-06-08 10:00:00",
+        "open": 4852.0,
+        "high": 4856.0,
+        "low": 4844.0,
+        "close": 4846.0,
+        "volume": 17
       }
     ],
     "min60": [
@@ -59998,8 +60035,8 @@
         "open": 4856.0,
         "high": 4856.0,
         "low": 4832.0,
-        "close": 4842.0,
-        "volume": 43113
+        "close": 4846.0,
+        "volume": 17
       }
     ]
   },
