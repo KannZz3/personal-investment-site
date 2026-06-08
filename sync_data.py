@@ -109,9 +109,6 @@ ALL_CFG = {
     'LC': {'name':'碳酸锂',  'realtime':'碳酸锂',   'exch':'GFEX', 'mult':1,   'margin':0.12,'unit':'吨'},
 }
 
-# Watchlist: empty (unused as the dashboard only displays screened anomaly contracts)
-WATCHLIST = []
-
 # Historical column order from futures_main_sina
 HIST_COLS = ['date', 'open', 'high', 'low', 'close', 'volume', 'hold', 'ext']
 
@@ -511,10 +508,14 @@ def sync_futures():
 
         # Extract daily from pre-loaded Sina daily data
         if code in daily_dfs:
-            daily = fetch_daily(pd, daily_dfs[code], start_date)
-            if daily:
-                main_price = daily[-1]['close']
-                main_oi = daily[-1]['hold']
+            temp_df = daily_dfs[code]
+            if temp_df is not None and not temp_df.empty:
+                main_price = float(temp_df.iloc[-1]['close'])
+                main_oi = int(temp_df.iloc[-1]['hold'])
+            
+            # Only save daily K-line data for targets (anomalies) to keep JSON size small
+            if code in detail_targets:
+                daily = fetch_daily(pd, temp_df, start_date)
 
         if code in detail_targets:
             main_sym_specific = target_contracts.get(code)
@@ -576,7 +577,6 @@ def sync_futures():
             'unit':        cfg['unit'],
             'openInterest':main_oi,
             'latestPrice': main_price,
-            'isWatchlist': code in WATCHLIST,
             'isAnomaly':   code in anomalies,
             'oiAnalysis': {
                 'currentOI':        oi_screen.get('currentOI', main_oi),
@@ -599,10 +599,9 @@ def sync_futures():
         'metadata': {
             'sync_time':      now_str,
             'version':        '5.0',
-            'description':    'Full market TqSdk OI screen | watchlist + anomaly K-line data',
+            'description':    'Full market TqSdk OI screen | anomaly K-line data',
             'historyYears':   HISTORY_YEARS,
             'nearHighThresh': NEAR_HIGH_THRESH,
-            'watchlist':      WATCHLIST,
             'anomalies':      anomalies,
             'failed_scans':   failed_scans,
             'screening':      screening,    # OI stats for ALL screened commodities
