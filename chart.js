@@ -62,11 +62,13 @@ class FuturesChart {
         this.selectedBarIndex = -1;
         
         // Drawing Tool States
-        this.drawingMode = 'none'; // 'none', 'hline', 'polyline'
-        this.allDrawings = {}; // { [symbol]: { hlines: [], polylines: [] } }
+        this.drawingMode = 'none'; // 'none', 'hline', 'trendline', 'polyline'
+        this.allDrawings = {}; // { [symbol]: { hlines: [], trendlines: [], polylines: [] } }
         this.selectedHLine = null;
+        this.selectedTrendLine = null;
         this.selectedPolyline = null;
         this.selectedVertexIndex = null;
+        this.activeTrendLine = null;
         this.activePolyline = null;
         this.isDraggingDrawing = false;
         
@@ -74,10 +76,11 @@ class FuturesChart {
     }
 
     get drawings() {
-        if (!this.symbol) return { hlines: [], polylines: [] };
+        if (!this.symbol) return { hlines: [], trendlines: [], polylines: [] };
         if (!this.allDrawings[this.symbol]) {
-            this.allDrawings[this.symbol] = { hlines: [], polylines: [] };
+            this.allDrawings[this.symbol] = { hlines: [], trendlines: [], polylines: [] };
         }
+        if (!this.allDrawings[this.symbol].trendlines) this.allDrawings[this.symbol].trendlines = [];
         return this.allDrawings[this.symbol];
     }
 
@@ -151,6 +154,55 @@ class FuturesChart {
         return this.paddingLeft + ((index - this.visibleStart) * candleWidth) + (candleWidth / 2);
     }
 
+    distanceToSegment(px, py, x1, y1, x2, y2) {
+        const A = px - x1;
+        const B = py - y1;
+        const C = x2 - x1;
+        const D = y2 - y1;
+        const lenSq = C * C + D * D;
+        let param = -1;
+        if (lenSq !== 0) param = (A * C + B * D) / lenSq;
+
+        let xx, yy;
+        if (param < 0) {
+            xx = x1;
+            yy = y1;
+        } else if (param > 1) {
+            xx = x2;
+            yy = y2;
+        } else {
+            xx = x1 + param * C;
+            yy = y1 + param * D;
+        }
+
+        return Math.sqrt((px - xx) ** 2 + (py - yy) ** 2);
+    }
+
+    getTrendLineRenderPoints(trendline) {
+        if (!trendline || !trendline.points || trendline.points.length < 2) return null;
+        const [p1, p2] = trendline.points;
+        const x1 = this.xFromIndex(p1.index);
+        const y1 = this.yFromPrice(p1.price);
+        const x2 = this.xFromIndex(p2.index);
+        const y2 = this.yFromPrice(p2.price);
+        const left = this.paddingLeft;
+        const right = this.logicalWidth - this.paddingRight;
+        const top = this.paddingTop;
+        const bottom = this.paddingTop + this.getPriceHeightParams().priceHeight;
+
+        if (Math.abs(x2 - x1) < 0.001) {
+            return { x1, y1: top, x2, y2: bottom };
+        }
+
+        const slope = (y2 - y1) / (x2 - x1);
+        return {
+            x1: left,
+            y1: y1 + slope * (left - x1),
+            x2: right,
+            y2: y1 + slope * (right - x1)
+        };
+    }
+
     setData(data) {
         const sourceData = Array.isArray(data) ? data : [];
         const validData = sourceData.filter(d => {
@@ -209,8 +261,10 @@ class FuturesChart {
         this.hoverIndex = -1;
         this.selectedBarIndex = -1;
         this.selectedHLine = null;
+        this.selectedTrendLine = null;
         this.selectedPolyline = null;
         this.selectedVertexIndex = null;
+        this.activeTrendLine = null;
         this.activePolyline = null;
         this.isDraggingDrawing = false;
         this.drawingMode = 'none';
@@ -775,6 +829,11 @@ class FuturesChart {
             if (this.isDraggingDrawing) {
                 if (this.selectedHLine) {
                     this.selectedHLine.price = this.priceFromY(this.mouseY);
+                } else if (this.selectedTrendLine && this.selectedVertexIndex !== null) {
+                    this.selectedTrendLine.points[this.selectedVertexIndex] = {
+                        index: this.indexFromX(this.mouseX),
+                        price: this.priceFromY(this.mouseY)
+                    };
                 } else if (this.selectedPolyline && this.selectedVertexIndex !== null) {
                     this.selectedPolyline.points[this.selectedVertexIndex] = {
                         index: this.indexFromX(this.mouseX),
@@ -839,6 +898,7 @@ class FuturesChart {
                     const y = this.yFromPrice(hl.price);
                     if (Math.abs(mouseY - y) < yTol) {
                         this.selectedHLine = hl;
+                        this.selectedTrendLine = null;
                         this.selectedPolyline = null;
                         this.selectedVertexIndex = null;
                         this.isDraggingDrawing = true;
@@ -847,7 +907,46 @@ class FuturesChart {
                     }
                 }
 
-                // 2. Check if near polyline vertices
+                // 2. Check if near trendline vertices
+                if (!found) {
+                    const tol = 10;
+                    for (let tl of this.drawings.trendlines) {
+                        for (let idxVal = 0; idxVal < tl.points.length; idxVal++) {
+                            const pt = tl.points[idxVal];
+                            const x = this.xFromIndex(pt.index);
+                            const y = this.yFromPrice(pt.price);
+                            if (Math.sqrt((mouseX - x) ** 2 + (mouseY - y) ** 2) < tol) {
+                                this.selectedTrendLine = tl;
+                                this.selectedVertexIndex = idxVal;
+                                this.selectedHLine = null;
+                                this.selectedPolyline = null;
+                                this.isDraggingDrawing = true;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (found) break;
+                    }
+                }
+
+                // 3. Check if near trendline body
+                if (!found) {
+                    const segTol = 8;
+                    for (let tl of this.drawings.trendlines) {
+                        const line = this.getTrendLineRenderPoints(tl);
+                        if (!line) continue;
+                        if (this.distanceToSegment(mouseX, mouseY, line.x1, line.y1, line.x2, line.y2) < segTol) {
+                            this.selectedTrendLine = tl;
+                            this.selectedVertexIndex = null;
+                            this.selectedHLine = null;
+                            this.selectedPolyline = null;
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+
+                // 4. Check if near polyline vertices
                 if (!found) {
                     const tol = 10;
                     for (let pl of this.drawings.polylines) {
@@ -859,6 +958,7 @@ class FuturesChart {
                                 this.selectedPolyline = pl;
                                 this.selectedVertexIndex = idxVal;
                                 this.selectedHLine = null;
+                                this.selectedTrendLine = null;
                                 this.isDraggingDrawing = true;
                                 found = true;
                                 break;
@@ -868,7 +968,7 @@ class FuturesChart {
                     }
                 }
 
-                // 3. Check if near polyline segments (distance from point to line segment)
+                // 5. Check if near polyline segments (distance from point to line segment)
                 if (!found) {
                     const segTol = 8;
                     for (let pl of this.drawings.polylines) {
@@ -878,33 +978,12 @@ class FuturesChart {
                             const x2 = this.xFromIndex(pl.points[idxVal + 1].index);
                             const y2 = this.yFromPrice(pl.points[idxVal + 1].price);
 
-                            const A = mouseX - x1;
-                            const B = mouseY - y1;
-                            const C = x2 - x1;
-                            const D = y2 - y1;
-
-                            const dot = A * C + B * D;
-                            const lenSq = C * C + D * D;
-                            let param = -1;
-                            if (lenSq !== 0) param = dot / lenSq;
-
-                            let xx, yy;
-                            if (param < 0) {
-                                xx = x1;
-                                yy = y1;
-                            } else if (param > 1) {
-                                xx = x2;
-                                yy = y2;
-                            } else {
-                                xx = x1 + param * C;
-                                yy = y1 + param * D;
-                            }
-
-                            const dist = Math.sqrt((mouseX - xx) ** 2 + (mouseY - yy) ** 2);
+                            const dist = this.distanceToSegment(mouseX, mouseY, x1, y1, x2, y2);
                             if (dist < segTol) {
                                 this.selectedPolyline = pl;
                                 this.selectedVertexIndex = null;
                                 this.selectedHLine = null;
+                                this.selectedTrendLine = null;
                                 found = true;
                                 break;
                             }
@@ -928,8 +1007,25 @@ class FuturesChart {
                         const newHLine = { price: currentPrice };
                         this.drawings.hlines.push(newHLine);
                         this.selectedHLine = newHLine;
+                        this.selectedTrendLine = null;
                         this.selectedPolyline = null;
                         this.isDraggingDrawing = true;
+                    } else if (this.drawingMode === 'trendline') {
+                        if (!this.activeTrendLine) {
+                            const newTrend = { points: [{ index: currentIndex, price: currentPrice }] };
+                            this.drawings.trendlines.push(newTrend);
+                            this.activeTrendLine = newTrend;
+                            this.selectedTrendLine = newTrend;
+                            this.selectedHLine = null;
+                            this.selectedPolyline = null;
+                        } else {
+                            this.activeTrendLine.points.push({ index: currentIndex, price: currentPrice });
+                            this.selectedTrendLine = this.activeTrendLine;
+                            this.selectedHLine = null;
+                            this.selectedPolyline = null;
+                            this.selectedVertexIndex = null;
+                            this.activeTrendLine = null;
+                        }
                     } else if (this.drawingMode === 'polyline') {
                         if (!this.activePolyline) {
                             const newPoly = { points: [{ index: currentIndex, price: currentPrice }] };
@@ -937,10 +1033,12 @@ class FuturesChart {
                             this.activePolyline = newPoly;
                             this.selectedPolyline = newPoly;
                             this.selectedHLine = null;
+                            this.selectedTrendLine = null;
                         } else {
                             this.activePolyline.points.push({ index: currentIndex, price: currentPrice });
                             this.selectedPolyline = this.activePolyline;
                             this.selectedHLine = null;
+                            this.selectedTrendLine = null;
                         }
                     }
                     if (this.updateDrawingBtnStates) this.updateDrawingBtnStates();
@@ -1045,6 +1143,7 @@ class FuturesChart {
                     const y = this.yFromPrice(hl.price);
                     if (Math.abs(touchY - y) < yTol) {
                         this.selectedHLine = hl;
+                        this.selectedTrendLine = null;
                         this.selectedPolyline = null;
                         this.selectedVertexIndex = null;
                         this.isDraggingDrawing = true;
@@ -1053,7 +1152,46 @@ class FuturesChart {
                     }
                 }
 
-                // 2. Check if near polyline vertices
+                // 2. Check if near trendline vertices
+                if (!found) {
+                    const tol = 18;
+                    for (let tl of this.drawings.trendlines) {
+                        for (let idxVal = 0; idxVal < tl.points.length; idxVal++) {
+                            const pt = tl.points[idxVal];
+                            const x = this.xFromIndex(pt.index);
+                            const y = this.yFromPrice(pt.price);
+                            if (Math.sqrt((touchX - x) ** 2 + (touchY - y) ** 2) < tol) {
+                                this.selectedTrendLine = tl;
+                                this.selectedVertexIndex = idxVal;
+                                this.selectedHLine = null;
+                                this.selectedPolyline = null;
+                                this.isDraggingDrawing = true;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (found) break;
+                    }
+                }
+
+                // 3. Check if near trendline body
+                if (!found) {
+                    const segTol = 15;
+                    for (let tl of this.drawings.trendlines) {
+                        const line = this.getTrendLineRenderPoints(tl);
+                        if (!line) continue;
+                        if (this.distanceToSegment(touchX, touchY, line.x1, line.y1, line.x2, line.y2) < segTol) {
+                            this.selectedTrendLine = tl;
+                            this.selectedVertexIndex = null;
+                            this.selectedHLine = null;
+                            this.selectedPolyline = null;
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+
+                // 4. Check if near polyline vertices
                 if (!found) {
                     const tol = 18;
                     for (let pl of this.drawings.polylines) {
@@ -1065,6 +1203,7 @@ class FuturesChart {
                                 this.selectedPolyline = pl;
                                 this.selectedVertexIndex = idxVal;
                                 this.selectedHLine = null;
+                                this.selectedTrendLine = null;
                                 this.isDraggingDrawing = true;
                                 found = true;
                                 break;
@@ -1074,7 +1213,7 @@ class FuturesChart {
                     }
                 }
 
-                // 3. Check if near polyline segments
+                // 5. Check if near polyline segments
                 if (!found) {
                     const segTol = 15;
                     for (let pl of this.drawings.polylines) {
@@ -1084,33 +1223,12 @@ class FuturesChart {
                             const x2 = this.xFromIndex(pl.points[idxVal + 1].index);
                             const y2 = this.yFromPrice(pl.points[idxVal + 1].price);
 
-                            const A = touchX - x1;
-                            const B = touchY - y1;
-                            const C = x2 - x1;
-                            const D = y2 - y1;
-
-                            const dot = A * C + B * D;
-                            const lenSq = C * C + D * D;
-                            let param = -1;
-                            if (lenSq !== 0) param = dot / lenSq;
-
-                            let xx, yy;
-                            if (param < 0) {
-                                xx = x1;
-                                yy = y1;
-                            } else if (param > 1) {
-                                xx = x2;
-                                yy = y2;
-                            } else {
-                                xx = x1 + param * C;
-                                yy = y1 + param * D;
-                            }
-
-                            const dist = Math.sqrt((touchX - xx) ** 2 + (touchY - yy) ** 2);
+                            const dist = this.distanceToSegment(touchX, touchY, x1, y1, x2, y2);
                             if (dist < segTol) {
                                 this.selectedPolyline = pl;
                                 this.selectedVertexIndex = null;
                                 this.selectedHLine = null;
+                                this.selectedTrendLine = null;
                                 found = true;
                                 break;
                             }
@@ -1134,8 +1252,25 @@ class FuturesChart {
                         const newHLine = { price: currentPrice };
                         this.drawings.hlines.push(newHLine);
                         this.selectedHLine = newHLine;
+                        this.selectedTrendLine = null;
                         this.selectedPolyline = null;
                         this.isDraggingDrawing = true;
+                    } else if (this.drawingMode === 'trendline') {
+                        if (!this.activeTrendLine) {
+                            const newTrend = { points: [{ index: currentIndex, price: currentPrice }] };
+                            this.drawings.trendlines.push(newTrend);
+                            this.activeTrendLine = newTrend;
+                            this.selectedTrendLine = newTrend;
+                            this.selectedHLine = null;
+                            this.selectedPolyline = null;
+                        } else {
+                            this.activeTrendLine.points.push({ index: currentIndex, price: currentPrice });
+                            this.selectedTrendLine = this.activeTrendLine;
+                            this.selectedHLine = null;
+                            this.selectedPolyline = null;
+                            this.selectedVertexIndex = null;
+                            this.activeTrendLine = null;
+                        }
                     } else if (this.drawingMode === 'polyline') {
                         if (!this.activePolyline) {
                             const newPoly = { points: [{ index: currentIndex, price: currentPrice }] };
@@ -1143,10 +1278,12 @@ class FuturesChart {
                             this.activePolyline = newPoly;
                             this.selectedPolyline = newPoly;
                             this.selectedHLine = null;
+                            this.selectedTrendLine = null;
                         } else {
                             this.activePolyline.points.push({ index: currentIndex, price: currentPrice });
                             this.selectedPolyline = this.activePolyline;
                             this.selectedHLine = null;
+                            this.selectedTrendLine = null;
                         }
                     }
                     if (this.updateDrawingBtnStates) this.updateDrawingBtnStates();
@@ -1203,6 +1340,11 @@ class FuturesChart {
 
                 if (this.selectedHLine) {
                     this.selectedHLine.price = this.priceFromY(touchY);
+                } else if (this.selectedTrendLine && this.selectedVertexIndex !== null) {
+                    this.selectedTrendLine.points[this.selectedVertexIndex] = {
+                        index: this.indexFromX(touchX),
+                        price: this.priceFromY(touchY)
+                    };
                 } else if (this.selectedPolyline && this.selectedVertexIndex !== null) {
                     this.selectedPolyline.points[this.selectedVertexIndex] = {
                         index: this.indexFromX(touchX),
@@ -1315,9 +1457,18 @@ class FuturesChart {
 
     initControls() {
         const drawHLineBtn = document.getElementById('drawHLineBtn');
+        const drawTrendLineBtn = document.getElementById('drawTrendLineBtn');
         const drawPolylineBtn = document.getElementById('drawPolylineBtn');
         const finishPolylineBtn = document.getElementById('finishPolylineBtn');
         const deleteDrawingBtn = document.getElementById('deleteDrawingBtn');
+
+        const discardActiveTrendLine = () => {
+            if (this.activeTrendLine && this.activeTrendLine.points && this.activeTrendLine.points.length < 2) {
+                const idx = this.drawings.trendlines.indexOf(this.activeTrendLine);
+                if (idx > -1) this.drawings.trendlines.splice(idx, 1);
+            }
+            this.activeTrendLine = null;
+        };
 
         const updateBtnStates = () => {
             if (drawHLineBtn) {
@@ -1325,6 +1476,13 @@ class FuturesChart {
                     drawHLineBtn.classList.add('active');
                 } else {
                     drawHLineBtn.classList.remove('active');
+                }
+            }
+            if (drawTrendLineBtn) {
+                if (this.drawingMode === 'trendline') {
+                    drawTrendLineBtn.classList.add('active');
+                } else {
+                    drawTrendLineBtn.classList.remove('active');
                 }
             }
             if (drawPolylineBtn) {
@@ -1342,7 +1500,7 @@ class FuturesChart {
                 }
             }
             if (deleteDrawingBtn) {
-                if (this.drawingMode !== 'none' && (this.selectedHLine !== null || this.selectedPolyline !== null)) {
+                if (this.drawingMode !== 'none' && (this.selectedHLine !== null || this.selectedTrendLine !== null || this.selectedPolyline !== null)) {
                     deleteDrawingBtn.style.display = 'inline-flex';
                 } else {
                     deleteDrawingBtn.style.display = 'none';
@@ -1359,8 +1517,28 @@ class FuturesChart {
                     if (this.activePolyline) {
                         this.activePolyline = null;
                     }
+                    discardActiveTrendLine();
                 }
                 this.selectedHLine = null;
+                this.selectedTrendLine = null;
+                this.selectedPolyline = null;
+                this.selectedVertexIndex = null;
+                updateBtnStates();
+                this.render();
+            });
+        }
+
+        if (drawTrendLineBtn) {
+            drawTrendLineBtn.addEventListener('click', () => {
+                if (this.drawingMode === 'trendline') {
+                    this.drawingMode = 'none';
+                    discardActiveTrendLine();
+                } else {
+                    this.drawingMode = 'trendline';
+                    this.activePolyline = null;
+                }
+                this.selectedHLine = null;
+                this.selectedTrendLine = null;
                 this.selectedPolyline = null;
                 this.selectedVertexIndex = null;
                 updateBtnStates();
@@ -1375,8 +1553,10 @@ class FuturesChart {
                     this.activePolyline = null;
                 } else {
                     this.drawingMode = 'polyline';
+                    discardActiveTrendLine();
                 }
                 this.selectedHLine = null;
+                this.selectedTrendLine = null;
                 this.selectedPolyline = null;
                 this.selectedVertexIndex = null;
                 updateBtnStates();
@@ -1389,6 +1569,7 @@ class FuturesChart {
                 this.activePolyline = null;
                 this.drawingMode = 'none';
                 this.selectedHLine = null;
+                this.selectedTrendLine = null;
                 this.selectedPolyline = null;
                 this.selectedVertexIndex = null;
                 updateBtnStates();
@@ -1402,6 +1583,12 @@ class FuturesChart {
                     const idx = this.drawings.hlines.indexOf(this.selectedHLine);
                     if (idx > -1) this.drawings.hlines.splice(idx, 1);
                     this.selectedHLine = null;
+                } else if (this.selectedTrendLine) {
+                    const idx = this.drawings.trendlines.indexOf(this.selectedTrendLine);
+                    if (idx > -1) this.drawings.trendlines.splice(idx, 1);
+                    this.selectedTrendLine = null;
+                    this.selectedVertexIndex = null;
+                    this.activeTrendLine = null;
                 } else if (this.selectedPolyline) {
                     const idx = this.drawings.polylines.indexOf(this.selectedPolyline);
                     if (idx > -1) this.drawings.polylines.splice(idx, 1);
@@ -2339,7 +2526,58 @@ class FuturesChart {
                 }
             });
 
-            // 2. Draw Polylines
+            // 2. Draw Trend Lines
+            const drawTrendLine = (trendline, previewPoint = null) => {
+                if (!trendline || !trendline.points || !trendline.points.length) return;
+                const points = previewPoint ? [trendline.points[0], previewPoint] : trendline.points;
+                if (points.length < 2) return;
+                
+                const renderLine = this.getTrendLineRenderPoints({ points });
+                if (!renderLine) return;
+                
+                const isSelected = (trendline === this.selectedTrendLine);
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(this.paddingLeft, this.paddingTop, w - this.paddingLeft - this.paddingRight, priceHeight);
+                ctx.clip();
+                ctx.strokeStyle = isSelected ? '#3b82f6' : 'rgba(99, 102, 241, 0.9)';
+                ctx.lineWidth = isSelected ? 2 : 1.5;
+                ctx.beginPath();
+                ctx.moveTo(renderLine.x1, renderLine.y1);
+                ctx.lineTo(renderLine.x2, renderLine.y2);
+                ctx.stroke();
+                ctx.restore();
+
+                points.forEach((pt, idxVal) => {
+                    const x = this.xFromIndex(pt.index);
+                    const y = this.yFromPrice(pt.price);
+                    if (x >= this.paddingLeft && x <= w - this.paddingRight && y >= this.paddingTop && y <= this.paddingTop + priceHeight) {
+                        const isVertexSelected = isSelected && (idxVal === this.selectedVertexIndex);
+                        ctx.fillStyle = '#ffffff';
+                        ctx.strokeStyle = isVertexSelected ? '#ef4444' : '#6366f1';
+                        ctx.lineWidth = 1.5;
+                        ctx.beginPath();
+                        ctx.arc(x, y, isVertexSelected ? 5 : 4, 0, 2 * Math.PI);
+                        ctx.fill();
+                        ctx.stroke();
+                    }
+                });
+            };
+
+            this.drawings.trendlines.forEach(trendline => {
+                if (trendline.points && trendline.points.length >= 2) {
+                    drawTrendLine(trendline);
+                }
+            });
+
+            if (this.activeTrendLine && this.activeTrendLine.points && this.activeTrendLine.points.length === 1 && this.mouseX >= this.paddingLeft && this.mouseX <= w - this.paddingRight && this.mouseY >= this.paddingTop && this.mouseY <= this.paddingTop + priceHeight) {
+                drawTrendLine(this.activeTrendLine, {
+                    index: this.indexFromX(this.mouseX),
+                    price: this.priceFromY(this.mouseY)
+                });
+            }
+
+            // 3. Draw Polylines
             this.drawings.polylines.forEach(polyline => {
                 if (polyline.points && polyline.points.length > 0) {
                     const isSelected = (polyline === this.selectedPolyline);
