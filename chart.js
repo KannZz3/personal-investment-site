@@ -203,6 +203,36 @@ class FuturesChart {
         };
     }
 
+    findNearestTrendLine(px, py, tolerance) {
+        let nearest = null;
+        let nearestDistance = Infinity;
+
+        for (let tl of this.drawings.trendlines) {
+            if (!tl.points || tl.points.length < 2) continue;
+            const renderLine = this.getTrendLineRenderPoints(tl);
+            if (!renderLine) continue;
+            const extendedDistance = this.distanceToSegment(px, py, renderLine.x1, renderLine.y1, renderLine.x2, renderLine.y2);
+
+            const [p1, p2] = tl.points;
+            const anchorDistance = this.distanceToSegment(
+                px,
+                py,
+                this.xFromIndex(p1.index),
+                this.yFromPrice(p1.price),
+                this.xFromIndex(p2.index),
+                this.yFromPrice(p2.price)
+            );
+
+            const distance = Math.min(extendedDistance, anchorDistance);
+            if (distance < nearestDistance) {
+                nearest = tl;
+                nearestDistance = distance;
+            }
+        }
+
+        return nearestDistance <= tolerance ? nearest : null;
+    }
+
     setData(data) {
         const sourceData = Array.isArray(data) ? data : [];
         const validData = sourceData.filter(d => {
@@ -931,18 +961,13 @@ class FuturesChart {
 
                 // 3. Check if near trendline body
                 if (!found) {
-                    const segTol = 14;
-                    for (let tl of this.drawings.trendlines) {
-                        const line = this.getTrendLineRenderPoints(tl);
-                        if (!line) continue;
-                        if (this.distanceToSegment(mouseX, mouseY, line.x1, line.y1, line.x2, line.y2) < segTol) {
-                            this.selectedTrendLine = tl;
-                            this.selectedVertexIndex = null;
-                            this.selectedHLine = null;
-                            this.selectedPolyline = null;
-                            found = true;
-                            break;
-                        }
+                    const trendline = this.findNearestTrendLine(mouseX, mouseY, 24);
+                    if (trendline) {
+                        this.selectedTrendLine = trendline;
+                        this.selectedVertexIndex = null;
+                        this.selectedHLine = null;
+                        this.selectedPolyline = null;
+                        found = true;
                     }
                 }
 
@@ -1176,18 +1201,13 @@ class FuturesChart {
 
                 // 3. Check if near trendline body
                 if (!found) {
-                    const segTol = 22;
-                    for (let tl of this.drawings.trendlines) {
-                        const line = this.getTrendLineRenderPoints(tl);
-                        if (!line) continue;
-                        if (this.distanceToSegment(touchX, touchY, line.x1, line.y1, line.x2, line.y2) < segTol) {
-                            this.selectedTrendLine = tl;
-                            this.selectedVertexIndex = null;
-                            this.selectedHLine = null;
-                            this.selectedPolyline = null;
-                            found = true;
-                            break;
-                        }
+                    const trendline = this.findNearestTrendLine(touchX, touchY, 32);
+                    if (trendline) {
+                        this.selectedTrendLine = trendline;
+                        this.selectedVertexIndex = null;
+                        this.selectedHLine = null;
+                        this.selectedPolyline = null;
+                        found = true;
                     }
                 }
 
