@@ -37,6 +37,9 @@ jobs:
           pip install akshare pandas
 
       - name: 运行数据同步脚本 (按持仓量确定主力合约)
+        env:
+          TQ_USERNAME: ${{ secrets.TQ_USERNAME }}
+          TQ_PASSWORD: ${{ secrets.TQ_PASSWORD }}
         run: python sync_data.py
 
       - name: 检查数据是否有更新

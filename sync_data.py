@@ -274,6 +274,66 @@ def fetch_minute(pd, df, n=1500):
         return []
 
 
+def find_main_contract_sina(ak, pd, code, realtime_name):
+    """
+    Query futures_zh_realtime via Sina to find the active contract with highest open interest.
+    Used as fallback when TqSdk is not available.
+    """
+    import time
+    for attempt in range(3):
+        try:
+            df = ak.futures_zh_realtime(symbol=realtime_name)
+            if df is None or df.empty:
+                time.sleep(1)
+                continue
+            df_real = df[~df['symbol'].str.endswith('0')].copy()
+            df_real = df_real[df_real['symbol'].str.contains(r'\d', regex=True)]
+            if df_real.empty:
+                time.sleep(1)
+                continue
+            df_real['position'] = pd.to_numeric(df_real['position'], errors='coerce').fillna(0)
+            row = df_real.loc[df_real['position'].idxmax()]
+            sym   = str(row['symbol']).upper()
+            oi    = int(row['position'])
+            price = float(row.get('trade', row.get('close', 0)))
+            if sym.startswith(code.upper()) and oi > 0:
+                return sym, oi, price
+        except Exception:
+            time.sleep(1)
+    return None, 0, 0.0
+
+
+def fetch_minute_sina(ak, pd, symbol, period='15', n=1500):
+    """Fetch intraday K-line bars via Sina for given period. Used as fallback."""
+    import time
+    for attempt in range(3):
+        try:
+            df = ak.futures_zh_minute_sina(symbol=symbol, period=period)
+            if df is None or df.empty:
+                time.sleep(1)
+                continue
+            df['datetime'] = pd.to_datetime(df['datetime'])
+            df = df.sort_values('datetime').tail(n)
+            out = []
+            for _, row in df.iterrows():
+                out.append({
+                    'datetime': row['datetime'].strftime('%Y-%m-%d %H:%M:%S'),
+                    'open':  float(row['open']),
+                    'high':  float(row['high']),
+                    'low':   float(row['low']),
+                    'close': float(row['close']),
+                    'volume':int(row['volume']),
+                    'hold':  int(row.get('hold', 0)),
+                })
+            return out
+        except Exception:
+            if attempt < 2:
+                time.sleep(1.5)
+            else:
+                return []
+    return []
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # MAIN
 # ─────────────────────────────────────────────────────────────────────────────
@@ -324,300 +384,253 @@ def sync_futures():
     # ──────────────────────────────────────────────────────────
     # PHASE 2: DETAIL FETCH — Target contracts (Anomalies Only)
     # ──────────────────────────────────────────────────────────
-    # Combine watchlist and anomalies for detail K-line downloads
     detail_targets = set(anomalies)
     print(f"\n[Phase 2] Fetching K-line details for {len(detail_targets)} anomaly contracts: {anomalies}...\n")
 
     target_contracts = {}      # code -> specific contract month symbol (e.g. SHFE.sp2609)
-    target_specific_quotes = {} # code -> specific contract quote object
+    target_specific_quotes = {} # code -> specific contract quote details
     target_klines = {}         # code -> {'min1': ..., 'min5': ...}
+    use_tq_sdk = False
 
     if detail_targets:
-        # Load credentials from config.json
-        username = None
-        password = None
-        user_profile = os.environ.get('USERPROFILE', 'C:\\Users\\78432')
-        config_paths = [
-            os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.json'),
-            os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'config.json'),
-            os.path.abspath(os.path.join(user_profile, 'Desktop', 'config.json')),
-            os.path.abspath(os.path.join(user_profile, 'OneDrive', 'Desktop', 'config.json')),
-            os.path.abspath(os.path.join(user_profile, 'OneDrive', '桌面', 'config.json'))
-        ]
-        for path in config_paths:
-            if os.path.exists(path):
-                try:
-                    with open(path, 'r', encoding='utf-8') as f:
-                        cfg_data = json.load(f)
-                        username = cfg_data.get('tq_username')
-                        password = cfg_data.get('tq_password')
-                        if username and password and "请" not in username:
-                            print(f"[+] Loaded TqSdk credentials from {path}")
-                            break
-                except Exception as e:
-                    print(f"[-] Error reading {path}: {e}")
-
-        if not username or not password or "请" in username:
-            print("[-] 错误: 未能在本地或桌面找到有效的天勤账号密码文件 config.json，或者尚未配置账号密码。")
-            print("    请在桌面上的 config.json 中配置您的天勤账号和密码。")
-            return False
-
-        try:
-            from tqsdk import TqApi, TqAuth
-            print("[+] Connecting to TqSdk API...")
-            api = TqApi(auth=TqAuth(username, password))
-        except Exception as e:
-            print(f"[-] 天勤登录认证失败: {e}")
-            return False
-
-        try:
-            # Step 2.1: Register continuous main contract quotes to resolve the specific active contracts
-            print("[+] Subscribing to continuous main quotes on TqSdk...")
-            target_main_quotes = {}
-            for code in detail_targets:
-                sym = get_tq_main_symbol(code, ALL_CFG[code]['exch'])
-                target_main_quotes[code] = api.get_quote(sym)
-
-            # Wait for quotes to update so underlying_symbol is resolved
-            start_q = time.time()
-            while time.time() - start_q < 4.0:
-                if not api.wait_update(deadline=time.time() + 0.5):
-                    break
-
-            # Step 2.2: Register detailed K-lines and specific quotes
-            print("[+] Subscribing to specific contract quotes and minute K-lines...")
-            for code in detail_targets:
-                main_quote = target_main_quotes[code]
-                main_sym_specific = main_quote.underlying_symbol
-                
-                if main_sym_specific:
-                    target_contracts[code] = main_sym_specific
-                    target_specific_quotes[code] = api.get_quote(main_sym_specific)
-                    target_klines[code] = {
-                        'min1':  api.get_kline_serial(main_sym_specific, 60, 1500),
-                        'min5':  api.get_kline_serial(main_sym_specific, 300, 1500),
-                        'min15': api.get_kline_serial(main_sym_specific, 900, 1500),
-                        'min30': api.get_kline_serial(main_sym_specific, 1800, 1500),
-                        'min60': api.get_kline_serial(main_sym_specific, 3600, 1500),
-                    }
-                else:
-                    print(f"      [!] Warning: Could not resolve underlying specific symbol for {code}")
-
-            # Wait for all detailed K-lines to download in parallel
-            print("[+] Downloading target detailed K-lines in parallel...")
-            start_dl_det = time.time()
-            while time.time() - start_dl_det < 8.0:
-                if not api.wait_update(deadline=time.time() + 1.0):
-                    break
-            print(f"[+] Target K-lines download finished in {time.time() - start_dl_det:.2f} seconds.")
-
-            # Process metadata and K-lines for all contracts
-            contracts_meta = {}
-            data_out       = {}
-
-            for code in sorted(list(ALL_CFG.keys())):
-                cfg = ALL_CFG[code]
-                
-                main_sym = None
-                main_oi = 0
-                main_price = 0.0
-                daily = []
-                min1 = []
-                min5 = []
-                min15 = []
-                min30 = []
-                min60 = []
-
-                # Extract daily from pre-loaded Sina daily data
-                if code in daily_dfs:
-                    daily = fetch_daily(pd, daily_dfs[code], start_date)
-                    if daily:
-                        main_price = daily[-1]['close']
-                        main_oi = daily[-1]['hold']
-
-                if code in detail_targets:
-                    main_sym_specific = target_contracts.get(code)
-                    if main_sym_specific:
-                        kline_sym = main_sym_specific
-                        parts = main_sym_specific.split('.')
-                        display_sym = parts[1].upper() if len(parts) == 2 else main_sym_specific
-                        
-                        # Retrieve TqSdk quote details if available
-                        spec_quote = target_specific_quotes.get(code)
-                        if spec_quote:
-                            if spec_quote.open_interest:
-                                main_oi = int(spec_quote.open_interest)
-                            if spec_quote.last_price:
-                                main_price = float(spec_quote.last_price)
-                            
-                        print(f"      Main: {display_sym} ({main_sym_specific})  OI={main_oi:,}  price={main_price}")
-                    else:
-                        kline_sym = f"{code}0"
-                        display_sym = f"{code}(主力)"
-
-                    # Extract minute K-lines
-                    if code in target_klines:
-                        min_dict = target_klines[code]
-                        min1  = fetch_minute(pd, min_dict['min1'], n=1500)
-                        min5  = fetch_minute(pd, min_dict['min5'], n=1500)
-                        min15 = fetch_minute(pd, min_dict['min15'], n=1500)
-                        min30 = fetch_minute(pd, min_dict['min30'], n=1500)
-                        min60 = fetch_minute(pd, min_dict['min60'], n=1500)
-                        print(f"      1-min: {len(min1)} bars | 5-min: {len(min5)} bars | 15-min: {len(min15)} bars | 30-min: {len(min30)} bars | 60-min: {len(min60)} bars")
-                else:
-                    kline_sym   = f"{code}0"
-                    display_sym = f"{code}(主力)"
-
-                # Build metadata
-                oi_screen = screening.get(code, {})
-                contracts_meta[code] = {
-                    'symbol':      display_sym,
-                    'klineSource': kline_sym,
-                    'name':        f"{cfg['name']}主力",
-                    'exchange':    cfg['exch'],
-                    'multiplier':  cfg['mult'],
-                    'marginRate':  cfg['margin'],
-                    'unit':        cfg['unit'],
-                    'openInterest':main_oi,
-                    'latestPrice': main_price,
-                    'isWatchlist': code in WATCHLIST,
-                    'isAnomaly':   code in anomalies,
-                    'oiAnalysis': {
-                        'currentOI':        oi_screen.get('currentOI', main_oi),
-                        'historicalMaxOI':  oi_screen.get('historicalMaxOI', 0),
-                        'historicalMaxDate':oi_screen.get('historicalMaxDate', ''),
-                        'dataStart':        oi_screen.get('dataStart', ''),
-                        'oiRatio':          oi_screen.get('oiRatio', 0),
-                        'alert':            oi_screen.get('alert', 'unknown'),
-                    },
-                }
-
-                data_out[code] = {'daily': daily, 'min1': min1, 'min5': min5, 'min15': min15, 'min30': min30, 'min60': min60}
-
-            # ──────────────────────────────────────────────────────────
-            # OUTPUT JSON
-            # ──────────────────────────────────────────────────────────
-            failed_scans = sorted([code for code in ALL_CFG.keys() if code not in screening])
-            
-            output = {
-                'metadata': {
-                    'sync_time':      now_str,
-                    'version':        '5.0',
-                    'description':    'Full market TqSdk OI screen | watchlist + anomaly K-line data',
-                    'historyYears':   HISTORY_YEARS,
-                    'nearHighThresh': NEAR_HIGH_THRESH,
-                    'watchlist':      WATCHLIST,
-                    'anomalies':      anomalies,
-                    'failed_scans':   failed_scans,
-                    'screening':      screening,    # OI stats for ALL screened commodities
-                    'contracts':      contracts_meta,
-                },
-                **data_out,
-            }
-
-            data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
-            os.makedirs(data_dir, exist_ok=True)
-            out_path = os.path.join(data_dir, 'futures_data.json')
-
-            try:
-                with open(out_path, 'w', encoding='utf-8') as f:
-                    json.dump(output, f, ensure_ascii=False, indent=2)
-
-                print("\n" + "=" * 70)
-                print("[OK] Sync complete!")
-                print(f"     Screened : {len(screening)} commodities")
-                print(f"     Anomalies: {len(anomalies)} -> {anomalies if anomalies else 'none today'}")
-                print(f"     Detail   : {len(data_out)} contracts with K-line data")
-                print(f"     Output   : {out_path}")
-                print("=" * 70)
-                return True
-            except Exception as e:
-                print(f"[-] Write failed: {e}")
-                return False
-
-        finally:
-            # Make sure to close the TqApi connection to release resources
-            try:
-                api.close()
-                print("[+] TqSdk API connection closed.")
-            except Exception:
-                pass
-    else:
-        # No target anomalies, just dump metadata and daily data from screening
-        contracts_meta = {}
-        data_out       = {}
-
-        for code in sorted(list(ALL_CFG.keys())):
-            cfg = ALL_CFG[code]
-            daily = []
-            main_oi = 0
-            main_price = 0.0
-
-            if code in daily_dfs:
-                daily = fetch_daily(pd, daily_dfs[code], start_date)
-                if daily:
-                    main_price = daily[-1]['close']
-                    main_oi = daily[-1]['hold']
-
-            oi_screen = screening.get(code, {})
-            contracts_meta[code] = {
-                'symbol':      f"{code}(主力)",
-                'klineSource': f"{code}0",
-                'name':        f"{cfg['name']}主力",
-                'exchange':    cfg['exch'],
-                'multiplier':  cfg['mult'],
-                'marginRate':  cfg['margin'],
-                'unit':        cfg['unit'],
-                'openInterest':main_oi,
-                'latestPrice': main_price,
-                'isWatchlist': code in WATCHLIST,
-                'isAnomaly':   False,
-                'oiAnalysis': {
-                    'currentOI':        oi_screen.get('currentOI', main_oi),
-                    'historicalMaxOI':  oi_screen.get('historicalMaxOI', 0),
-                    'historicalMaxDate':oi_screen.get('historicalMaxDate', ''),
-                    'dataStart':        oi_screen.get('dataStart', ''),
-                    'oiRatio':          oi_screen.get('oiRatio', 0),
-                    'alert':            oi_screen.get('alert', 'unknown'),
-                },
-            }
-            data_out[code] = {'daily': daily, 'min1': [], 'min5': [], 'min15': [], 'min30': [], 'min60': []}
-
-        failed_scans = sorted([code for code in ALL_CFG.keys() if code not in screening])
+        # Load credentials (env variables first, then local config files)
+        username = os.environ.get('TQ_USERNAME')
+        password = os.environ.get('TQ_PASSWORD')
         
-        output = {
-            'metadata': {
-                'sync_time':      now_str,
-                'version':        '5.0',
-                'description':    'Full market TqSdk OI screen | watchlist + anomaly K-line data',
-                'historyYears':   HISTORY_YEARS,
-                'nearHighThresh': NEAR_HIGH_THRESH,
-                'watchlist':      WATCHLIST,
-                'anomalies':      [],
-                'failed_scans':   failed_scans,
-                'screening':      screening,
-                'contracts':      contracts_meta,
+        if not username or not password:
+            user_profile = os.environ.get('USERPROFILE', 'C:\\Users\\78432')
+            config_paths = [
+                os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.json'),
+                os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'config.json'),
+                os.path.abspath(os.path.join(user_profile, 'Desktop', 'config.json')),
+                os.path.abspath(os.path.join(user_profile, 'OneDrive', 'Desktop', 'config.json')),
+                os.path.abspath(os.path.join(user_profile, 'OneDrive', '桌面', 'config.json'))
+            ]
+            for path in config_paths:
+                if os.path.exists(path):
+                    try:
+                        with open(path, 'r', encoding='utf-8') as f:
+                            cfg_data = json.load(f)
+                            username = cfg_data.get('tq_username')
+                            password = cfg_data.get('tq_password')
+                            if username and password and "请" not in username:
+                                print(f"[+] Loaded TqSdk credentials from {path}")
+                                break
+                    except Exception as e:
+                        print(f"[-] Error reading {path}: {e}")
+
+        if username and password and "请" not in username:
+            try:
+                from tqsdk import TqApi, TqAuth
+                print("[+] Connecting to TqSdk API...")
+                api = TqApi(auth=TqAuth(username, password))
+                use_tq_sdk = True
+            except Exception as e:
+                print(f"[-] 天勤登录认证失败: {e}. 将降级使用新浪财经 API。")
+        else:
+            print("[-] 未配置天勤账号密码，将降级使用新浪财经 API 进行数据更新。")
+
+        if use_tq_sdk:
+            try:
+                # Step 2.1: Register continuous main contract quotes to resolve the specific active contracts
+                print("[+] Subscribing to continuous main quotes on TqSdk...")
+                target_main_quotes = {}
+                for code in detail_targets:
+                    sym = get_tq_main_symbol(code, ALL_CFG[code]['exch'])
+                    target_main_quotes[code] = api.get_quote(sym)
+
+                # Wait for quotes to update so underlying_symbol is resolved
+                start_q = time.time()
+                while time.time() - start_q < 4.0:
+                    if not api.wait_update(deadline=time.time() + 0.5):
+                        break
+
+                # Step 2.2: Register detailed K-lines and specific quotes
+                print("[+] Subscribing to specific contract quotes and minute K-lines...")
+                for code in detail_targets:
+                    main_quote = target_main_quotes[code]
+                    main_sym_specific = main_quote.underlying_symbol
+                    
+                    if main_sym_specific:
+                        target_contracts[code] = main_sym_specific
+                        target_specific_quotes[code] = api.get_quote(main_sym_specific)
+                        target_klines[code] = {
+                            'min1':  api.get_kline_serial(main_sym_specific, 60, 1500),
+                            'min5':  api.get_kline_serial(main_sym_specific, 300, 1500),
+                            'min15': api.get_kline_serial(main_sym_specific, 900, 1500),
+                            'min30': api.get_kline_serial(main_sym_specific, 1800, 1500),
+                            'min60': api.get_kline_serial(main_sym_specific, 3600, 1500),
+                        }
+                    else:
+                        print(f"      [!] Warning: Could not resolve underlying specific symbol for {code}")
+
+                # Wait for all detailed K-lines to download in parallel
+                print("[+] Downloading target detailed K-lines in parallel...")
+                start_dl_det = time.time()
+                while time.time() - start_dl_det < 8.0:
+                    if not api.wait_update(deadline=time.time() + 1.0):
+                        break
+                print(f"[+] Target K-lines download finished in {time.time() - start_dl_det:.2f} seconds.")
+
+            finally:
+                # Make sure to close the TqApi connection to release resources
+                try:
+                    api.close()
+                    print("[+] TqSdk API connection closed.")
+                except Exception:
+                    pass
+        else:
+            # Fallback to Sina API details
+            print("[+] Fetching specific contract codes and quotes via Sina API...")
+            for code in detail_targets:
+                cfg = ALL_CFG[code]
+                main_sym, main_oi, main_price = find_main_contract_sina(ak, pd, code, cfg['realtime'])
+                if main_sym:
+                    target_contracts[code] = main_sym
+                    target_specific_quotes[code] = {'oi': main_oi, 'price': main_price}
+                else:
+                    target_contracts[code] = f"{code}0"
+                    target_specific_quotes[code] = {'oi': 0, 'price': 0.0}
+
+    # Process metadata and K-lines for all contracts
+    contracts_meta = {}
+    data_out       = {}
+
+    for code in sorted(list(ALL_CFG.keys())):
+        cfg = ALL_CFG[code]
+        
+        main_sym = None
+        main_oi = 0
+        main_price = 0.0
+        daily = []
+        min1 = []
+        min5 = []
+        min15 = []
+        min30 = []
+        min60 = []
+
+        # Extract daily from pre-loaded Sina daily data
+        if code in daily_dfs:
+            daily = fetch_daily(pd, daily_dfs[code], start_date)
+            if daily:
+                main_price = daily[-1]['close']
+                main_oi = daily[-1]['hold']
+
+        if code in detail_targets:
+            main_sym_specific = target_contracts.get(code)
+            if main_sym_specific:
+                kline_sym = main_sym_specific
+                if '.' in main_sym_specific:
+                    parts = main_sym_specific.split('.')
+                    display_sym = parts[1].upper() if len(parts) == 2 else main_sym_specific
+                else:
+                    display_sym = main_sym_specific
+                
+                # Retrieve quote details
+                spec_quote = target_specific_quotes.get(code)
+                if spec_quote:
+                    if use_tq_sdk:
+                        if spec_quote.open_interest:
+                            main_oi = int(spec_quote.open_interest)
+                        if spec_quote.last_price:
+                            main_price = float(spec_quote.last_price)
+                    else:
+                        main_oi = spec_quote.get('oi', 0)
+                        main_price = spec_quote.get('price', 0.0)
+                    
+                print(f"      Main: {display_sym} ({main_sym_specific})  OI={main_oi:,}  price={main_price}")
+            else:
+                kline_sym = f"{code}0"
+                display_sym = f"{code}(主力)"
+
+            # Extract minute K-lines
+            if use_tq_sdk:
+                if code in target_klines:
+                    min_dict = target_klines[code]
+                    min1  = fetch_minute(pd, min_dict['min1'], n=1500)
+                    min5  = fetch_minute(pd, min_dict['min5'], n=1500)
+                    min15 = fetch_minute(pd, min_dict['min15'], n=1500)
+                    min30 = fetch_minute(pd, min_dict['min30'], n=1500)
+                    min60 = fetch_minute(pd, min_dict['min60'], n=1500)
+            else:
+                min1  = fetch_minute_sina(ak, pd, kline_sym, period='1', n=1500)
+                min5  = fetch_minute_sina(ak, pd, kline_sym, period='5', n=1500)
+                min15 = fetch_minute_sina(ak, pd, kline_sym, period='15', n=1500)
+                min30 = fetch_minute_sina(ak, pd, kline_sym, period='30', n=1500)
+                min60 = fetch_minute_sina(ak, pd, kline_sym, period='60', n=1500)
+
+            print(f"      1-min: {len(min1)} bars | 5-min: {len(min5)} bars | 15-min: {len(min15)} bars | 30-min: {len(min30)} bars | 60-min: {len(min60)} bars")
+        else:
+            kline_sym   = f"{code}0"
+            display_sym = f"{code}(主力)"
+
+        # Build metadata
+        oi_screen = screening.get(code, {})
+        contracts_meta[code] = {
+            'symbol':      display_sym,
+            'klineSource': kline_sym,
+            'name':        f"{cfg['name']}主力",
+            'exchange':    cfg['exch'],
+            'multiplier':  cfg['mult'],
+            'marginRate':  cfg['margin'],
+            'unit':        cfg['unit'],
+            'openInterest':main_oi,
+            'latestPrice': main_price,
+            'isWatchlist': code in WATCHLIST,
+            'isAnomaly':   code in anomalies,
+            'oiAnalysis': {
+                'currentOI':        oi_screen.get('currentOI', main_oi),
+                'historicalMaxOI':  oi_screen.get('historicalMaxOI', 0),
+                'historicalMaxDate':oi_screen.get('historicalMaxDate', ''),
+                'dataStart':        oi_screen.get('dataStart', ''),
+                'oiRatio':          oi_screen.get('oiRatio', 0),
+                'alert':            oi_screen.get('alert', 'unknown'),
             },
-            **data_out,
         }
 
-        data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
-        os.makedirs(data_dir, exist_ok=True)
-        out_path = os.path.join(data_dir, 'futures_data.json')
+        data_out[code] = {'daily': daily, 'min1': min1, 'min5': min5, 'min15': min15, 'min30': min30, 'min60': min60}
 
-        try:
-            with open(out_path, 'w', encoding='utf-8') as f:
-                json.dump(output, f, ensure_ascii=False, indent=2)
+    # ──────────────────────────────────────────────────────────
+    # OUTPUT JSON
+    # ──────────────────────────────────────────────────────────
+    failed_scans = sorted([code for code in ALL_CFG.keys() if code not in screening])
+    
+    output = {
+        'metadata': {
+            'sync_time':      now_str,
+            'version':        '5.0',
+            'description':    'Full market TqSdk OI screen | watchlist + anomaly K-line data',
+            'historyYears':   HISTORY_YEARS,
+            'nearHighThresh': NEAR_HIGH_THRESH,
+            'watchlist':      WATCHLIST,
+            'anomalies':      anomalies,
+            'failed_scans':   failed_scans,
+            'screening':      screening,    # OI stats for ALL screened commodities
+            'contracts':      contracts_meta,
+        },
+        **data_out,
+    }
 
-            print("\n" + "=" * 70)
-            print("[OK] Sync complete! (No anomalies to process on TqSdk)")
-            print(f"     Screened : {len(screening)} commodities")
-            print(f"     Output   : {out_path}")
-            print("=" * 70)
-            return True
-        except Exception as e:
-            print(f"[-] Write failed: {e}")
-            return False
+    data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
+    os.makedirs(data_dir, exist_ok=True)
+    out_path = os.path.join(data_dir, 'futures_data.json')
+
+    try:
+        with open(out_path, 'w', encoding='utf-8') as f:
+            json.dump(output, f, ensure_ascii=False, indent=2)
+
+        print("\n" + "=" * 70)
+        status_suffix = " (TqSdk)" if use_tq_sdk else " (Sina Fallback)"
+        print(f"[OK] Sync complete!{status_suffix}")
+        print(f"     Screened : {len(screening)} commodities")
+        print(f"     Anomalies: {len(anomalies)} -> {anomalies if anomalies else 'none today'}")
+        print(f"     Detail   : {len(data_out)} contracts with K-line data")
+        print(f"     Output   : {out_path}")
+        print("=" * 70)
+        return True
+    except Exception as e:
+        print(f"[-] Write failed: {e}")
+        return False
 
 
 if __name__ == '__main__':
