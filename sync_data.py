@@ -17,6 +17,18 @@ Requires: pip install akshare pandas
 
 import os, json, sys, datetime
 
+# Global monkeypatch for requests default timeout to prevent indefinite hangs
+try:
+    import requests
+    original_request = requests.Session.request
+    def timeout_request(self, method, url, *args, **kwargs):
+        if 'timeout' not in kwargs or kwargs['timeout'] is None:
+            kwargs['timeout'] = 15
+        return original_request(self, method, url, *args, **kwargs)
+    requests.Session.request = timeout_request
+except ImportError:
+    pass
+
 # ─────────────────────────────────────────────────────────────────────────────
 # COMPLETE COMMODITY CONFIG (all 5 Chinese exchanges)
 # ─────────────────────────────────────────────────────────────────────────────
@@ -317,47 +329,65 @@ def sync_futures():
     print(f"\n  Screen done. Anomalies: {len(anomalies)} -> {anomalies if anomalies else 'none'}")
 
     # ──────────────────────────────────────────────────────────
-    # PHASE 2: DETAIL FETCH — all contracts across all exchanges
+    # PHASE 2: DETAIL FETCH — Target contracts (Anomalies & Watchlist)
     # ──────────────────────────────────────────────────────────
-    # 按照用户要求，每日同步必须覆盖所有交易所、所有合约的所有周期数据，不仅限于 Watchlist 和 anomalies
-    detail_codes = sorted(list(ALL_CFG.keys()))
-    print(f"\n[Phase 2] Fetching K-line detail for all {len(detail_codes)} contracts across all exchanges...\n")
+    detail_targets = set(anomalies + WATCHLIST)
+    print(f"\n[Phase 2] Fetching K-line details for {len(detail_targets)} target contracts (Anomalies: {anomalies}, Watchlist: {WATCHLIST})...\n")
 
     contracts_meta = {}
     data_out       = {}
 
-    for code in detail_codes:
+    for code in sorted(list(ALL_CFG.keys())):
         cfg = ALL_CFG[code]
-        print(f"  [+] {cfg['name']} ({code}) @ {cfg['exch']}")
+        
+        main_sym = None
+        main_oi = 0
+        main_price = 0.0
+        daily = []
+        min1 = []
+        min5 = []
+        min15 = []
+        min30 = []
+        min60 = []
 
-        # Find actual main contract month
-        main_sym, main_oi, main_price = find_main_contract(ak, pd, code, cfg['realtime'])
-        if main_sym:
-            kline_sym   = main_sym
-            display_sym = main_sym
-            print(f"      Main: {main_sym}  OI={main_oi:,}  price={main_price}")
+        if code in detail_targets:
+            print(f"  [+] {cfg['name']} ({code}) @ {cfg['exch']} (Target)")
+            
+            # Find actual main contract month
+            main_sym, main_oi, main_price = find_main_contract(ak, pd, code, cfg['realtime'])
+            if main_sym:
+                kline_sym   = main_sym
+                display_sym = main_sym
+                print(f"      Main: {main_sym}  OI={main_oi:,}  price={main_price}")
+            else:
+                kline_sym   = f"{code}0"
+                display_sym = f"{code}(主力)"
+                screen_curr = screening.get(code, {}).get('currentOI', 0)
+                main_oi     = screen_curr
+                main_price  = 0.0
+
+            # Daily K-line via continuous main contract (full 10-year history)
+            try:
+                daily = fetch_daily(ak, pd, code, start_date)
+                print(f"      Daily: {len(daily)} bars")
+            except Exception as e:
+                print(f"      Daily FAILED ({e})")
+                daily = []
+
+            # Intraday K-lines: 1M, 5M, 15M, 30M, 60M (up to 1500 bars limit)
+            min1  = fetch_minute(ak, pd, kline_sym, period='1', n=1500)
+            min5  = fetch_minute(ak, pd, kline_sym, period='5', n=1500)
+            min15 = fetch_minute(ak, pd, kline_sym, period='15', n=1500)
+            min30 = fetch_minute(ak, pd, kline_sym, period='30', n=1500)
+            min60 = fetch_minute(ak, pd, kline_sym, period='60', n=1500)
+            print(f"      1-min: {len(min1)} bars | 5-min: {len(min5)} bars | 15-min: {len(min15)} bars | 30-min: {len(min30)} bars | 60-min: {len(min60)} bars")
         else:
-            kline_sym   = f"{code}0"
+            # For non-target contracts, we don't fetch K-lines, but we still populate basic metadata
             display_sym = f"{code}(主力)"
             screen_curr = screening.get(code, {}).get('currentOI', 0)
             main_oi     = screen_curr
             main_price  = 0.0
-
-        # Daily K-line via continuous main contract (full 10-year history)
-        try:
-            daily = fetch_daily(ak, pd, code, start_date)
-            print(f"      Daily: {len(daily)} bars")
-        except Exception as e:
-            print(f"      Daily FAILED ({e})")
-            daily = []
-
-        # Intraday K-lines: 1M, 5M, 15M, 30M, 60M (up to 1500 bars limit)
-        min1  = fetch_minute(ak, pd, kline_sym, period='1', n=1500)
-        min5  = fetch_minute(ak, pd, kline_sym, period='5', n=1500)
-        min15 = fetch_minute(ak, pd, kline_sym, period='15', n=1500)
-        min30 = fetch_minute(ak, pd, kline_sym, period='30', n=1500)
-        min60 = fetch_minute(ak, pd, kline_sym, period='60', n=1500)
-        print(f"      1-min: {len(min1)} bars | 5-min: {len(min5)} bars | 15-min: {len(min15)} bars | 30-min: {len(min30)} bars | 60-min: {len(min60)} bars")
+            kline_sym   = f"{code}0"
 
         # Build metadata
         oi_screen = screening.get(code, {})
