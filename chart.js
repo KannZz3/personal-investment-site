@@ -298,6 +298,55 @@ class FuturesChart {
         return nearestDistance <= tolerance ? nearest : null;
     }
 
+    parseBarDate(rawDate) {
+        if (!rawDate) return null;
+        const raw = String(rawDate);
+        const normalized = raw.includes(' ') ? raw.replace(' ', 'T') : raw;
+        const dateObj = new Date(normalized);
+        return Number.isNaN(dateObj.getTime()) ? null : dateObj;
+    }
+
+    formatBarTime(rawDate, period = this.chartPeriod) {
+        const raw = rawDate ? String(rawDate) : '';
+        const dateObj = this.parseBarDate(raw);
+        if (!dateObj) {
+            return {
+                axisDate: raw,
+                fullDate: raw,
+                timestamp: null
+            };
+        }
+
+        const pad = (num) => String(num).padStart(2, '0');
+        const year = dateObj.getFullYear();
+        const month = pad(dateObj.getMonth() + 1);
+        const day = pad(dateObj.getDate());
+        const hour = pad(dateObj.getHours());
+        const minute = pad(dateObj.getMinutes());
+        const hasTime = raw.includes(' ') || raw.includes('T');
+        const intradayPeriods = new Set(['5M', '15M', '30M', '60M', '240M']);
+
+        let axisDate = `${year}-${month}-${day}`;
+        let fullDate = `${year}-${month}-${day}`;
+
+        if (period === 'Month') {
+            axisDate = `${year}-${month}`;
+            fullDate = `${year}-${month} 月K`;
+        } else if (period === 'W') {
+            axisDate = `${year}-${month}-${day}`;
+            fullDate = `${year}-${month}-${day} 周K`;
+        } else if (intradayPeriods.has(period) || hasTime) {
+            axisDate = `${dateObj.getMonth() + 1}/${dateObj.getDate()} ${hour}:${minute}`;
+            fullDate = `${year}-${month}-${day} ${hour}:${minute}`;
+        }
+
+        return {
+            axisDate,
+            fullDate,
+            timestamp: dateObj.getTime()
+        };
+    }
+
     setData(data) {
         const sourceData = Array.isArray(data) ? data : [];
         const validData = sourceData.filter(d => {
@@ -312,21 +361,7 @@ class FuturesChart {
 
         this.data = validData.map((d, index, arr) => {
             const rawDate = d.date || d.datetime;
-            // Clean date string for display
-            let dateStr = '';
-            if (rawDate) {
-                const dateObj = new Date(rawDate);
-                if (isNaN(dateObj.getTime())) {
-                    dateStr = String(rawDate);
-                } else if (rawDate.includes(' ') || rawDate.includes('T')) {
-                    // Time-based label (minute charts)
-                    const pad = (num) => String(num).padStart(2, '0');
-                    dateStr = `${dateObj.getMonth() + 1}/${dateObj.getDate()} ${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}`;
-                } else {
-                    // Daily label
-                    dateStr = rawDate;
-                }
-            }
+            const timeInfo = this.formatBarTime(rawDate);
 
             // Calculate moving averages
             const getMA = (period) => {
@@ -340,7 +375,10 @@ class FuturesChart {
 
             return {
                 ...d,
-                displayDate: dateStr,
+                displayDate: timeInfo.axisDate,
+                axisDate: timeInfo.axisDate,
+                fullDate: timeInfo.fullDate,
+                timestamp: timeInfo.timestamp,
                 open: parseFloat(d.open),
                 high: parseFloat(d.high),
                 low: parseFloat(d.low),
@@ -2338,7 +2376,7 @@ class FuturesChart {
                 
                 // Print date text
                 ctx.fillStyle = colorText;
-                ctx.fillText(d.displayDate, x, this.paddingTop + priceHeight + 6);
+                ctx.fillText(d.axisDate || d.displayDate, x, this.paddingTop + priceHeight + 6);
             }
         });
 
@@ -2387,6 +2425,7 @@ class FuturesChart {
             const pctText = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
 
             const items = [
+                { label: '时:', val: d.fullDate || d.displayDate || '', color: colorTextBright },
                 { label: '开:', val: d.open.toFixed(1), color: priceColor },
                 { label: '高:', val: d.high.toFixed(1), color: colorUp },
                 { label: '低:', val: d.low.toFixed(1), color: colorDown },
