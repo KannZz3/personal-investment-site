@@ -2768,7 +2768,7 @@ function buildTechnicalUI(data) {
                     <div class="tech-empty-radar">
                         <div class="tech-empty-radar-dot"></div>
                     </div>
-                    <h3>今日暂无技术异动标的</h3>
+                    <h3>今日暂无合约异动标的</h3>
                     <p>市场看板监控显示，当前所有品种主力合约的持仓量均未达到历史峰值的90%。请等待下个交易日的全市场扫描更新。</p>
                 </div>
             `;

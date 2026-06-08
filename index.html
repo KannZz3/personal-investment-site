@@ -36,7 +36,7 @@
                         <a href="#articles"><i data-lucide="book-open"></i>投资思考</a>
                     </li>
                     <li data-tab="technical">
-                        <a href="#technical"><i data-lucide="zap"></i>技术异动</a>
+                        <a href="#technical"><i data-lucide="zap"></i>合约异动</a>
                     </li>
                     <li data-tab="about">
                         <a href="#about"><i data-lucide="user"></i>关于本站</a>
@@ -185,8 +185,8 @@
                     <div class="tech-header-left">
                         <div class="tech-header-icon"><i data-lucide="zap"></i></div>
                         <div>
-                            <h1>技术异动监控</h1>
-                            <p>全市场持仓量扫描 · 历史峰值阈值触发 · 结构性异动标的深度分析</p>
+                            <h1>合约异动监控</h1>
+                            <p>全市场持仓量扫描 · 历史峰值阈值触发 · 结构性异动标的分析</p>
                         </div>
                     </div>
                     <div class="tech-scan-badge" id="techScanBadge">
@@ -260,7 +260,7 @@
                         <p><strong>1. 异动合约筛选</strong>：全市场扫描机制基于合约上市年限实施差异化过滤：上市 3 年以上的合约，其持仓量达到 10 年历史极值 90% 以上或创新高时判定为异动；上市 1 至 3 年的合约，仅在持仓量创历史新高时判定为异动；上市未满 1 年的合约则直接排除，以此剔除干扰噪声，锁定高价值追踪标的。</p>
                         <p><strong>2. 异动合约图表展示</strong>：针对筛选出的异动合约，看板提供高精度的筹码图表交互。TPO Profile（时间价格机会图）的各分辨率周期均严格基于 30 分钟 K 线数据进行时空压缩与分箱构建；Volume Profile（成交量分布图）则严格基于 1 分钟 K 线数据，当 1m 数据受限时降级采用 5 分钟 K 线，若 5m 数据亦耗尽则停止构建，严禁使用 5m 以上的数据作为构建标准，确保筹码量能分布的真实性与高保真度。</p>
                         <p><strong>3. 投资思考</strong>：沉淀大宗商品研究与资产配置思考。后续将引入国内各大交易所主要合约的“交割品企业极限完税成本计算框架”，提供涵盖关税、增值税、仓储及资金成本的多维度理论交割成本与套利估值模型。</p>
-                        <p><strong>4. 技术异动</strong>：每日动态追踪各交易所合约的持仓水平与估值偏离。除提供主力合约当前持仓与历史 10 年峰值的百分比排序外，未来还将引入主力价格与该合约交割标准品“企业极限完税生成成本”的绝对价差与百分比偏差比较，为套利交易和边界风险提供量化参考。</p>
+                        <p><strong>4. 合约异动</strong>：每日动态追踪各交易所合约的持仓水平与估值偏离。除提供主力合约当前持仓与历史 10 年峰值的百分比排序外，未来还将引入主力价格与该合约交割标准品“企业极限完税生成成本”的绝对价差与百分比偏差比较，为套利交易和边界风险提供量化参考。</p>
                     </div>
                     
                     <div class="profile-links">
@@ -327,7 +327,7 @@
     <!-- Script Entrypoint -->
     <script src="./profile.js?v=26"></script>
     <script src="./chart.js?v=35"></script>
-    <script src="./app.js?v=33"></script>
+    <script src="./app.js?v=34"></script>
     <script>
         // Trigger initial lucide icons compilation
         document.addEventListener('DOMContentLoaded', () => {
