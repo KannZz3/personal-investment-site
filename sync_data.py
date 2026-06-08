@@ -299,6 +299,7 @@ def fetch_minute(ak, pd, symbol, period='15', n=1500):
                     'low':   float(row['low']),
                     'close': float(row['close']),
                     'volume':int(row['volume']),
+                    'hold':  int(row.get('hold', 0)),
                 })
             return out
         except Exception:
