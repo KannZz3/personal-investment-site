@@ -109,8 +109,8 @@ ALL_CFG = {
     'LC': {'name':'碳酸锂',  'realtime':'碳酸锂',   'exch':'GFEX', 'mult':1,   'margin':0.12,'unit':'吨'},
 }
 
-# Fixed watchlist: always show K-line detail regardless of OI alert status
-WATCHLIST = ['AU', 'CU', 'RB', 'SC', 'SR', 'TA']
+# Watchlist: empty (unused as the dashboard only displays screened anomaly contracts)
+WATCHLIST = []
 
 # Historical column order from futures_main_sina
 HIST_COLS = ['date', 'open', 'high', 'low', 'close', 'volume', 'hold', 'ext']
@@ -329,10 +329,10 @@ def sync_futures():
     print(f"\n  Screen done. Anomalies: {len(anomalies)} -> {anomalies if anomalies else 'none'}")
 
     # ──────────────────────────────────────────────────────────
-    # PHASE 2: DETAIL FETCH — Target contracts (Anomalies & Watchlist)
+    # PHASE 2: DETAIL FETCH — Target contracts (Anomalies Only)
     # ──────────────────────────────────────────────────────────
-    detail_targets = set(anomalies + WATCHLIST)
-    print(f"\n[Phase 2] Fetching K-line details for {len(detail_targets)} target contracts (Anomalies: {anomalies}, Watchlist: {WATCHLIST})...\n")
+    detail_targets = set(anomalies)
+    print(f"\n[Phase 2] Fetching K-line details for {len(detail_targets)} anomaly contracts: {anomalies}...\n")
 
     contracts_meta = {}
     data_out       = {}
