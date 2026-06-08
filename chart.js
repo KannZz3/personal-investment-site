@@ -233,6 +233,38 @@ class FuturesChart {
         return nearestDistance <= tolerance ? nearest : null;
     }
 
+    findNearestTrendLineHandle(px, py, tolerance) {
+        let nearest = null;
+        let nearestDistance = Infinity;
+
+        for (let tl of this.drawings.trendlines) {
+            if (!tl.points || tl.points.length < 2) continue;
+            const renderLine = this.getTrendLineRenderPoints(tl);
+            if (!renderLine) continue;
+            const extendedDistance = this.distanceToSegment(px, py, renderLine.x1, renderLine.y1, renderLine.x2, renderLine.y2);
+
+            const [p1, p2] = tl.points;
+            const x1 = this.xFromIndex(p1.index);
+            const y1 = this.yFromPrice(p1.price);
+            const x2 = this.xFromIndex(p2.index);
+            const y2 = this.yFromPrice(p2.price);
+            const anchorDistance = this.distanceToSegment(px, py, x1, y1, x2, y2);
+
+            const distance = Math.min(extendedDistance, anchorDistance);
+            if (distance < nearestDistance) {
+                const d1 = Math.hypot(px - x1, py - y1);
+                const d2 = Math.hypot(px - x2, py - y2);
+                nearest = {
+                    trendline: tl,
+                    vertexIndex: d1 <= d2 ? 0 : 1
+                };
+                nearestDistance = distance;
+            }
+        }
+
+        return nearestDistance <= tolerance ? nearest : null;
+    }
+
     findNearestHLine(py, tolerance) {
         let nearest = null;
         let nearestDistance = Infinity;
@@ -1038,7 +1070,7 @@ class FuturesChart {
 
                 // 2. Check if near trendline vertices
                 if (!found) {
-                    const tol = 10;
+                    const tol = 14;
                     for (let tl of this.drawings.trendlines) {
                         for (let idxVal = 0; idxVal < tl.points.length; idxVal++) {
                             const pt = tl.points[idxVal];
@@ -1060,12 +1092,13 @@ class FuturesChart {
 
                 // 3. Check if near trendline body
                 if (!found) {
-                    const trendline = this.findNearestTrendLine(mouseX, mouseY, 24);
-                    if (trendline) {
-                        this.selectedTrendLine = trendline;
-                        this.selectedVertexIndex = null;
+                    const trendlineHit = this.findNearestTrendLineHandle(mouseX, mouseY, 24);
+                    if (trendlineHit) {
+                        this.selectedTrendLine = trendlineHit.trendline;
+                        this.selectedVertexIndex = trendlineHit.vertexIndex;
                         this.selectedHLine = null;
                         this.selectedPolyline = null;
+                        this.isDraggingDrawing = true;
                         found = true;
                     }
                 }
@@ -1263,7 +1296,7 @@ class FuturesChart {
 
                 // 2. Check if near trendline vertices
                 if (!found) {
-                    const tol = 18;
+                    const tol = 24;
                     for (let tl of this.drawings.trendlines) {
                         for (let idxVal = 0; idxVal < tl.points.length; idxVal++) {
                             const pt = tl.points[idxVal];
@@ -1285,12 +1318,13 @@ class FuturesChart {
 
                 // 3. Check if near trendline body
                 if (!found) {
-                    const trendline = this.findNearestTrendLine(touchX, touchY, 32);
-                    if (trendline) {
-                        this.selectedTrendLine = trendline;
-                        this.selectedVertexIndex = null;
+                    const trendlineHit = this.findNearestTrendLineHandle(touchX, touchY, 32);
+                    if (trendlineHit) {
+                        this.selectedTrendLine = trendlineHit.trendline;
+                        this.selectedVertexIndex = trendlineHit.vertexIndex;
                         this.selectedHLine = null;
                         this.selectedPolyline = null;
+                        this.isDraggingDrawing = true;
                         found = true;
                     }
                 }
