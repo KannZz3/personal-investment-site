@@ -233,6 +233,44 @@ class FuturesChart {
         return nearestDistance <= tolerance ? nearest : null;
     }
 
+    findNearestHLine(py, tolerance) {
+        let nearest = null;
+        let nearestDistance = Infinity;
+
+        for (let hl of this.drawings.hlines) {
+            const y = this.yFromPrice(hl.price);
+            const distance = Math.abs(py - y);
+            if (distance < nearestDistance) {
+                nearest = hl;
+                nearestDistance = distance;
+            }
+        }
+
+        return nearestDistance <= tolerance ? nearest : null;
+    }
+
+    findNearestPolyline(px, py, tolerance) {
+        let nearest = null;
+        let nearestDistance = Infinity;
+
+        for (let pl of this.drawings.polylines) {
+            if (!pl.points || pl.points.length < 2) continue;
+            for (let idxVal = 0; idxVal < pl.points.length - 1; idxVal++) {
+                const x1 = this.xFromIndex(pl.points[idxVal].index);
+                const y1 = this.yFromPrice(pl.points[idxVal].price);
+                const x2 = this.xFromIndex(pl.points[idxVal + 1].index);
+                const y2 = this.yFromPrice(pl.points[idxVal + 1].price);
+                const distance = this.distanceToSegment(px, py, x1, y1, x2, y2);
+                if (distance < nearestDistance) {
+                    nearest = pl;
+                    nearestDistance = distance;
+                }
+            }
+        }
+
+        return nearestDistance <= tolerance ? nearest : null;
+    }
+
     setData(data) {
         const sourceData = Array.isArray(data) ? data : [];
         const validData = sourceData.filter(d => {
@@ -923,18 +961,14 @@ class FuturesChart {
                 const { priceHeight } = this.getPriceHeightParams();
 
                 // 1. Check if near horizontal lines
-                const yTol = 8;
-                for (let hl of this.drawings.hlines) {
-                    const y = this.yFromPrice(hl.price);
-                    if (Math.abs(mouseY - y) < yTol) {
-                        this.selectedHLine = hl;
-                        this.selectedTrendLine = null;
-                        this.selectedPolyline = null;
-                        this.selectedVertexIndex = null;
-                        this.isDraggingDrawing = true;
-                        found = true;
-                        break;
-                    }
+                const hline = this.findNearestHLine(mouseY, 24);
+                if (hline) {
+                    this.selectedHLine = hline;
+                    this.selectedTrendLine = null;
+                    this.selectedPolyline = null;
+                    this.selectedVertexIndex = null;
+                    this.isDraggingDrawing = true;
+                    found = true;
                 }
 
                 // 2. Check if near trendline vertices
@@ -995,25 +1029,13 @@ class FuturesChart {
 
                 // 5. Check if near polyline segments (distance from point to line segment)
                 if (!found) {
-                    const segTol = 8;
-                    for (let pl of this.drawings.polylines) {
-                        for (let idxVal = 0; idxVal < pl.points.length - 1; idxVal++) {
-                            const x1 = this.xFromIndex(pl.points[idxVal].index);
-                            const y1 = this.yFromPrice(pl.points[idxVal].price);
-                            const x2 = this.xFromIndex(pl.points[idxVal + 1].index);
-                            const y2 = this.yFromPrice(pl.points[idxVal + 1].price);
-
-                            const dist = this.distanceToSegment(mouseX, mouseY, x1, y1, x2, y2);
-                            if (dist < segTol) {
-                                this.selectedPolyline = pl;
-                                this.selectedVertexIndex = null;
-                                this.selectedHLine = null;
-                                this.selectedTrendLine = null;
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (found) break;
+                    const polyline = this.findNearestPolyline(mouseX, mouseY, 24);
+                    if (polyline) {
+                        this.selectedPolyline = polyline;
+                        this.selectedVertexIndex = null;
+                        this.selectedHLine = null;
+                        this.selectedTrendLine = null;
+                        found = true;
                     }
                 }
 
@@ -1163,18 +1185,14 @@ class FuturesChart {
                 const { priceHeight } = this.getPriceHeightParams();
 
                 // 1. Check if near horizontal lines
-                const yTol = 15;
-                for (let hl of this.drawings.hlines) {
-                    const y = this.yFromPrice(hl.price);
-                    if (Math.abs(touchY - y) < yTol) {
-                        this.selectedHLine = hl;
-                        this.selectedTrendLine = null;
-                        this.selectedPolyline = null;
-                        this.selectedVertexIndex = null;
-                        this.isDraggingDrawing = true;
-                        found = true;
-                        break;
-                    }
+                const hline = this.findNearestHLine(touchY, 32);
+                if (hline) {
+                    this.selectedHLine = hline;
+                    this.selectedTrendLine = null;
+                    this.selectedPolyline = null;
+                    this.selectedVertexIndex = null;
+                    this.isDraggingDrawing = true;
+                    found = true;
                 }
 
                 // 2. Check if near trendline vertices
@@ -1235,25 +1253,13 @@ class FuturesChart {
 
                 // 5. Check if near polyline segments
                 if (!found) {
-                    const segTol = 15;
-                    for (let pl of this.drawings.polylines) {
-                        for (let idxVal = 0; idxVal < pl.points.length - 1; idxVal++) {
-                            const x1 = this.xFromIndex(pl.points[idxVal].index);
-                            const y1 = this.yFromPrice(pl.points[idxVal].price);
-                            const x2 = this.xFromIndex(pl.points[idxVal + 1].index);
-                            const y2 = this.yFromPrice(pl.points[idxVal + 1].price);
-
-                            const dist = this.distanceToSegment(touchX, touchY, x1, y1, x2, y2);
-                            if (dist < segTol) {
-                                this.selectedPolyline = pl;
-                                this.selectedVertexIndex = null;
-                                this.selectedHLine = null;
-                                this.selectedTrendLine = null;
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (found) break;
+                    const polyline = this.findNearestPolyline(touchX, touchY, 32);
+                    if (polyline) {
+                        this.selectedPolyline = polyline;
+                        this.selectedVertexIndex = null;
+                        this.selectedHLine = null;
+                        this.selectedTrendLine = null;
+                        found = true;
                     }
                 }
 
