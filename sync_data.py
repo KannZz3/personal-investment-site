@@ -356,9 +356,13 @@ def sync_futures():
     # Load credentials from config.json
     username = None
     password = None
+    user_profile = os.environ.get('USERPROFILE', 'C:\\Users\\78432')
     config_paths = [
         os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.json'),
-        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'config.json')
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'config.json'),
+        os.path.abspath(os.path.join(user_profile, 'Desktop', 'config.json')),
+        os.path.abspath(os.path.join(user_profile, 'OneDrive', 'Desktop', 'config.json')),
+        os.path.abspath(os.path.join(user_profile, 'OneDrive', '桌面', 'config.json'))
     ]
     for path in config_paths:
         if os.path.exists(path):
