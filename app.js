@@ -18,7 +18,7 @@ const state = {
         'TA': { name: 'PTA主力',    symbol: 'TA',  exchange: 'CZCE', basePrice: 6180,  multiplier: 5,    marginRate: 0.08, unit: '吨' }
     },
     activeContract: 'CU',
-    chartPeriod: 'D', // 'D' (日K), 'W' (周K), 'Month' (月K), '15M', '30M', '60M', '240M'
+    chartPeriod: 'D', // 'D' (日K), 'W' (周K), 'Month' (月K), '5M', '15M', '30M', '60M', '240M'
     isDataReal: false,
     futuresData: {}, // Holds real or simulated data for each base commodity code
     realDataLoadError: false,
@@ -1956,7 +1956,7 @@ function initializeChartComponent() {
         });
     });
 
-    // Expand / collapse the extra periods (15M, 30M, 1H, Month)
+    // Expand / collapse the extra periods (5M, 15M, 30M, 1H, Month)
     const periodGroup = document.getElementById('chartPeriodGroup');
     const periodToggle = document.getElementById('periodToggle');
     let periodExpanded = false;
@@ -2109,6 +2109,8 @@ function updateChartData() {
     let dataset = [];
     if (state.chartPeriod === 'D') {
         dataset = dataContainer.daily;
+    } else if (state.chartPeriod === '5M') {
+        dataset = dataContainer.min5 || [];
     } else if (state.chartPeriod === '15M') {
         dataset = dataContainer.min15 || [];
     } else if (state.chartPeriod === '30M') {
