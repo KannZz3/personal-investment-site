@@ -7,8 +7,8 @@ FULL MARKET OI SCREENER + DATA SYNC (sync_data.py v4.0)
 1. 合约覆盖范围：本脚本已实现对所有交易所、所有合约的数据同步，每日收盘后下载所有 50+ 合约的详细日线、分钟线及分时数据。
 2. 周期覆盖范围与深度限制：
    - 分钟 K 线 (1m, 5m, 15m, 30m, 60m) 受限于新浪行情接口历史深度，只拉取最新最近约 1500 根 Bar 的滚动历史。
-   - 日线 (daily) 拉取完整 10 年历史连续合约数据。
-   - 周线与月线由网页端根据日线数据实时动态压缩生成，无需脚本单独下载。
+   - 全市场筛选使用 10 年连续主力日线；异动合约图表使用当前具体月份合约日线。
+   - 周线与月线由网页端根据具体月份合约日线实时动态压缩生成，无需脚本单独下载。
    - TPO / VP 直方图由网页端依据 1m, 5m, 30m 基础分钟数据在 Canvas 上动态计算并渲染。
 
 Output  : data/futures_data.json
@@ -251,6 +251,25 @@ def fetch_daily(pd, df, start_date):
     except Exception as e:
         print(f"Error parsing daily: {e}")
         return []
+
+
+def fetch_specific_daily_sina(ak, pd, symbol, start_date):
+    """Fetch and format daily K-lines for a specific contract month symbol."""
+    import time
+    clean_symbol = symbol.split('.')[-1].upper() if symbol else ''
+    for attempt in range(3):
+        try:
+            df = ak.futures_zh_daily_sina(symbol=clean_symbol)
+            if df is None or df.empty:
+                time.sleep(1)
+                continue
+            return fetch_daily(pd, df, start_date)
+        except Exception:
+            if attempt < 2:
+                time.sleep(1.5)
+            else:
+                return []
+    return []
 
 
 def fetch_minute(pd, df, n=1500):
@@ -540,10 +559,6 @@ def sync_futures():
                 main_price = float(temp_df.iloc[-1]['close'])
                 main_oi = int(temp_df.iloc[-1]['hold'])
             
-            # Only save daily K-line data for targets (anomalies) to keep JSON size small
-            if code in detail_targets:
-                daily = fetch_daily(pd, temp_df, start_date)
-
         if code in detail_targets:
             main_sym_specific = target_contracts.get(code)
             if main_sym_specific:
@@ -570,6 +585,13 @@ def sync_futures():
             else:
                 kline_sym = f"{code}0"
                 display_sym = f"{code}(主力)"
+
+            # Daily K-lines for anomaly charts must match the specific contract month
+            # shown in the dashboard; weekly/monthly are derived from this daily data.
+            daily = fetch_specific_daily_sina(ak, pd, kline_sym, start_date)
+            if not daily and code in daily_dfs:
+                print(f"      [!] Specific daily fetch failed for {display_sym}; falling back to continuous daily.")
+                daily = fetch_daily(pd, daily_dfs.get(code), start_date)
 
             # Extract minute K-lines
             if use_tq_sdk:
