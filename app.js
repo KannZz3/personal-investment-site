@@ -18,7 +18,7 @@ const state = {
         'TA': { name: 'PTA主力',    symbol: 'TA',  exchange: 'CZCE', basePrice: 6180,  multiplier: 5,    marginRate: 0.08, unit: '吨' }
     },
     activeContract: 'CU',
-    chartPeriod: 'D', // 'D' (日K), 'W' (周K), 'Month' (月K), '15M', '30M', '60M'
+    chartPeriod: 'D', // 'D' (日K), 'W' (周K), 'Month' (月K), '15M', '30M', '60M', '240M'
     isDataReal: false,
     futuresData: {}, // Holds real or simulated data for each base commodity code
     realDataLoadError: false,
@@ -2115,6 +2115,8 @@ function updateChartData() {
         dataset = dataContainer.min30 || [];
     } else if (state.chartPeriod === '60M') {
         dataset = dataContainer.min60 || [];
+    } else if (state.chartPeriod === '240M') {
+        dataset = compressToFourHour(dataContainer.min60 || []);
     } else if (state.chartPeriod === 'W') {
         dataset = compressToWeekly(dataContainer.daily);
     } else if (state.chartPeriod === 'Month') {
@@ -2195,6 +2197,73 @@ function updateProfileAvailabilityPanel() {
     } else {
         panel.style.display = 'none';
     }
+}
+
+// Compress fetched 1H bars to 4H aggregates.
+function compressToFourHour(hourlyData) {
+    if (!hourlyData || !hourlyData.length) return [];
+    
+    const validBars = hourlyData.filter(bar => {
+        if (!bar) return false;
+        const values = [bar.open, bar.high, bar.low, bar.close].map(Number);
+        return values.every(Number.isFinite);
+    });
+    
+    const fourHour = [];
+    let currentTradingDay = null;
+    let currentGroup = [];
+    
+    const pushGroup = () => {
+        if (!currentGroup.length) return;
+        const last = currentGroup[currentGroup.length - 1];
+        fourHour.push({
+            datetime: last.datetime || last.date,
+            open: Number(currentGroup[0].open),
+            high: Math.max(...currentGroup.map(d => Number(d.high))),
+            low: Math.min(...currentGroup.map(d => Number(d.low))),
+            close: Number(last.close),
+            volume: currentGroup.reduce((sum, d) => sum + (Number(d.volume) || 0), 0),
+            hold: Number.isFinite(Number(last.hold)) ? Number(last.hold) : 0
+        });
+        currentGroup = [];
+    };
+    
+    validBars.forEach(bar => {
+        const tradingDay = getTradingDayForIntradayBar(bar.datetime || bar.date);
+        if (currentTradingDay !== null && tradingDay !== currentTradingDay) {
+            pushGroup();
+        }
+        
+        currentTradingDay = tradingDay;
+        currentGroup.push(bar);
+        
+        if (currentGroup.length === 4) {
+            pushGroup();
+        }
+    });
+    
+    pushGroup();
+    
+    return fourHour;
+}
+
+function getTradingDayForIntradayBar(datetime) {
+    if (!datetime) return '';
+    
+    const date = new Date(String(datetime).replace(' ', 'T'));
+    if (Number.isNaN(date.getTime())) return String(datetime).slice(0, 10);
+    
+    if (date.getHours() >= 21) {
+        date.setDate(date.getDate() + 1);
+        while (date.getDay() === 0 || date.getDay() === 6) {
+            date.setDate(date.getDate() + 1);
+        }
+    }
+    
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 }
 
 // Compress Daily datasets to Weekly aggregates
