@@ -31,10 +31,10 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
-      - name: 安装依赖库 (akshare, pandas)
+      - name: 安装依赖库 (akshare, pandas, tqsdk)
         run: |
           pip install --upgrade pip
-          pip install akshare pandas
+          pip install akshare pandas tqsdk
 
       - name: 运行数据同步脚本 (按持仓量确定主力合约)
         env:
