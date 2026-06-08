@@ -15,7 +15,7 @@ Output  : data/futures_data.json
 Requires: pip install akshare pandas
 """
 
-import os, json, sys, datetime
+import os, json, sys, datetime, math
 
 # Global monkeypatch for requests default timeout to prevent indefinite hangs
 try:
@@ -117,6 +117,15 @@ NEAR_HIGH_THRESH = 0.90
 HISTORY_YEARS = 10
 # HELPERS
 # ─────────────────────────────────────────────────────────────────────────────
+
+def finite_float(value, default=0.0):
+    """Convert numeric values while preventing NaN/Infinity from reaching JSON."""
+    try:
+        num = float(value)
+        return num if math.isfinite(num) else default
+    except Exception:
+        return default
+
 
 def get_tq_main_symbol(code, exch):
     """Format the TqSdk continuous main contract symbol based on exchange rules."""
@@ -250,18 +259,32 @@ def fetch_minute(pd, df, n=1500):
         return []
     try:
         df = df.copy()
-        df['datetime_str'] = pd.to_datetime(df['datetime'], unit='ns').dt.tz_localize('UTC').dt.tz_convert('Asia/Shanghai').dt.strftime('%Y-%m-%d %H:%M:%S')
+        df = df.dropna(subset=['datetime', 'open', 'high', 'low', 'close'])
+        for col in ['open', 'high', 'low', 'close', 'volume', 'close_oi']:
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors='coerce')
+        df = df.dropna(subset=['open', 'high', 'low', 'close'])
+        dt = pd.to_datetime(df['datetime'], unit='ns', errors='coerce')
+        df = df[dt.notna()].copy()
+        dt = dt[dt.notna()]
+        # TqSdk fixed-size K-line containers can include empty epoch placeholders
+        # when the requested bar count exceeds the contract's real history.
+        valid_dt = dt >= pd.Timestamp('2000-01-01')
+        df = df[valid_dt].copy()
+        dt = dt[valid_dt]
+        df['datetime_str'] = dt.dt.tz_localize('UTC').dt.tz_convert('Asia/Shanghai').dt.strftime('%Y-%m-%d %H:%M:%S')
         df['hold'] = pd.to_numeric(df['close_oi'], errors='coerce').fillna(0)
+        df['volume'] = pd.to_numeric(df['volume'], errors='coerce').fillna(0)
         df = df.sort_values('datetime_str').tail(n)
         
         out = []
         for _, row in df.iterrows():
             out.append({
                 'datetime': row['datetime_str'],
-                'open':  float(row['open']),
-                'high':  float(row['high']),
-                'low':   float(row['low']),
-                'close': float(row['close']),
+                'open':  finite_float(row['open']),
+                'high':  finite_float(row['high']),
+                'low':   finite_float(row['low']),
+                'close': finite_float(row['close']),
                 'volume':int(row['volume']),
                 'hold':  int(row['hold']),
             })
@@ -309,18 +332,22 @@ def fetch_minute_sina(ak, pd, symbol, period='15', n=1500):
             if df is None or df.empty:
                 time.sleep(1)
                 continue
+            for col in ['open', 'high', 'low', 'close', 'volume', 'hold']:
+                if col in df.columns:
+                    df[col] = pd.to_numeric(df[col], errors='coerce')
+            df = df.dropna(subset=['datetime', 'open', 'high', 'low', 'close'])
             df['datetime'] = pd.to_datetime(df['datetime'])
             df = df.sort_values('datetime').tail(n)
             out = []
             for _, row in df.iterrows():
                 out.append({
                     'datetime': row['datetime'].strftime('%Y-%m-%d %H:%M:%S'),
-                    'open':  float(row['open']),
-                    'high':  float(row['high']),
-                    'low':   float(row['low']),
-                    'close': float(row['close']),
-                    'volume':int(row['volume']),
-                    'hold':  int(row.get('hold', 0)),
+                    'open':  finite_float(row['open']),
+                    'high':  finite_float(row['high']),
+                    'low':   finite_float(row['low']),
+                    'close': finite_float(row['close']),
+                    'volume':int(finite_float(row['volume'], 0)),
+                    'hold':  int(finite_float(row.get('hold', 0), 0)),
                 })
             return out
         except Exception:
@@ -616,7 +643,7 @@ def sync_futures():
 
     try:
         with open(out_path, 'w', encoding='utf-8') as f:
-            json.dump(output, f, ensure_ascii=False, indent=2)
+            json.dump(output, f, ensure_ascii=False, indent=2, allow_nan=False)
 
         print("\n" + "=" * 70)
         status_suffix = " (TqSdk)" if use_tq_sdk else " (Sina Fallback)"

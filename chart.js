@@ -152,7 +152,18 @@ class FuturesChart {
     }
 
     setData(data) {
-        this.data = data.map((d, index, arr) => {
+        const sourceData = Array.isArray(data) ? data : [];
+        const validData = sourceData.filter(d => {
+            if (!d) return false;
+            const rawDate = d.date || d.datetime;
+            const open = parseFloat(d.open);
+            const high = parseFloat(d.high);
+            const low = parseFloat(d.low);
+            const close = parseFloat(d.close);
+            return rawDate && Number.isFinite(open) && Number.isFinite(high) && Number.isFinite(low) && Number.isFinite(close);
+        });
+
+        this.data = validData.map((d, index, arr) => {
             const rawDate = d.date || d.datetime;
             // Clean date string for display
             let dateStr = '';
