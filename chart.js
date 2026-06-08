@@ -2127,8 +2127,10 @@ class FuturesChart {
 
             // Draw K-line details banner inside the top-left area of the canvas
             ctx.font = '10px Inter, sans-serif';
-            const priceColor = d.close >= d.open ? colorUp : colorDown;
-            const pct = d.open !== 0 ? ((d.close - d.open) / d.open * 100) : 0;
+            const prevBar = this.hoverIndex > 0 ? this.data[this.hoverIndex - 1] : null;
+            const refPrice = prevBar ? prevBar.close : d.open;
+            const priceColor = d.close >= refPrice ? colorUp : colorDown;
+            const pct = refPrice !== 0 ? ((d.close - refPrice) / refPrice * 100) : 0;
             const pctText = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
 
             const items = [
