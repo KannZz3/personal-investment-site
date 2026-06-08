@@ -2333,8 +2333,9 @@ footer {
 }
 
 #drawTrendLineBtn svg {
-    width: 10px;
-    height: 10px;
+    width: 11px;
+    height: 11px;
+    stroke-width: 3;
 }
 
 .draw-tool-btn:hover {

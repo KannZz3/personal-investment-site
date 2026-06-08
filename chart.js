@@ -931,7 +931,7 @@ class FuturesChart {
 
                 // 3. Check if near trendline body
                 if (!found) {
-                    const segTol = 8;
+                    const segTol = 14;
                     for (let tl of this.drawings.trendlines) {
                         const line = this.getTrendLineRenderPoints(tl);
                         if (!line) continue;
@@ -1176,7 +1176,7 @@ class FuturesChart {
 
                 // 3. Check if near trendline body
                 if (!found) {
-                    const segTol = 15;
+                    const segTol = 22;
                     for (let tl of this.drawings.trendlines) {
                         const line = this.getTrendLineRenderPoints(tl);
                         if (!line) continue;
@@ -1500,7 +1500,7 @@ class FuturesChart {
                 }
             }
             if (deleteDrawingBtn) {
-                if (this.drawingMode !== 'none' && (this.selectedHLine !== null || this.selectedTrendLine !== null || this.selectedPolyline !== null)) {
+                if (this.selectedHLine !== null || this.selectedTrendLine !== null || this.selectedPolyline !== null) {
                     deleteDrawingBtn.style.display = 'inline-flex';
                 } else {
                     deleteDrawingBtn.style.display = 'none';
