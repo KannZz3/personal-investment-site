@@ -363,10 +363,10 @@ class FuturesChart {
 
         if (period === 'Month') {
             axisDate = `${year}-${month}`;
-            fullDate = `${year}-${month} 月K`;
+            fullDate = `${year}-${month}-${day}`;
         } else if (period === 'W') {
             axisDate = `${year}-${month}-${day}`;
-            fullDate = `${year}-${month}-${day} 周K`;
+            fullDate = `${year}-${month}-${day}`;
         } else if (intradayPeriods.has(period) || hasTime) {
             axisDate = `${dateObj.getMonth() + 1}/${dateObj.getDate()} ${hour}:${minute}`;
             fullDate = `${year}-${month}-${day} ${hour}:${minute}`;
@@ -2459,7 +2459,7 @@ class FuturesChart {
             const pctText = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
 
             const items = [
-                { label: '时:', val: d.fullDate || d.displayDate || '', color: colorTextBright },
+                { label: '', val: d.fullDate || d.displayDate || '', color: colorTextBright },
                 { label: '开:', val: d.open.toFixed(1), color: priceColor },
                 { label: '高:', val: d.high.toFixed(1), color: colorUp },
                 { label: '低:', val: d.low.toFixed(1), color: colorDown },
@@ -2476,7 +2476,7 @@ class FuturesChart {
             const measureRowWidth = (rowItems) => {
                 let rWidth = 0;
                 rowItems.forEach((item, idx) => {
-                    rWidth += ctx.measureText(item.label).width + 3 + ctx.measureText(item.val).width;
+                    rWidth += ctx.measureText(item.label).width + (item.label ? 3 : 0) + ctx.measureText(item.val).width;
                     if (idx < rowItems.length - 1) {
                         rWidth += 10;
                     }
@@ -2499,9 +2499,11 @@ class FuturesChart {
             let textX = this.paddingLeft + 10;
             const y1 = this.paddingTop + (isNarrow ? 12 : 15);
             row1Items.forEach((item) => {
-                ctx.fillStyle = colorText;
-                ctx.fillText(item.label, textX, y1);
-                textX += ctx.measureText(item.label).width + 3;
+                if (item.label) {
+                    ctx.fillStyle = colorText;
+                    ctx.fillText(item.label, textX, y1);
+                    textX += ctx.measureText(item.label).width + 3;
+                }
 
                 ctx.fillStyle = item.color;
                 ctx.fillText(item.val, textX, y1);
@@ -2513,9 +2515,11 @@ class FuturesChart {
                 textX = this.paddingLeft + 10;
                 const y2 = this.paddingTop + 25;
                 row2Items.forEach((item) => {
-                    ctx.fillStyle = colorText;
-                    ctx.fillText(item.label, textX, y2);
-                    textX += ctx.measureText(item.label).width + 3;
+                    if (item.label) {
+                        ctx.fillStyle = colorText;
+                        ctx.fillText(item.label, textX, y2);
+                        textX += ctx.measureText(item.label).width + 3;
+                    }
 
                     ctx.fillStyle = item.color;
                     ctx.fillText(item.val, textX, y2);
