@@ -1411,9 +1411,33 @@ footer {
         justify-content: flex-start;
     }
     
-    .period-group, #chartTypeToolbar, .indicator-group {
+    .period-group, #chartTypeToolbar, .indicator-stack, .indicator-group {
         flex: 1 1 auto;
         justify-content: center;
+    }
+
+    .chart-panel:not(.mobile-fullscreen-simulated) .indicator-stack {
+        flex: 1 1 100% !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        flex-direction: column !important;
+        align-items: flex-end !important;
+        gap: 4px !important;
+    }
+
+    .chart-panel:not(.mobile-fullscreen-simulated) .indicator-stack .indicator-group {
+        flex: 0 0 auto !important;
+        width: auto !important;
+        max-width: 100% !important;
+    }
+
+    .chart-panel:not(.mobile-fullscreen-simulated) .ma-trend-signal {
+        position: static !important;
+        align-self: flex-end !important;
+        max-width: 100% !important;
+        padding: 2px 5px !important;
+        font-size: 0.62rem !important;
+        line-height: 1.15 !important;
     }
 
     .btn-tab {
@@ -2476,9 +2500,18 @@ body.has-fullscreen-simulated .page-section {
     }
 
     .chart-panel:not(.mobile-fullscreen-simulated) .indicator-stack {
+        flex: 1 1 100% !important;
+        width: 100% !important;
+        max-width: 100% !important;
         flex-direction: column !important;
-        align-items: stretch !important;
+        align-items: flex-end !important;
         gap: 4px !important;
+    }
+
+    .chart-panel:not(.mobile-fullscreen-simulated) .indicator-stack .indicator-group {
+        flex: 0 0 auto !important;
+        width: auto !important;
+        max-width: 100% !important;
     }
 
     .chart-panel:not(.mobile-fullscreen-simulated) .ma-trend-signal {
