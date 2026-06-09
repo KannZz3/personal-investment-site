@@ -1,18 +1,32 @@
 name: 自动同步商品期货主力合约数据
 
 on:
-  # 定时触发
+  # 定时触发：日盘/夜盘各设置多次兜底，避免 GitHub Actions 单个 schedule 延迟或跳过导致断更
   schedule:
-    # 1. 日盘收盘自动同步: 每个工作日 08:00 UTC (北京时间 16:00 Mon-Fri)
-    - cron: '0 8 * * 1-5'
-    # 2. 夜盘收盘自动同步: 每个工作日 19:00 UTC (北京时间 03:00 Tue-Sat)
-    - cron: '0 19 * * 1-5'
+    # 1. 日盘收盘后兜底同步: 北京时间 15:10 / 15:30 / 15:50 / 16:10 / 16:30 / 16:50 (Mon-Fri)
+    - cron: '10 7 * * 1-5'
+    - cron: '30 7 * * 1-5'
+    - cron: '50 7 * * 1-5'
+    - cron: '10 8 * * 1-5'
+    - cron: '30 8 * * 1-5'
+    - cron: '50 8 * * 1-5'
+    # 2. 夜盘收盘后兜底同步: 北京时间 02:45 / 03:05 / 03:25 / 03:50 / 04:20 / 04:50 (Tue-Sat)
+    - cron: '45 18 * * 1-5'
+    - cron: '5 19 * * 1-5'
+    - cron: '25 19 * * 1-5'
+    - cron: '50 19 * * 1-5'
+    - cron: '20 20 * * 1-5'
+    - cron: '50 20 * * 1-5'
   # 支持在 GitHub 网页上手动触发
   workflow_dispatch:
 
 # 授予工作流向仓库写入（提交、推送）的权限
 permissions:
   contents: write
+
+concurrency:
+  group: futures-data-sync-main
+  cancel-in-progress: false
 
 jobs:
   sync-futures-data:
