@@ -1936,9 +1936,8 @@ function selectContract(baseCode) {
     const activeCard = document.getElementById(`ticker-${baseCode}`);
     if (activeCard) activeCard.classList.add('active');
     
-    // Rerender Chart & stats panels
+    // Rerender Chart
     updateChartData();
-    updateSidebarWidget();
 }
 
 // Chart Components Hooks
@@ -2094,7 +2093,6 @@ function initializeChartComponent() {
 
     // Populate initial data to chart
     updateChartData();
-    updateSidebarWidget();
 }
 
 function updateChartData() {
@@ -2148,6 +2146,44 @@ function updateChartData() {
     
     updateProfileAvailabilityPanel();
     syncProfileButtons();
+    updateMaTrendSignal(dataset);
+}
+
+function calculateLatestMA(dataList, period) {
+    if (!Array.isArray(dataList) || dataList.length < period) return null;
+    let sum = 0;
+    for (let i = dataList.length - period; i < dataList.length; i++) {
+        const close = Number(dataList[i]?.close);
+        if (!Number.isFinite(close)) return null;
+        sum += close;
+    }
+    return sum / period;
+}
+
+function updateMaTrendSignal(dataset) {
+    const signalBadge = document.getElementById('maTrendSignalBadge');
+    if (!signalBadge) return;
+
+    const ma5 = calculateLatestMA(dataset, 5);
+    const ma10 = calculateLatestMA(dataset, 10);
+    const ma20 = calculateLatestMA(dataset, 20);
+
+    if (!Number.isFinite(ma5) || !Number.isFinite(ma10) || !Number.isFinite(ma20)) {
+        signalBadge.style.display = 'none';
+        signalBadge.textContent = '';
+        return;
+    }
+
+    if (ma5 > ma10 && ma10 > ma20) {
+        signalBadge.textContent = 'MA趋势多头排列';
+        signalBadge.style.display = '';
+    } else if (ma5 < ma10 && ma10 < ma20) {
+        signalBadge.textContent = 'MA趋势空头排列';
+        signalBadge.style.display = '';
+    } else {
+        signalBadge.style.display = 'none';
+        signalBadge.textContent = '';
+    }
 }
 
 function updateProfileAvailabilityPanel() {
@@ -2377,107 +2413,6 @@ function compressToMonthly(dailyData) {
     return monthly;
 }
 
-function calculateSimpleMA(dataList, period) {
-    if (!Array.isArray(dataList) || dataList.length < period) return null;
-    let sum = 0;
-    for (let i = dataList.length - period; i < dataList.length; i++) {
-        const close = Number(dataList[i]?.close);
-        if (!Number.isFinite(close)) return null;
-        sum += close;
-    }
-    return sum / period;
-}
-
-// Update Analysis and Stats Sidebar Panels
-function updateSidebarWidget() {
-    const baseCode = state.activeContract;
-    const contract = state.contracts[baseCode];
-    const dataContainer = state.futuresData[baseCode];
-    if (!dataContainer) return;
-    const dataList = dataContainer.daily;
-    if (!dataList || !dataList.length) return;
-    
-    const last = dataList[dataList.length - 1];
-    
-    // 1. Basic Stats updates (check if elements exist)
-    const statClosePrice = document.getElementById('statClosePrice');
-    if (statClosePrice) statClosePrice.textContent = last.close.toFixed(1);
-    
-    const statVolume = document.getElementById('statVolume');
-    if (statVolume) statVolume.textContent = window.activeChart.formatVolume(last.volume);
-    
-    const statHold = document.getElementById('statHold');
-    if (statHold) statHold.textContent = window.activeChart.formatVolume(last.hold);
-    
-    const marginHand = last.close * contract.multiplier * contract.marginRate;
-    const statMarginValue = document.getElementById('statMarginValue');
-    if (statMarginValue) statMarginValue.textContent = `¥${marginHand.toFixed(0)}`;
-    
-    // 2. Mock term structure (basis curves)
-    const structureBarContainer = document.getElementById('termStructureGraph');
-    if (structureBarContainer) {
-        structureBarContainer.innerHTML = '';
-        
-        // Generate pseudo curves for near month, main, and far month
-        const base = last.close;
-        const labels = ['07合约', '09合约(主)', '11合约', '01合约'];
-        
-        // Define if it is Contango (ascending) or Backwardation (descending) based on base code seed
-        const isBack = baseCode.charCodeAt(0) % 2 === 0; 
-        const slope = isBack ? -0.015 : 0.012;
-        
-        labels.forEach((lbl, idx) => {
-            const priceFactor = 1 + (idx - 1) * slope + (Math.random() - 0.5) * 0.002;
-            const priceVal = base * priceFactor;
-            
-            const col = document.createElement('div');
-            col.className = 'term-bar-col';
-            
-            // Normalize heights (min height 20%, max height 90%)
-            const heightPercent = 20 + 70 * (priceFactor - (1 - 2*Math.abs(slope))) / (4*Math.abs(slope));
-            
-            col.innerHTML = `
-                <div class="term-bar" style="height: ${Math.max(10, Math.min(100, heightPercent))}%" title="预估价: ${priceVal.toFixed(1)}"></div>
-                <span class="term-label">${lbl}</span>
-            `;
-            structureBarContainer.appendChild(col);
-        });
-        
-        const termStatus = document.getElementById('termStructureStatus');
-        if (termStatus) {
-            termStatus.textContent = isBack ? '期限结构：贴水 (Backwardation) 远月贴水' : '期限结构：升水 (Contango) 远月升水';
-            termStatus.className = isBack ? 'stats-value price-up' : 'stats-value price-down';
-        }
-    }
-    
-    // 3. CTA Technical Signals computations (moving averages based)
-    const signalBadge = document.getElementById('statCtaSignal');
-    const ma5 = calculateSimpleMA(dataList, 5);
-    const ma20 = calculateSimpleMA(dataList, 20);
-    const statMa5Value = document.getElementById('statMa5Value');
-    const statMa20Value = document.getElementById('statMa20Value');
-    if (statMa5Value) statMa5Value.textContent = Number.isFinite(ma5) ? ma5.toFixed(1) : '--';
-    if (statMa20Value) statMa20Value.textContent = Number.isFinite(ma20) ? ma20.toFixed(1) : '--';
-
-    if (signalBadge) {
-        if (Number.isFinite(ma5) && Number.isFinite(ma20)) {
-            if (last.close > ma5 && ma5 > ma20) {
-                signalBadge.textContent = '看多 (Bullish)';
-                signalBadge.className = 'signal-badge signal-buy';
-            } else if (last.close < ma5 && ma5 < ma20) {
-                signalBadge.textContent = '看空 (Bearish)';
-                signalBadge.className = 'signal-badge signal-sell';
-            } else {
-                signalBadge.textContent = '中性 (Neutral)';
-                signalBadge.className = 'signal-badge signal-neutral';
-            }
-        } else {
-            signalBadge.textContent = '计算中';
-            signalBadge.className = 'signal-badge signal-neutral';
-        }
-    }
-}
-
 // Live simulated price variation timer
 let liveTickerInterval;
 function startLiveTickerTimer() {
@@ -2556,7 +2491,6 @@ function startLiveTickerTimer() {
             // Redraw chart canvas if the active contract is updated
             if (sym === state.activeContract && window.activeChart) {
                 updateChartData();
-                updateSidebarWidget();
             }
         }
     }, 1800);

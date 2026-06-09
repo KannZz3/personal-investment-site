@@ -112,12 +112,15 @@
                                 </div>
                                 
                                 <!-- Indicators Toggles (collapsible) -->
-                                <div class="indicator-group" id="indicatorGroup">
-                                    <button class="btn-tab indicator-extra" id="indicatorMA5" title="5日均线">MA5</button>
-                                    <button class="btn-tab indicator-extra" id="indicatorMA10" title="10日均线">MA10</button>
-                                    <button class="btn-tab indicator-extra" id="indicatorMA20" title="20日均线">MA20</button>
-                                    <button class="btn-tab indicator-always active" id="indicatorVolume" title="成交量副图">VOL</button>
-                                    <button class="btn-tab indicator-toggle-btn" id="indicatorToggle" title="展开/收起均线">»</button>
+                                <div class="indicator-stack">
+                                    <span class="ma-trend-signal" id="maTrendSignalBadge" style="display: none;"></span>
+                                    <div class="indicator-group" id="indicatorGroup">
+                                        <button class="btn-tab indicator-extra" id="indicatorMA5" title="5日均线">MA5</button>
+                                        <button class="btn-tab indicator-extra" id="indicatorMA10" title="10日均线">MA10</button>
+                                        <button class="btn-tab indicator-extra" id="indicatorMA20" title="20日均线">MA20</button>
+                                        <button class="btn-tab indicator-always active" id="indicatorVolume" title="成交量副图">VOL</button>
+                                        <button class="btn-tab indicator-toggle-btn" id="indicatorToggle" title="展开/收起均线">»</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -150,54 +153,6 @@
                             <span class="profile-limit-item" id="profileLimitWarning" style="display: none;">--</span>
                         </div>
                     </div>
-
-                    <aside class="dashboard-sidebar" aria-label="合约侧边栏">
-                        <div class="sidebar-widget">
-                            <h3 class="widget-title">合约概览</h3>
-                            <div class="stats-list">
-                                <div class="stats-row">
-                                    <span class="stats-label">最新价</span>
-                                    <span class="stats-value" id="statClosePrice">--</span>
-                                </div>
-                                <div class="stats-row">
-                                    <span class="stats-label">成交量</span>
-                                    <span class="stats-value" id="statVolume">--</span>
-                                </div>
-                                <div class="stats-row">
-                                    <span class="stats-label">持仓量</span>
-                                    <span class="stats-value" id="statHold">--</span>
-                                </div>
-                                <div class="stats-row">
-                                    <span class="stats-label">单手保证金</span>
-                                    <span class="stats-value" id="statMarginValue">--</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="sidebar-widget">
-                            <h3 class="widget-title">日线MA趋势</h3>
-                            <div class="stats-list">
-                                <div class="stats-row">
-                                    <span class="stats-label">MA5</span>
-                                    <span class="stats-value" id="statMa5Value">--</span>
-                                </div>
-                                <div class="stats-row">
-                                    <span class="stats-label">MA20</span>
-                                    <span class="stats-value" id="statMa20Value">--</span>
-                                </div>
-                                <div class="stats-row">
-                                    <span class="stats-label">趋势判断</span>
-                                    <span class="signal-badge signal-neutral" id="statCtaSignal">计算中</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="sidebar-widget">
-                            <h3 class="widget-title">期限结构</h3>
-                            <div class="term-structure-graph" id="termStructureGraph"></div>
-                            <div class="stats-value signal-neutral" id="termStructureStatus">--</div>
-                        </div>
-                    </aside>
                 </div>
             </section>
             
@@ -377,7 +332,7 @@
     <!-- Script Entrypoint -->
     <script src="./profile.js?v=26"></script>
     <script src="./chart.js?v=43"></script>
-    <script src="./app.js?v=36"></script>
+    <script src="./app.js?v=37"></script>
     <script>
         // Trigger initial lucide icons compilation
         document.addEventListener('DOMContentLoaded', () => {
