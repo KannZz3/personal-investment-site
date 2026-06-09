@@ -16,6 +16,7 @@ class FuturesChart {
             ma5: false,
             ma10: false,
             ma20: false,
+            ma40: false,
             volume: true
         };
         
@@ -602,7 +603,8 @@ class FuturesChart {
                 hold: d.hold ? parseFloat(d.hold) : 0,
                 ma5: getMA(5),
                 ma10: getMA(10),
-                ma20: getMA(20)
+                ma20: getMA(20),
+                ma40: getMA(40)
             };
         });
         
@@ -2444,6 +2446,7 @@ class FuturesChart {
             if (this.indicators.ma5) drawMA('ma5', '#f59e0b'); // Amber
             if (this.indicators.ma10) drawMA('ma10', '#ec4899'); // Pink
             if (this.indicators.ma20) drawMA('ma20', '#3b82f6'); // Blue
+            if (this.indicators.ma40) drawMA('ma40', '#14b8a6'); // Teal
         }
 
         // Draw TPO Reference levels on top of K-lines

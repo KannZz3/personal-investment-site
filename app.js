@@ -1994,6 +1994,7 @@ function initializeChartComponent() {
     const ma5Btn  = document.getElementById('indicatorMA5');
     const ma10Btn = document.getElementById('indicatorMA10');
     const ma20Btn = document.getElementById('indicatorMA20');
+    const ma40Btn = document.getElementById('indicatorMA40');
     const volBtn  = document.getElementById('indicatorVolume');
 
     let indicatorExpanded = false;
@@ -2010,9 +2011,10 @@ function initializeChartComponent() {
     wireIndicator(ma5Btn, 'ma5');
     wireIndicator(ma10Btn, 'ma10');
     wireIndicator(ma20Btn, 'ma20');
+    wireIndicator(ma40Btn, 'ma40');
     wireIndicator(volBtn, 'volume');
 
-    // Expand / collapse the extra indicators (MA10, MA20)
+    // Expand / collapse the extra indicators (MA5, MA10, MA20, MA40)
     if (indicatorToggle && indicatorGroup) {
         indicatorToggle.addEventListener('click', () => {
             indicatorExpanded = !indicatorExpanded;
