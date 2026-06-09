@@ -3138,8 +3138,22 @@ function formatCapitalAmount(amount) {
 function calculateDepositedCapital(screening, meta) {
     const contract = meta.contracts?.[screening.code] || {};
     const currentOI = Number(screening.currentOI || contract.openInterest || 0);
+    const marginPerLotLong = Number(contract.marginPerLotLong || 0);
+    const marginPerLotShort = Number(contract.marginPerLotShort || 0);
+    if (marginPerLotLong > 0 && marginPerLotShort > 0) {
+        return currentOI * (marginPerLotLong + marginPerLotShort);
+    }
+    const marginPerLot = Number(contract.marginPerLot || 0);
+    if (marginPerLot > 0) {
+        return currentOI * 2 * marginPerLot;
+    }
     const latestPrice = Number(contract.latestPrice || contract.basePrice || 0);
     const multiplier = Number(contract.multiplier || 0);
+    const marginRateLong = Number(contract.marginRateLong || 0);
+    const marginRateShort = Number(contract.marginRateShort || 0);
+    if (marginRateLong > 0 && marginRateShort > 0) {
+        return currentOI * latestPrice * multiplier * (marginRateLong + marginRateShort);
+    }
     const marginRate = Number(contract.marginRate || 0);
     return currentOI * 2 * latestPrice * multiplier * marginRate;
 }
@@ -3184,7 +3198,7 @@ function buildTechnicalUI(data) {
                 <td><strong>${s.name}</strong> (${s.code})</td>
                 <td>${s.exchange}</td>
                 <td>${(s.currentOI/10000).toFixed(1)}万手</td>
-                <td title="单边持仓 × 2 × 最新价 × 合约乘数 × 最低保证金率">${formatCapitalAmount(depositedCapital)}</td>
+                <td title="优先按单边持仓 ×（多头每手保证金 + 空头每手保证金）计算">${formatCapitalAmount(depositedCapital)}</td>
                 <td>${(s.historicalMaxOI/10000).toFixed(1)}万手</td>
                 <td>${s.historicalMaxDate}</td>
                 <td>
