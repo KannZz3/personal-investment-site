@@ -71,6 +71,10 @@ class FuturesChart {
         this.activeTrendLine = null;
         this.activePolyline = null;
         this.isDraggingDrawing = false;
+        this.drawingStorageKey = 'shan_feng_gu_drawings_v1';
+        this.lastDrawingHit = null;
+        this.lastDrawingHitIndex = 0;
+        this.loadDrawings();
         
         this.initEvents();
     }
@@ -81,7 +85,37 @@ class FuturesChart {
             this.allDrawings[this.symbol] = { hlines: [], trendlines: [], polylines: [] };
         }
         if (!this.allDrawings[this.symbol].trendlines) this.allDrawings[this.symbol].trendlines = [];
+        if (!this.allDrawings[this.symbol].polylines) this.allDrawings[this.symbol].polylines = [];
+        if (!this.allDrawings[this.symbol].hlines) this.allDrawings[this.symbol].hlines = [];
         return this.allDrawings[this.symbol];
+    }
+
+    loadDrawings() {
+        try {
+            const raw = localStorage.getItem(this.drawingStorageKey);
+            if (!raw) return;
+            const saved = JSON.parse(raw);
+            if (saved && typeof saved === 'object') {
+                Object.keys(saved).forEach(symbol => {
+                    const bucket = saved[symbol] || {};
+                    this.allDrawings[symbol] = {
+                        hlines: Array.isArray(bucket.hlines) ? bucket.hlines : [],
+                        trendlines: Array.isArray(bucket.trendlines) ? bucket.trendlines : [],
+                        polylines: Array.isArray(bucket.polylines) ? bucket.polylines : []
+                    };
+                });
+            }
+        } catch (error) {
+            console.warn('Failed to load chart drawings:', error);
+        }
+    }
+
+    saveDrawings() {
+        try {
+            localStorage.setItem(this.drawingStorageKey, JSON.stringify(this.allDrawings));
+        } catch (error) {
+            console.warn('Failed to save chart drawings:', error);
+        }
     }
 
     getPriceHeightParams() {
@@ -152,6 +186,57 @@ class FuturesChart {
     xFromIndex(index) {
         const { candleWidth } = this.getPriceHeightParams();
         return this.paddingLeft + ((index - this.visibleStart) * candleWidth) + (candleWidth / 2);
+    }
+
+    clampDrawingPoint(x, y) {
+        const { priceHeight } = this.getPriceHeightParams();
+        const clampedX = Math.max(this.paddingLeft, Math.min(this.logicalWidth - this.paddingRight, x));
+        const clampedY = Math.max(this.paddingTop, Math.min(this.paddingTop + priceHeight, y));
+        return {
+            index: this.indexFromX(clampedX),
+            price: this.priceFromY(clampedY)
+        };
+    }
+
+    setSelectedDrawing(hit) {
+        this.selectedHLine = hit?.type === 'hline' ? hit.target : null;
+        this.selectedTrendLine = hit?.type === 'trendline' ? hit.target : null;
+        this.selectedPolyline = hit?.type === 'polyline' ? hit.target : null;
+        this.selectedVertexIndex = Number.isInteger(hit?.vertexIndex) ? hit.vertexIndex : null;
+        this.isDraggingDrawing = !!hit?.draggable;
+    }
+
+    getDrawingIdentity(hit) {
+        if (!hit) return '';
+        const bucket = this.drawings;
+        let idx = -1;
+        if (hit.type === 'hline') idx = bucket.hlines.indexOf(hit.target);
+        if (hit.type === 'trendline') idx = bucket.trendlines.indexOf(hit.target);
+        if (hit.type === 'polyline') idx = bucket.polylines.indexOf(hit.target);
+        const vertex = Number.isInteger(hit.vertexIndex) ? hit.vertexIndex : 'body';
+        return `${hit.type}:${idx}:${vertex}`;
+    }
+
+    cycleDrawingHit(candidates, x, y) {
+        if (!candidates.length) return null;
+        candidates.sort((a, b) => a.distance - b.distance);
+        const uniqueCandidates = [];
+        const seen = new Set();
+        for (const candidate of candidates) {
+            const identity = this.getDrawingIdentity(candidate);
+            if (seen.has(identity)) continue;
+            seen.add(identity);
+            uniqueCandidates.push(candidate);
+        }
+        candidates = uniqueCandidates;
+        if (!candidates.length) return null;
+        const clickKey = `${Math.round(x / 6)}:${Math.round(y / 6)}`;
+        const sameSpot = this.lastDrawingHit && this.lastDrawingHit.key === clickKey;
+        const startIndex = sameSpot ? (this.lastDrawingHitIndex + 1) % candidates.length : 0;
+        const selected = candidates[startIndex];
+        this.lastDrawingHit = { key: clickKey, identity: this.getDrawingIdentity(selected) };
+        this.lastDrawingHitIndex = startIndex;
+        return selected;
     }
 
     distanceToSegment(px, py, x1, y1, x2, y2) {
@@ -328,6 +413,104 @@ class FuturesChart {
         }
 
         return nearestDistance <= tolerance ? nearest : null;
+    }
+
+    getDrawingHitCandidates(px, py, { vertexTol = 14, bodyTol = 12 } = {}) {
+        const candidates = [];
+
+        for (let hl of this.drawings.hlines) {
+            const y = this.yFromPrice(hl.price);
+            const distance = Math.abs(py - y);
+            if (distance <= bodyTol) {
+                candidates.push({
+                    type: 'hline',
+                    target: hl,
+                    vertexIndex: null,
+                    distance,
+                    draggable: true
+                });
+            }
+        }
+
+        for (let tl of this.drawings.trendlines) {
+            if (!tl.points || tl.points.length < 2) continue;
+            tl.points.forEach((pt, idxVal) => {
+                const x = this.xFromIndex(pt.index);
+                const y = this.yFromPrice(pt.price);
+                const distance = Math.hypot(px - x, py - y);
+                if (distance <= vertexTol) {
+                    candidates.push({
+                        type: 'trendline',
+                        target: tl,
+                        vertexIndex: idxVal,
+                        distance,
+                        draggable: true
+                    });
+                }
+            });
+
+            const renderLine = this.getTrendLineRenderPoints(tl);
+            if (renderLine) {
+                const [p1, p2] = tl.points;
+                const x1 = this.xFromIndex(p1.index);
+                const y1 = this.yFromPrice(p1.price);
+                const x2 = this.xFromIndex(p2.index);
+                const y2 = this.yFromPrice(p2.price);
+                const extendedDistance = this.distanceToSegment(px, py, renderLine.x1, renderLine.y1, renderLine.x2, renderLine.y2);
+                const anchorDistance = this.distanceToSegment(px, py, x1, y1, x2, y2);
+                const distance = Math.min(extendedDistance, anchorDistance);
+                if (distance <= bodyTol) {
+                    const d1 = Math.hypot(px - x1, py - y1);
+                    const d2 = Math.hypot(px - x2, py - y2);
+                    candidates.push({
+                        type: 'trendline',
+                        target: tl,
+                        vertexIndex: d1 <= d2 ? 0 : 1,
+                        distance,
+                        draggable: true
+                    });
+                }
+            }
+        }
+
+        for (let pl of this.drawings.polylines) {
+            if (!pl.points || !pl.points.length) continue;
+            pl.points.forEach((pt, idxVal) => {
+                const x = this.xFromIndex(pt.index);
+                const y = this.yFromPrice(pt.price);
+                const distance = Math.hypot(px - x, py - y);
+                if (distance <= vertexTol) {
+                    candidates.push({
+                        type: 'polyline',
+                        target: pl,
+                        vertexIndex: idxVal,
+                        distance,
+                        draggable: true
+                    });
+                }
+            });
+
+            for (let idxVal = 0; idxVal < pl.points.length - 1; idxVal++) {
+                const x1 = this.xFromIndex(pl.points[idxVal].index);
+                const y1 = this.yFromPrice(pl.points[idxVal].price);
+                const x2 = this.xFromIndex(pl.points[idxVal + 1].index);
+                const y2 = this.yFromPrice(pl.points[idxVal + 1].price);
+                const distance = this.distanceToSegment(px, py, x1, y1, x2, y2);
+                if (distance <= bodyTol) {
+                    const d1 = Math.hypot(px - x1, py - y1);
+                    const d2 = Math.hypot(px - x2, py - y2);
+                    candidates.push({
+                        type: 'polyline',
+                        target: pl,
+                        vertexIndex: d1 <= d2 ? idxVal : idxVal + 1,
+                        distance,
+                        draggable: true
+                    });
+                }
+            }
+        }
+
+        return candidates;
     }
 
     parseBarDate(rawDate) {
@@ -992,18 +1175,13 @@ class FuturesChart {
             
             // Dragging logic for drawings
             if (this.isDraggingDrawing) {
+                const clampedPoint = this.clampDrawingPoint(this.mouseX, this.mouseY);
                 if (this.selectedHLine) {
-                    this.selectedHLine.price = this.priceFromY(this.mouseY);
+                    this.selectedHLine.price = clampedPoint.price;
                 } else if (this.selectedTrendLine && this.selectedVertexIndex !== null) {
-                    this.selectedTrendLine.points[this.selectedVertexIndex] = {
-                        index: this.indexFromX(this.mouseX),
-                        price: this.priceFromY(this.mouseY)
-                    };
+                    this.selectedTrendLine.points[this.selectedVertexIndex] = clampedPoint;
                 } else if (this.selectedPolyline && this.selectedVertexIndex !== null) {
-                    this.selectedPolyline.points[this.selectedVertexIndex] = {
-                        index: this.indexFromX(this.mouseX),
-                        price: this.priceFromY(this.mouseY)
-                    };
+                    this.selectedPolyline.points[this.selectedVertexIndex] = clampedPoint;
                 }
             } else if (this.isPanning && this.data.length) { // Panning logic
                 const visibleCount = this.visibleEnd - this.visibleStart;
@@ -1056,9 +1234,21 @@ class FuturesChart {
             if (this.drawingMode !== 'none') {
                 let found = false;
                 const { priceHeight } = this.getPriceHeightParams();
+                const drawingHit = this.cycleDrawingHit(
+                    this.getDrawingHitCandidates(mouseX, mouseY, { vertexTol: 14, bodyTol: 12 }),
+                    mouseX,
+                    mouseY
+                );
+
+                if (drawingHit) {
+                    this.setSelectedDrawing(drawingHit);
+                    if (this.updateDrawingBtnStates) this.updateDrawingBtnStates();
+                    this.render();
+                    return;
+                }
 
                 // 1. Check if near horizontal lines
-                const hline = this.findNearestHLine(mouseY, 24);
+                const hline = this.findNearestHLine(mouseY, 12);
                 if (hline) {
                     this.selectedHLine = hline;
                     this.selectedTrendLine = null;
@@ -1092,7 +1282,7 @@ class FuturesChart {
 
                 // 3. Check if near trendline body
                 if (!found) {
-                    const trendlineHit = this.findNearestTrendLineHandle(mouseX, mouseY, 24);
+                    const trendlineHit = this.findNearestTrendLineHandle(mouseX, mouseY, 12);
                     if (trendlineHit) {
                         this.selectedTrendLine = trendlineHit.trendline;
                         this.selectedVertexIndex = trendlineHit.vertexIndex;
@@ -1127,7 +1317,7 @@ class FuturesChart {
 
                 // 5. Check if near polyline segments (distance from point to line segment)
                 if (!found) {
-                    const segmentHit = this.findNearestPolylineSegment(mouseX, mouseY, 24);
+                    const segmentHit = this.findNearestPolylineSegment(mouseX, mouseY, 12);
                     if (segmentHit) {
                         this.selectedPolyline = segmentHit.polyline;
                         this.selectedVertexIndex = segmentHit.vertexIndex;
@@ -1187,6 +1377,7 @@ class FuturesChart {
                             this.selectedTrendLine = null;
                         }
                     }
+                    this.saveDrawings();
                     if (this.updateDrawingBtnStates) this.updateDrawingBtnStates();
                     this.render();
                     return;
@@ -1201,12 +1392,14 @@ class FuturesChart {
 
         // Release mouse drag globally
         window.addEventListener('mouseup', () => {
+            if (this.isDraggingDrawing) this.saveDrawings();
             this.isPanning = false;
             this.isDraggingScrollbar = false;
             this.isDraggingDrawing = false;
         });
 
         window.addEventListener('touchend', () => {
+            if (this.isDraggingDrawing) this.saveDrawings();
             this.isPanning = false;
             this.isDraggingScrollbar = false;
             this.isDraggingDrawing = false;
@@ -1282,9 +1475,21 @@ class FuturesChart {
                 e.preventDefault();
                 let found = false;
                 const { priceHeight } = this.getPriceHeightParams();
+                const drawingHit = this.cycleDrawingHit(
+                    this.getDrawingHitCandidates(touchX, touchY, { vertexTol: 24, bodyTol: 12 }),
+                    touchX,
+                    touchY
+                );
+
+                if (drawingHit) {
+                    this.setSelectedDrawing(drawingHit);
+                    if (this.updateDrawingBtnStates) this.updateDrawingBtnStates();
+                    this.render();
+                    return;
+                }
 
                 // 1. Check if near horizontal lines
-                const hline = this.findNearestHLine(touchY, 32);
+                const hline = this.findNearestHLine(touchY, 12);
                 if (hline) {
                     this.selectedHLine = hline;
                     this.selectedTrendLine = null;
@@ -1318,7 +1523,7 @@ class FuturesChart {
 
                 // 3. Check if near trendline body
                 if (!found) {
-                    const trendlineHit = this.findNearestTrendLineHandle(touchX, touchY, 32);
+                    const trendlineHit = this.findNearestTrendLineHandle(touchX, touchY, 12);
                     if (trendlineHit) {
                         this.selectedTrendLine = trendlineHit.trendline;
                         this.selectedVertexIndex = trendlineHit.vertexIndex;
@@ -1353,7 +1558,7 @@ class FuturesChart {
 
                 // 5. Check if near polyline segments
                 if (!found) {
-                    const segmentHit = this.findNearestPolylineSegment(touchX, touchY, 32);
+                    const segmentHit = this.findNearestPolylineSegment(touchX, touchY, 12);
                     if (segmentHit) {
                         this.selectedPolyline = segmentHit.polyline;
                         this.selectedVertexIndex = segmentHit.vertexIndex;
@@ -1413,6 +1618,7 @@ class FuturesChart {
                             this.selectedTrendLine = null;
                         }
                     }
+                    this.saveDrawings();
                     if (this.updateDrawingBtnStates) this.updateDrawingBtnStates();
                     this.render();
                     return;
@@ -1464,19 +1670,14 @@ class FuturesChart {
                 const coords = this.getEventCoords(e.touches[0].clientX, e.touches[0].clientY);
                 const touchX = coords.x;
                 const touchY = coords.y;
+                const clampedPoint = this.clampDrawingPoint(touchX, touchY);
 
                 if (this.selectedHLine) {
-                    this.selectedHLine.price = this.priceFromY(touchY);
+                    this.selectedHLine.price = clampedPoint.price;
                 } else if (this.selectedTrendLine && this.selectedVertexIndex !== null) {
-                    this.selectedTrendLine.points[this.selectedVertexIndex] = {
-                        index: this.indexFromX(touchX),
-                        price: this.priceFromY(touchY)
-                    };
+                    this.selectedTrendLine.points[this.selectedVertexIndex] = clampedPoint;
                 } else if (this.selectedPolyline && this.selectedVertexIndex !== null) {
-                    this.selectedPolyline.points[this.selectedVertexIndex] = {
-                        index: this.indexFromX(touchX),
-                        price: this.priceFromY(touchY)
-                    };
+                    this.selectedPolyline.points[this.selectedVertexIndex] = clampedPoint;
                 }
             } else if (this.isTouchPanning && e.touches.length === 1) {
                 const coords = this.getEventCoords(e.touches[0].clientX, e.touches[0].clientY);
@@ -1590,11 +1791,16 @@ class FuturesChart {
         const deleteDrawingBtn = document.getElementById('deleteDrawingBtn');
 
         const discardActiveTrendLine = () => {
+            let removed = false;
             if (this.activeTrendLine && this.activeTrendLine.points && this.activeTrendLine.points.length < 2) {
                 const idx = this.drawings.trendlines.indexOf(this.activeTrendLine);
-                if (idx > -1) this.drawings.trendlines.splice(idx, 1);
+                if (idx > -1) {
+                    this.drawings.trendlines.splice(idx, 1);
+                    removed = true;
+                }
             }
             this.activeTrendLine = null;
+            if (removed) this.saveDrawings();
         };
 
         const updateBtnStates = () => {
@@ -1723,6 +1929,7 @@ class FuturesChart {
                     this.selectedVertexIndex = null;
                     this.activePolyline = null;
                 }
+                this.saveDrawings();
                 updateBtnStates();
                 this.render();
             });
