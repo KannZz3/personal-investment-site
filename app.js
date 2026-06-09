@@ -3128,6 +3128,22 @@ function closeArticleReader() {
 /* TECHNICAL ANOMALY UI BUILDER */
 // ==========================================================================
 
+function formatCapitalAmount(amount) {
+    if (!Number.isFinite(amount) || amount <= 0) return '--';
+    if (amount >= 100000000) return `${(amount / 100000000).toFixed(1)}亿`;
+    if (amount >= 10000) return `${(amount / 10000).toFixed(1)}万`;
+    return Math.round(amount).toLocaleString('zh-CN');
+}
+
+function calculateDepositedCapital(screening, meta) {
+    const contract = meta.contracts?.[screening.code] || {};
+    const currentOI = Number(screening.currentOI || contract.openInterest || 0);
+    const latestPrice = Number(contract.latestPrice || contract.basePrice || 0);
+    const multiplier = Number(contract.multiplier || 0);
+    const marginRate = Number(contract.marginRate || 0);
+    return currentOI * 2 * latestPrice * multiplier * marginRate;
+}
+
 function buildTechnicalUI(data) {
     const meta = data.metadata;
     if (!meta) return;
@@ -3162,11 +3178,13 @@ function buildTechnicalUI(data) {
             let fillColor = 'var(--text-muted)';
             if (s.alert === 'new_high') fillColor = '#ef4444';
             else if (s.alert === 'near_high') fillColor = '#f59e0b';
+            const depositedCapital = calculateDepositedCapital(s, meta);
             
             tr.innerHTML = `
                 <td><strong>${s.name}</strong> (${s.code})</td>
                 <td>${s.exchange}</td>
                 <td>${(s.currentOI/10000).toFixed(1)}万手</td>
+                <td title="单边持仓 × 2 × 最新价 × 合约乘数 × 最低保证金率">${formatCapitalAmount(depositedCapital)}</td>
                 <td>${(s.historicalMaxOI/10000).toFixed(1)}万手</td>
                 <td>${s.historicalMaxDate}</td>
                 <td>
