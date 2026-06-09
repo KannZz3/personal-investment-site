@@ -317,6 +317,13 @@ main {
     margin-top: 1.5rem;
 }
 
+@media (min-width: 1280px) {
+    .dashboard-grid {
+        grid-template-columns: minmax(0, 1fr) 280px;
+        align-items: start;
+    }
+}
+
 /* Market Tickers List */
 .tickers-scroll-container {
     display: flex;

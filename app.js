@@ -2377,6 +2377,17 @@ function compressToMonthly(dailyData) {
     return monthly;
 }
 
+function calculateSimpleMA(dataList, period) {
+    if (!Array.isArray(dataList) || dataList.length < period) return null;
+    let sum = 0;
+    for (let i = dataList.length - period; i < dataList.length; i++) {
+        const close = Number(dataList[i]?.close);
+        if (!Number.isFinite(close)) return null;
+        sum += close;
+    }
+    return sum / period;
+}
+
 // Update Analysis and Stats Sidebar Panels
 function updateSidebarWidget() {
     const baseCode = state.activeContract;
@@ -2441,11 +2452,15 @@ function updateSidebarWidget() {
     
     // 3. CTA Technical Signals computations (moving averages based)
     const signalBadge = document.getElementById('statCtaSignal');
+    const ma5 = calculateSimpleMA(dataList, 5);
+    const ma20 = calculateSimpleMA(dataList, 20);
+    const statMa5Value = document.getElementById('statMa5Value');
+    const statMa20Value = document.getElementById('statMa20Value');
+    if (statMa5Value) statMa5Value.textContent = Number.isFinite(ma5) ? ma5.toFixed(1) : '--';
+    if (statMa20Value) statMa20Value.textContent = Number.isFinite(ma20) ? ma20.toFixed(1) : '--';
+
     if (signalBadge) {
-        const ma5 = last.ma5;
-        const ma20 = last.ma20;
-        
-        if (ma5 && ma20) {
+        if (Number.isFinite(ma5) && Number.isFinite(ma20)) {
             if (last.close > ma5 && ma5 > ma20) {
                 signalBadge.textContent = '看多 (Bullish)';
                 signalBadge.className = 'signal-badge signal-buy';
