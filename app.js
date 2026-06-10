@@ -4098,8 +4098,120 @@ function renderArticles(category) {
     if (window.lucide) window.lucide.createIcons();
 }
 
+function escapeArticleHtml(text) {
+    return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function splitArticleColumns(line) {
+    return line.trim().split(/\s{2,}/).map(cell => cell.trim()).filter(Boolean);
+}
+
+function isArticleTableBlock(lines) {
+    if (lines.length < 2) return false;
+    const counts = lines.map(line => splitArticleColumns(line).length);
+    const usableRows = counts.filter(count => count >= 2).length;
+    const hasFormula = lines.some(line => /[=≈→×÷]/.test(line));
+    return usableRows >= 2 && counts[0] >= 2 && usableRows >= Math.ceil(lines.length * 0.75) && !hasFormula;
+}
+
+function isArticleFormulaBlock(lines) {
+    if (!lines.length || lines.length > 6) return false;
+    const joined = lines.join(' ');
+    const hasMathSignal = /[=≈→×÷＋+\-−]/.test(joined);
+    const mostlyCompact = lines.every(line => line.length <= 140);
+    const notSentenceHeavy = !/[。；；]/.test(joined) || lines.some(line => /[=≈→×÷]/.test(line));
+    return hasMathSignal && mostlyCompact && notSentenceHeavy;
+}
+
+function isArticleShortList(lines) {
+    if (lines.length < 2 || lines.length > 8) return false;
+    return lines.every(line => line.length <= 52 && !/[。？！：:]$/.test(line));
+}
+
+function renderArticleTable(lines) {
+    const rows = lines.map(splitArticleColumns).filter(row => row.length >= 2);
+    const width = Math.max(...rows.map(row => row.length));
+    const normalized = rows.map(row => {
+        const cells = row.slice();
+        while (cells.length < width) cells.push('');
+        return cells;
+    });
+
+    const header = normalized[0];
+    const body = normalized.slice(1);
+    return `
+        <div class="article-table-wrap">
+            <table class="article-data-table">
+                <thead>
+                    <tr>${header.map(cell => `<th>${escapeArticleHtml(cell)}</th>`).join('')}</tr>
+                </thead>
+                <tbody>
+                    ${body.map(row => `<tr>${row.map(cell => `<td>${escapeArticleHtml(cell)}</td>`).join('')}</tr>`).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+function renderArticleBlock(block) {
+    const lines = block.split('\n').map(line => line.trim()).filter(Boolean);
+    if (!lines.length) return '';
+    const first = lines[0];
+
+    if (/^[一二三四五六七八九十]+、/.test(first) && lines.length === 1) {
+        return `<h2 class="article-section-heading">${escapeArticleHtml(first)}</h2>`;
+    }
+
+    if (/^\d+\.\s+/.test(first) && lines.length === 1) {
+        return `<h3 class="article-subheading">${escapeArticleHtml(first)}</h3>`;
+    }
+
+    if (/^\d+\.\d+\s+/.test(first) && lines.length === 1) {
+        return `<h4 class="article-minor-heading">${escapeArticleHtml(first)}</h4>`;
+    }
+
+    if (/^(结论先行|最终结论)[：:]/.test(first) && lines.length === 1) {
+        return `<div class="article-callout article-callout-title">${escapeArticleHtml(first)}</div>`;
+    }
+
+    if (isArticleTableBlock(lines)) {
+        return renderArticleTable(lines);
+    }
+
+    if (isArticleFormulaBlock(lines)) {
+        return `<pre class="article-formula-block">${lines.map(escapeArticleHtml).join('\n')}</pre>`;
+    }
+
+    if (isArticleShortList(lines)) {
+        return `<ul class="article-clean-list">${lines.map(line => `<li>${escapeArticleHtml(line)}</li>`).join('')}</ul>`;
+    }
+
+    if (lines.length === 1 && /[：:]$/.test(first) && first.length <= 48) {
+        return `<p class="article-lead-label">${escapeArticleHtml(first)}</p>`;
+    }
+
+    return lines.map(line => `<p>${escapeArticleHtml(line)}</p>`).join('');
+}
+
+function enhanceLongformArticle(root) {
+    const source = root.querySelector('.article-longform');
+    if (!source || source.dataset.enhanced === 'true') return;
+
+    const rawText = source.textContent.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+    const blocks = rawText.split(/\n\s*\n/).map(block => block.trim()).filter(Boolean);
+    source.innerHTML = blocks.map(renderArticleBlock).join('');
+    source.dataset.enhanced = 'true';
+    source.classList.add('article-longform-enhanced');
+}
+
 function openArticleReader(article) {
     const overlay = document.getElementById('readerOverlay');
+    const body = document.getElementById('readerBody');
     
     document.getElementById('readerCategory').textContent = article.categoryName;
     document.getElementById('readerTitle').textContent = article.title;
@@ -4107,7 +4219,8 @@ function openArticleReader(article) {
     document.getElementById('readerReadTime').textContent = `阅读时长约: ${article.readTime}`;
     document.getElementById('readerAuthor').textContent = article.author;
     document.getElementById('readerAuthorAvatar').textContent = article.avatar;
-    document.getElementById('readerBody').innerHTML = article.content;
+    body.innerHTML = article.content;
+    enhanceLongformArticle(body);
     
     // Lock outer body scrolling
     document.body.style.overflow = 'hidden';
