@@ -997,6 +997,11 @@ main {
     margin-bottom: 0.5rem;
 }
 
+.reader-body .article-longform {
+    white-space: pre-line;
+    line-height: 1.9;
+}
+
 /* ==========================================================================
    POSITION RISK CALCULATOR
    ========================================================================== */
