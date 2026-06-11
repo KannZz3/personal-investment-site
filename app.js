@@ -5701,7 +5701,7 @@ function buildCapitalAnchorTable(meta) {
         .sort((a, b) => b.depositedCapital - a.depositedCapital);
 
     if (subtitle) {
-        subtitle.textContent = `沉淀资金 > 25亿: ${rows.length}`;
+        subtitle.textContent = `沉淀资金 > 25亿: ${rows.length}个`;
     }
 
     tbody.innerHTML = '';
