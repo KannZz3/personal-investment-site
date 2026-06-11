@@ -5659,6 +5659,12 @@ function formatDeviationRate(value) {
     return `${(value * 100).toFixed(1)}%`;
 }
 
+function formatOiRatio(value) {
+    const num = Number(value);
+    if (!Number.isFinite(num)) return '--';
+    return `${(num * 100).toFixed(1)}%`;
+}
+
 function calculateDepositedCapital(screening, meta) {
     const contract = meta.contracts?.[screening.code] || {};
     const currentOI = Number(screening.currentOI || contract.openInterest || 0);
@@ -5700,7 +5706,7 @@ function buildCapitalAnchorTable(meta) {
 
     tbody.innerHTML = '';
     if (rows.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="tech-table-loading">暂无沉淀资金超过25亿的主力合约</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="tech-table-loading">暂无沉淀资金超过25亿的主力合约</td></tr>';
         return;
     }
 
@@ -5719,6 +5725,7 @@ function buildCapitalAnchorTable(meta) {
             <td><strong>${row.name}</strong> (${row.code})</td>
             <td>${row.exchange}</td>
             <td title="按天勤每手保证金计算：单边持仓 ×（多头每手保证金 + 空头每手保证金）">${formatCapitalAmount(row.depositedCapital)}</td>
+            <td>${formatOiRatio(row.oiRatio)}</td>
             <td>${formatMarketPrice(row.closePrice)}</td>
             <td>${anchorText}</td>
             <td>${deviationText}</td>
