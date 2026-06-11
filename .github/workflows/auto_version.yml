@@ -1,0 +1,58 @@
+name: 自动更新静态资源缓存版本号
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'app.js'
+      - 'style.css'
+      - 'chart.js'
+      - 'profile.js'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: auto-version-bump
+  cancel-in-progress: true
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    steps:
+      - name: 检出代码仓库
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 更新 index.html 中的版本号
+        shell: python
+        run: |
+          import re
+          import subprocess
+
+          # 获取最新的 short commit hash
+          commit_hash = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('utf-8').strip()
+          print(f"Setting asset versions to: {commit_hash}")
+
+          with open('index.html', 'r', encoding='utf-8') as f:
+              html = f.read()
+
+          # 替换样式表和脚本的版本参数为 commit hash
+          html = re.sub(r'(href="\./style\.css\?v=)[^"]*', rf'\g<1>{commit_hash}', html)
+          html = re.sub(r'(src="\./profile\.js\?v=)[^"]*', rf'\g<1>{commit_hash}', html)
+          html = re.sub(r'(src="\./chart\.js\?v=)[^"]*', rf'\g<1>{commit_hash}', html)
+          html = re.sub(r'(src="\./app\.js\?v=)[^"]*', rf'\g<1>{commit_hash}', html)
+
+          with open('index.html', 'w', encoding='utf-8') as f:
+              f.write(html)
+
+      - name: 提交并推送版本更新
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          # 仅在有实际变化时提交并推送，避免空提交报错，并使用 [skip ci] 确保不循环触发
+          git diff-index --quiet HEAD || (git commit -m "chore: auto-bump asset versions to $(git rev-parse --short HEAD) [skip ci]" && git push)
