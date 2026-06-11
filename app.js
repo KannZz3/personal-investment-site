@@ -10,12 +10,12 @@ const state = {
     theme: 'dark',
     activeTab: 'dashboard',
     contracts: {
-        'AU': { name: '沪金主力',   symbol: 'AU',  exchange: 'SHFE', basePrice: 980,   multiplier: 1000, marginRate: 0.08, unit: '克' },
-        'CU': { name: '沪铜主力',   symbol: 'CU',  exchange: 'SHFE', basePrice: 106000,multiplier: 5,    marginRate: 0.10, unit: '吨' },
-        'RB': { name: '螺纹钢主力', symbol: 'RB',  exchange: 'SHFE', basePrice: 3150,  multiplier: 10,   marginRate: 0.09, unit: '吨' },
-        'SC': { name: '原油主力',   symbol: 'SC',  exchange: 'INE',  basePrice: 595,   multiplier: 1000, marginRate: 0.11, unit: '桶' },
-        'SR': { name: '白糖主力',   symbol: 'SR',  exchange: 'CZCE', basePrice: 5350,  multiplier: 10,   marginRate: 0.07, unit: '吨' },
-        'TA': { name: 'PTA主力',    symbol: 'TA',  exchange: 'CZCE', basePrice: 6180,  multiplier: 5,    marginRate: 0.08, unit: '吨' }
+        'AU': { name: '沪金主力',   symbol: 'AU',  exchange: 'SHFE', basePrice: 980,   multiplier: 1000, unit: '克' },
+        'CU': { name: '沪铜主力',   symbol: 'CU',  exchange: 'SHFE', basePrice: 106000,multiplier: 5,    unit: '吨' },
+        'RB': { name: '螺纹钢主力', symbol: 'RB',  exchange: 'SHFE', basePrice: 3150,  multiplier: 10,   unit: '吨' },
+        'SC': { name: '原油主力',   symbol: 'SC',  exchange: 'INE',  basePrice: 595,   multiplier: 1000, unit: '桶' },
+        'SR': { name: '白糖主力',   symbol: 'SR',  exchange: 'CZCE', basePrice: 5350,  multiplier: 10,   unit: '吨' },
+        'TA': { name: 'PTA主力',    symbol: 'TA',  exchange: 'CZCE', basePrice: 6180,  multiplier: 5,    unit: '吨' }
     },
     activeContract: 'CU',
     chartPeriod: 'D', // 'D' (日K), 'W' (周K), 'Month' (月K), '5M', '15M', '30M', '60M', '240M'
@@ -5631,11 +5631,32 @@ function closeArticleReader() {
 /* TECHNICAL ANOMALY UI BUILDER */
 // ==========================================================================
 
+const COST_ANCHORS = {
+    FG: 1000,
+    LH: 11500,
+    SA: 1150,
+    CF: 11500,
+    SI: 6500,
+    SP: 4600,
+    P: 4500,
+};
+
 function formatCapitalAmount(amount) {
     if (!Number.isFinite(amount) || amount <= 0) return '--';
     if (amount >= 100000000) return `${(amount / 100000000).toFixed(1)}亿`;
     if (amount >= 10000) return `${(amount / 10000).toFixed(1)}万`;
     return Math.round(amount).toLocaleString('zh-CN');
+}
+
+function formatMarketPrice(value) {
+    const num = Number(value);
+    if (!Number.isFinite(num) || num <= 0) return '--';
+    return num.toFixed(1);
+}
+
+function formatDeviationRate(value) {
+    if (!Number.isFinite(value)) return '--';
+    return `${(value * 100).toFixed(1)}%`;
 }
 
 function calculateDepositedCapital(screening, meta) {
@@ -5650,15 +5671,61 @@ function calculateDepositedCapital(screening, meta) {
     if (marginPerLot > 0) {
         return currentOI * 2 * marginPerLot;
     }
-    const latestPrice = Number(contract.latestPrice || contract.basePrice || 0);
-    const multiplier = Number(contract.multiplier || 0);
-    const marginRateLong = Number(contract.marginRateLong || 0);
-    const marginRateShort = Number(contract.marginRateShort || 0);
-    if (marginRateLong > 0 && marginRateShort > 0) {
-        return currentOI * latestPrice * multiplier * (marginRateLong + marginRateShort);
+    return NaN;
+}
+
+function buildCapitalAnchorTable(meta) {
+    const tbody = document.getElementById('techCapitalAnchorBody');
+    const subtitle = document.getElementById('techCapitalAnchorSubtitle');
+    if (!tbody || !meta?.screening) return;
+
+    const threshold = 2500000000;
+    const rows = Object.values(meta.screening)
+        .map(s => {
+            const contract = meta.contracts?.[s.code] || {};
+            const depositedCapital = calculateDepositedCapital(s, meta);
+            const closePrice = Number(contract.latestPrice || 0);
+            const costAnchor = Number(COST_ANCHORS[s.code] || 0);
+            const deviation = costAnchor > 0 && Number.isFinite(closePrice) && closePrice > 0
+                ? (closePrice - costAnchor) / costAnchor
+                : NaN;
+            return { ...s, contract, depositedCapital, closePrice, costAnchor, deviation };
+        })
+        .filter(row => Number.isFinite(row.depositedCapital) && row.depositedCapital > threshold)
+        .sort((a, b) => b.depositedCapital - a.depositedCapital);
+
+    if (subtitle) {
+        subtitle.textContent = `沉淀资金 > 25亿: ${rows.length}`;
     }
-    const marginRate = Number(contract.marginRate || 0);
-    return currentOI * 2 * latestPrice * multiplier * marginRate;
+
+    tbody.innerHTML = '';
+    if (rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="tech-table-loading">暂无沉淀资金超过25亿的主力合约</td></tr>';
+        return;
+    }
+
+    rows.forEach(row => {
+        const tr = document.createElement('tr');
+        const anchorText = row.costAnchor > 0 ? formatMarketPrice(row.costAnchor) : '--';
+        const deviationText = formatDeviationRate(row.deviation);
+        let statusHtml = '<span style="color:var(--text-muted)">正常</span>';
+        if (Number.isFinite(row.deviation) && row.deviation < 0.15) {
+            statusHtml = '<span class="capital-status-badge capital-status-low">低价</span>';
+        } else if (Number.isFinite(row.deviation) && row.deviation > 0.9) {
+            statusHtml = '<span class="capital-status-badge capital-status-high">高价</span>';
+        }
+
+        tr.innerHTML = `
+            <td><strong>${row.name}</strong> (${row.code})</td>
+            <td>${row.exchange}</td>
+            <td title="按天勤每手保证金计算：单边持仓 ×（多头每手保证金 + 空头每手保证金）">${formatCapitalAmount(row.depositedCapital)}</td>
+            <td>${formatMarketPrice(row.closePrice)}</td>
+            <td>${anchorText}</td>
+            <td>${deviationText}</td>
+            <td>${statusHtml}</td>
+        `;
+        tbody.appendChild(tr);
+    });
 }
 
 function buildTechnicalUI(data) {
@@ -5701,7 +5768,7 @@ function buildTechnicalUI(data) {
                 <td><strong>${s.name}</strong> (${s.code})</td>
                 <td>${s.exchange}</td>
                 <td>${(s.currentOI/10000).toFixed(1)}万手</td>
-                <td title="优先按单边持仓 ×（多头每手保证金 + 空头每手保证金）计算">${formatCapitalAmount(depositedCapital)}</td>
+                <td title="按天勤每手保证金计算：单边持仓 ×（多头每手保证金 + 空头每手保证金）">${formatCapitalAmount(depositedCapital)}</td>
                 <td>${(s.historicalMaxOI/10000).toFixed(1)}万手</td>
                 <td>${s.historicalMaxDate}</td>
                 <td>
@@ -5715,6 +5782,8 @@ function buildTechnicalUI(data) {
             tbody.appendChild(tr);
         });
     }
+
+    buildCapitalAnchorTable(meta);
     
     // 3. Anomaly Cards (placeholder for future analysis)
     const cardsContainer = document.getElementById('techAnomalyCards');

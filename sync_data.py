@@ -142,137 +142,41 @@ def get_column(df, name, index):
     return name if name in df.columns else df.columns[index]
 
 
-def build_margin_info_from_row(row, cols):
-    long_rate = finite_float(row[cols['long_margin']], 0.0)
-    short_rate = finite_float(row[cols['short_margin']], 0.0)
-    long_margin_per_lot = finite_float(row[cols['long_margin_per_lot']], 0.0)
-    short_margin_per_lot = finite_float(row[cols['short_margin_per_lot']], 0.0)
-    valid_rates = [rate for rate in (long_rate, short_rate) if rate > 0]
-    valid_margins = [value for value in (long_margin_per_lot, short_margin_per_lot) if value > 0]
-    if not valid_rates and not valid_margins:
-        return None
+def load_tq_credentials():
+    """Load TqSdk credentials from env first, then local private config files."""
+    username = os.environ.get('TQ_USERNAME')
+    password = os.environ.get('TQ_PASSWORD')
 
-    # Keep marginRate compatible with the existing front-end formula:
-    # single-side OI * 2 * price * multiplier * marginRate.
-    margin_rate = sum(valid_rates) / len(valid_rates) if valid_rates else 0.0
-    return {
-        'contractCode': normalize_contract_code(row[cols['contract']]),
-        'marginRate': margin_rate,
-        'marginRateLong': long_rate,
-        'marginRateShort': short_rate,
-        'marginPerLot': sum(valid_margins) / len(valid_margins) if valid_margins else 0.0,
-        'marginPerLotLong': long_margin_per_lot,
-        'marginPerLotShort': short_margin_per_lot,
-        'marginRateAsOf': str(row[cols['updated_at']]),
-        'marginRateSource': 'akshare.futures_fees_info/openctp',
-        'marginOpenInterest': int(finite_float(row[cols['open_interest']], 0)),
-    }
+    if str(username or '').strip() and str(password or '').strip():
+        return username, password
 
-
-def fill_margin_lookup_from_rule(ak, lookup, codes, now_str):
-    """Fill missing products from the daily futures rule table when contract-level rows are absent."""
-    if not codes:
-        return
-
-    for offset in range(8):
-        date_str = (datetime.datetime.now() - datetime.timedelta(days=offset)).strftime('%Y%m%d')
-        try:
-            df = ak.futures_rule(date=date_str)
-            if df is None or df.empty:
-                continue
-
-            code_col = get_column(df, '\u4ee3\u7801', 2)
-            margin_col = get_column(df, '\u4ea4\u6613\u4fdd\u8bc1\u91d1\u6bd4\u4f8b', 3)
-            for code in codes:
-                rows = df[df[code_col].astype(str).str.upper().str.replace('_O', '', regex=False) == code.upper()]
-                if rows.empty:
-                    continue
-
-                margin_rate = finite_float(rows.iloc[0][margin_col], 0.0) / 100
-                if margin_rate <= 0:
-                    continue
-
-                lookup['by_code'][code] = {
-                    'contractCode': f"{code}0",
-                    'marginRate': margin_rate,
-                    'marginRateLong': margin_rate,
-                    'marginRateShort': margin_rate,
-                    'marginPerLot': 0,
-                    'marginPerLotLong': 0,
-                    'marginPerLotShort': 0,
-                    'marginRateAsOf': date_str,
-                    'marginRateSource': 'akshare.futures_rule/gtja',
-                    'marginOpenInterest': 0,
-                }
-
-            return
-        except Exception:
+    user_profile = os.environ.get('USERPROFILE', 'C:\\Users\\78432')
+    config_paths = [
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.json'),
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'config.json'),
+        os.path.abspath(os.path.join(user_profile, 'Desktop', 'config.json')),
+        os.path.abspath(os.path.join(user_profile, 'OneDrive', 'Desktop', 'config.json')),
+        os.path.abspath(os.path.join(user_profile, 'OneDrive', '桌面', 'config.json')),
+    ]
+    for path in config_paths:
+        if not os.path.exists(path):
             continue
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                cfg_data = json.load(f)
+            username = cfg_data.get('tq_username')
+            password = cfg_data.get('tq_password')
+            if str(username or '').strip() and str(password or '').strip():
+                print(f"[+] Loaded TqSdk credentials from {path}")
+                return username, password
+        except Exception as e:
+            print(f"[-] Error reading {path}: {e}")
 
-    print(f"[-] Margin rule fallback unavailable for: {sorted(codes)}")
-
-
-def fetch_margin_rate_lookup(ak, pd, now_str):
-    """Fetch daily contract-level margin rates and build product/contract lookup maps."""
-    lookup = {'by_code': {}, 'by_contract': {}, 'source': 'fallback:ALL_CFG', 'asOf': now_str}
-
-    try:
-        df = ak.futures_fees_info()
-        if df is None or df.empty:
-            raise ValueError('empty futures_fees_info result')
-
-        cols = {
-            'exchange': get_column(df, '\u4ea4\u6613\u6240', 0),
-            'contract': get_column(df, '\u5408\u7ea6\u4ee3\u7801', 1),
-            'product': get_column(df, '\u54c1\u79cd\u4ee3\u7801', 3),
-            'multiplier': get_column(df, '\u5408\u7ea6\u4e58\u6570', 5),
-            'long_margin': get_column(df, '\u505a\u591a\u4fdd\u8bc1\u91d1\u7387', 13),
-            'short_margin': get_column(df, '\u505a\u7a7a\u4fdd\u8bc1\u91d1\u7387', 15),
-            'long_margin_per_lot': get_column(df, '\u505a\u591a1\u624b\u4fdd\u8bc1\u91d1', 25),
-            'short_margin_per_lot': get_column(df, '\u505a\u7a7a1\u624b\u4fdd\u8bc1\u91d1', 26),
-            'open_interest': get_column(df, '\u6301\u4ed3\u91cf', 21),
-            'updated_at': get_column(df, '\u66f4\u65b0\u65f6\u95f4', 37),
-        }
-
-        for _, row in df.iterrows():
-            code = str(row[cols['product']]).upper().strip()
-            if code not in ALL_CFG:
-                continue
-
-            info = build_margin_info_from_row(row, cols)
-            if not info or not info['contractCode']:
-                continue
-
-            lookup['by_contract'][info['contractCode']] = info
-            current = lookup['by_code'].get(code)
-            if current is None or info['marginOpenInterest'] > current.get('marginOpenInterest', -1):
-                lookup['by_code'][code] = info
-
-        missing_codes = [code for code in ALL_CFG.keys() if code not in lookup['by_code']]
-        fill_margin_lookup_from_rule(ak, lookup, missing_codes, now_str)
-
-        if lookup['by_code']:
-            as_of_values = [v.get('marginRateAsOf', '') for v in lookup['by_code'].values() if v.get('marginRateAsOf')]
-            lookup['source'] = 'akshare.futures_fees_info/openctp'
-            lookup['asOf'] = max(as_of_values) if as_of_values else now_str
-            print(f"[+] Margin rates loaded from {lookup['source']} as of {lookup['asOf']} ({len(lookup['by_code'])}/{len(ALL_CFG)} products)")
-            return lookup
-
-        raise ValueError('no matching product margin rows')
-    except Exception as e:
-        print(f"[-] Contract-level margin rate fetch failed: {e}")
-        fill_margin_lookup_from_rule(ak, lookup, ALL_CFG.keys(), now_str)
-        if lookup['by_code']:
-            lookup['source'] = 'akshare.futures_rule/gtja'
-            lookup['asOf'] = max([v.get('marginRateAsOf', '') for v in lookup['by_code'].values() if v.get('marginRateAsOf')] or [now_str])
-            print(f"[+] Margin rates loaded from {lookup['source']} as of {lookup['asOf']} ({len(lookup['by_code'])}/{len(ALL_CFG)} products)")
-            return lookup
-        print("[-] Margin rate dynamic sources unavailable; using ALL_CFG fallback.")
-        return lookup
+    return None, None
 
 
-def resolve_margin_info(code, cfg, margin_lookup, preferred_contract=None, now_str=''):
-    """Resolve margin metadata for the concrete contract, falling back safely."""
+def resolve_tq_margin_info(code, margin_lookup, preferred_contract=None):
+    """Resolve TqSdk per-lot margin metadata; missing margins stay null."""
     normalized = normalize_contract_code(preferred_contract)
     info = margin_lookup.get('by_contract', {}).get(normalized) if normalized else None
     if info is None:
@@ -282,14 +186,11 @@ def resolve_margin_info(code, cfg, margin_lookup, preferred_contract=None, now_s
 
     return {
         'contractCode': normalized or f"{code}0",
-        'marginRate': cfg['margin'],
-        'marginRateLong': cfg['margin'],
-        'marginRateShort': cfg['margin'],
-        'marginPerLot': 0,
-        'marginPerLotLong': 0,
-        'marginPerLotShort': 0,
-        'marginRateAsOf': now_str,
-        'marginRateSource': 'fallback:ALL_CFG',
+        'marginPerLot': None,
+        'marginPerLotLong': None,
+        'marginPerLotShort': None,
+        'marginRateAsOf': '',
+        'marginRateSource': '',
         'marginOpenInterest': 0,
     }
 
@@ -297,18 +198,12 @@ def resolve_margin_info(code, cfg, margin_lookup, preferred_contract=None, now_s
 def build_margin_info_from_tq_quote(code, quote, now_str):
     """Build per-lot margin metadata from TqSdk quote.margin."""
     margin_per_lot = finite_float(getattr(quote, 'margin', 0), 0.0)
-    volume_multiple = finite_float(getattr(quote, 'volume_multiple', 0), 0.0)
-    pre_settlement = finite_float(getattr(quote, 'pre_settlement', 0), 0.0)
-    margin_rate = margin_per_lot / (volume_multiple * pre_settlement) if margin_per_lot > 0 and volume_multiple > 0 and pre_settlement > 0 else 0.0
-    if margin_per_lot <= 0 and margin_rate <= 0:
+    if margin_per_lot <= 0:
         return None
 
     symbol = getattr(quote, 'instrument_id', '') or getattr(quote, 'underlying_symbol', '')
     return {
         'contractCode': normalize_contract_code(symbol) or f"{code}0",
-        'marginRate': margin_rate,
-        'marginRateLong': margin_rate,
-        'marginRateShort': margin_rate,
         'marginPerLot': margin_per_lot,
         'marginPerLotLong': margin_per_lot,
         'marginPerLotShort': margin_per_lot,
@@ -318,58 +213,65 @@ def build_margin_info_from_tq_quote(code, quote, now_str):
     }
 
 
-def fetch_tq_margin_lookup(api, time, now_str):
+def fetch_tq_margin_lookup(api, time, now_str, attempts=3):
     """Fetch per-lot margin for all current main contracts via TqSdk."""
     lookup = {'by_code': {}, 'by_contract': {}, 'source': 'tqsdk.quote.margin', 'asOf': now_str}
-    try:
-        main_quotes = {}
-        for code, cfg in ALL_CFG.items():
-            main_quotes[code] = api.get_quote(get_tq_main_symbol(code, cfg['exch']))
+    pending = set(ALL_CFG.keys())
 
-        start_q = time.time()
-        while time.time() - start_q < 4.0:
-            api.wait_update(deadline=time.time() + 0.5)
-            if all(getattr(q, 'underlying_symbol', '') for q in main_quotes.values()):
+    for attempt in range(1, attempts + 1):
+        try:
+            print(f"[+] Fetching TqSdk per-lot margins attempt {attempt}/{attempts} ({len(pending)} pending)...")
+            main_quotes = {
+                code: api.get_quote(get_tq_main_symbol(code, ALL_CFG[code]['exch']))
+                for code in sorted(pending)
+            }
+
+            start_q = time.time()
+            while time.time() - start_q < 5.0:
+                api.wait_update(deadline=time.time() + 0.5)
+                if all(getattr(q, 'underlying_symbol', '') for q in main_quotes.values()):
+                    break
+
+            specific_quotes = {}
+            for code, quote in main_quotes.items():
+                symbol = getattr(quote, 'underlying_symbol', '')
+                if not symbol:
+                    continue
+                specific_quotes[code] = api.get_quote(symbol)
+
+            start_detail = time.time()
+            while time.time() - start_detail < 8.0:
+                api.wait_update(deadline=time.time() + 0.5)
+                if specific_quotes and all(finite_float(getattr(q, 'margin', 0), 0.0) > 0 for q in specific_quotes.values()):
+                    break
+
+            loaded_this_attempt = 0
+            for code, quote in list(specific_quotes.items()):
+                if code not in pending:
+                    continue
+                info = build_margin_info_from_tq_quote(code, quote, now_str)
+                if not info:
+                    continue
+                lookup['by_code'][code] = info
+                lookup['by_contract'][info['contractCode']] = info
+                pending.remove(code)
+                loaded_this_attempt += 1
+
+            print(f"[+] TqSdk per-lot margins attempt {attempt}: loaded {loaded_this_attempt}, pending {len(pending)}")
+            if not pending:
                 break
+        except Exception as e:
+            print(f"[-] TqSdk margin attempt {attempt}/{attempts} failed: {e}")
 
-        specific_quotes = {}
-        for code, quote in main_quotes.items():
-            symbol = getattr(quote, 'underlying_symbol', '') or get_tq_main_symbol(code, ALL_CFG[code]['exch'])
-            specific_quotes[code] = api.get_quote(symbol)
+        if pending and attempt < attempts:
+            time.sleep(1.0)
 
-        start_detail = time.time()
-        while time.time() - start_detail < 5.0:
-            api.wait_update(deadline=time.time() + 0.5)
-            ready = 0
-            for quote in specific_quotes.values():
-                if finite_float(getattr(quote, 'margin', 0), 0.0) > 0:
-                    ready += 1
-            if ready >= len(specific_quotes):
-                break
+    lookup['missing'] = sorted(pending)
+    if pending:
+        print(f"[-] TqSdk per-lot margin missing after {attempts} attempts: {sorted(pending)}")
 
-        for code, quote in specific_quotes.items():
-            info = build_margin_info_from_tq_quote(code, quote, now_str)
-            if not info:
-                continue
-            lookup['by_code'][code] = info
-            lookup['by_contract'][info['contractCode']] = info
-
-        print(f"[+] TqSdk per-lot margins loaded ({len(lookup['by_code'])}/{len(ALL_CFG)} products)")
-    except Exception as e:
-        print(f"[-] TqSdk margin fetch failed: {e}")
+    print(f"[+] TqSdk per-lot margins loaded ({len(lookup['by_code'])}/{len(ALL_CFG)} products)")
     return lookup
-
-
-def merge_margin_lookup(base_lookup, preferred_lookup):
-    """Overlay preferred margin lookup entries over the base fallback lookup."""
-    if not preferred_lookup:
-        return base_lookup
-    base_lookup['by_code'].update(preferred_lookup.get('by_code', {}))
-    base_lookup['by_contract'].update(preferred_lookup.get('by_contract', {}))
-    if preferred_lookup.get('by_code'):
-        base_lookup['source'] = preferred_lookup.get('source', base_lookup.get('source'))
-        base_lookup['asOf'] = preferred_lookup.get('asOf', base_lookup.get('asOf'))
-    return base_lookup
 
 
 def get_tq_main_symbol(code, exch):
@@ -643,7 +545,37 @@ def sync_futures():
     now_str    = datetime.datetime.now().isoformat()
     start_date = (datetime.datetime.now() - datetime.timedelta(days=HISTORY_YEARS * 365)).strftime('%Y%m%d')
     total = len(ALL_CFG)
-    margin_lookup = fetch_margin_rate_lookup(ak, pd, now_str)
+    api = None
+    use_tq_sdk = False
+    api_closed = False
+    margin_lookup = {
+        'by_code': {},
+        'by_contract': {},
+        'source': 'tqsdk.quote.margin',
+        'asOf': now_str,
+        'missing': sorted(ALL_CFG.keys()),
+    }
+
+    username, password = load_tq_credentials()
+    if not str(username or '').strip() or not str(password or '').strip():
+        print("[-] 未配置天勤账号密码；保证金不使用任何兜底来源，沉淀资金将按合约显示为空。")
+    else:
+        try:
+            from tqsdk import TqApi, TqAuth
+            print("[+] Connecting to TqSdk API...")
+            api = TqApi(auth=TqAuth(username, password))
+            use_tq_sdk = True
+            margin_lookup = fetch_tq_margin_lookup(api, time, now_str, attempts=3)
+        except Exception as e:
+            if api is not None:
+                try:
+                    api.close()
+                    api_closed = True
+                except Exception:
+                    pass
+            api = None
+            use_tq_sdk = False
+            print(f"[-] 天勤每手保证金抓取失败；不使用 AkShare/静态兜底，相关合约沉淀资金为空: {e}")
 
     # ──────────────────────────────────────────────────────────
     # PHASE 1: OI SCREEN — all commodities via Sina API
@@ -679,47 +611,9 @@ def sync_futures():
     target_contracts = {}      # code -> specific contract month symbol (e.g. SHFE.sp2609)
     target_specific_quotes = {} # code -> specific contract quote details
     target_klines = {}         # code -> {'min1': ..., 'min5': ...}
-    use_tq_sdk = False
 
     if detail_targets:
-        # Load credentials (env variables first, then local config files)
-        username = os.environ.get('TQ_USERNAME')
-        password = os.environ.get('TQ_PASSWORD')
-        
-        if not username or not password:
-            user_profile = os.environ.get('USERPROFILE', 'C:\\Users\\78432')
-            config_paths = [
-                os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.json'),
-                os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'config.json'),
-                os.path.abspath(os.path.join(user_profile, 'Desktop', 'config.json')),
-                os.path.abspath(os.path.join(user_profile, 'OneDrive', 'Desktop', 'config.json')),
-                os.path.abspath(os.path.join(user_profile, 'OneDrive', '桌面', 'config.json'))
-            ]
-            for path in config_paths:
-                if os.path.exists(path):
-                    try:
-                        with open(path, 'r', encoding='utf-8') as f:
-                            cfg_data = json.load(f)
-                            username = cfg_data.get('tq_username')
-                            password = cfg_data.get('tq_password')
-                            if username and password and "请" not in username:
-                                print(f"[+] Loaded TqSdk credentials from {path}")
-                                break
-                    except Exception as e:
-                        print(f"[-] Error reading {path}: {e}")
-
-        if username and password and "请" not in username:
-            try:
-                from tqsdk import TqApi, TqAuth
-                print("[+] Connecting to TqSdk API...")
-                api = TqApi(auth=TqAuth(username, password))
-                use_tq_sdk = True
-            except Exception as e:
-                print(f"[-] 天勤登录认证失败: {e}. 将降级使用新浪财经 API。")
-        else:
-            print("[-] 未配置天勤账号密码，将降级使用新浪财经 API 进行数据更新。")
-
-        if use_tq_sdk:
+        if use_tq_sdk and api is not None and not api_closed:
             try:
                 # Step 2.1: Register continuous main contract quotes to resolve the specific active contracts
                 print("[+] Subscribing to continuous main quotes on TqSdk...")
@@ -760,12 +654,12 @@ def sync_futures():
                     if not api.wait_update(deadline=time.time() + 1.0):
                         break
                 print(f"[+] Target K-lines download finished in {time.time() - start_dl_det:.2f} seconds.")
-                margin_lookup = merge_margin_lookup(margin_lookup, fetch_tq_margin_lookup(api, time, now_str))
 
             finally:
                 # Make sure to close the TqApi connection to release resources
                 try:
                     api.close()
+                    api_closed = True
                     print("[+] TqSdk API connection closed.")
                 except Exception:
                     pass
@@ -863,7 +757,7 @@ def sync_futures():
 
         # Build metadata
         oi_screen = screening.get(code, {})
-        margin_info = resolve_margin_info(code, cfg, margin_lookup, kline_sym, now_str)
+        margin_info = resolve_tq_margin_info(code, margin_lookup, kline_sym)
         contracts_meta[code] = {
             'symbol':      display_sym,
             'klineSource': kline_sym,
@@ -871,9 +765,6 @@ def sync_futures():
             'name':        f"{cfg['name']}主力",
             'exchange':    cfg['exch'],
             'multiplier':  cfg['mult'],
-            'marginRate':  margin_info['marginRate'],
-            'marginRateLong':  margin_info['marginRateLong'],
-            'marginRateShort': margin_info['marginRateShort'],
             'marginPerLot': margin_info['marginPerLot'],
             'marginPerLotLong': margin_info['marginPerLotLong'],
             'marginPerLotShort': margin_info['marginPerLotShort'],
@@ -894,6 +785,14 @@ def sync_futures():
         }
 
         data_out[code] = {'daily': daily, 'min1': min1, 'min5': min5, 'min15': min15, 'min30': min30, 'min60': min60}
+
+    if api is not None and not api_closed:
+        try:
+            api.close()
+            api_closed = True
+            print("[+] TqSdk API connection closed.")
+        except Exception:
+            pass
 
     # ──────────────────────────────────────────────────────────
     # OUTPUT JSON
