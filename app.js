@@ -5884,6 +5884,9 @@ const COST_ANCHORS = Object.freeze({
     SP: 4600,
     P: 4500,
     V: 4400,
+    JM: 688,
+    PP: 4000,
+    RU: 8000,
 });
 
 function formatCapitalAmount(amount) {
@@ -5962,7 +5965,7 @@ function buildCapitalAnchorTable(meta) {
         let statusHtml = '<span style="color:var(--text-muted)">正常</span>';
         if (Number.isFinite(row.deviation) && row.deviation < 0.15) {
             statusHtml = '<span class="capital-status-badge capital-status-low">低价</span>';
-        } else if (Number.isFinite(row.deviation) && row.deviation > 0.9) {
+        } else if (Number.isFinite(row.deviation) && row.deviation > 0.8) {
             statusHtml = '<span class="capital-status-badge capital-status-high">高价</span>';
         }
 
