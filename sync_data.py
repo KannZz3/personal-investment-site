@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 ==========================================================================
-FULL MARKET OI SCREENER + DATA SYNC (sync_data.py v6.0 - TqSdk Only)
+FULL MARKET OI SCREENER + DATA SYNC (sync_data.py v6.1 - TqSdk Only Optimized)
 ==========================================================================
 Output  : data/futures_data.json
 Requires: pip install pandas tqsdk
@@ -191,10 +191,12 @@ def fetch_tq_margin_lookup(api, time_mod, now_str, attempts=3):
         sym = get_tq_main_symbol(code, ALL_CFG[code]['exch'])
         quotes[code] = api.get_quote(sym)
 
+    # Smart wait loop: break immediately when all continuous main symbols resolve
     start_time = time_mod.time()
     while time_mod.time() - start_time < 5.0:
-        if not api.wait_update(deadline=time_mod.time() + 1.0):
+        if all(getattr(quotes[code], 'underlying_symbol', None) for code in pending):
             break
+        api.wait_update(deadline=time_mod.time() + 0.2)
 
     specific_quotes = {}
     resolved_codes = {}
@@ -205,10 +207,12 @@ def fetch_tq_margin_lookup(api, time_mod, now_str, attempts=3):
             specific_quotes[code] = api.get_quote(specific_sym)
             resolved_codes[code] = specific_sym
 
+    # Smart wait loop: break immediately when all resolved specific contracts have margins
     start_time = time_mod.time()
     while time_mod.time() - start_time < 5.0:
-        if not api.wait_update(deadline=time_mod.time() + 1.0):
+        if all(getattr(specific_quotes[code], 'margin', 0) > 0 for code in resolved_codes.keys()):
             break
+        api.wait_update(deadline=time_mod.time() + 0.2)
 
     for code in ALL_CFG.keys():
         quote = specific_quotes.get(code)
@@ -304,17 +308,14 @@ def fetch_daily_tq(pd, df, start_date_str):
         print(f"Error parsing daily: {e}")
         return []
 
-def screen_commodity_tq(api, code, start_date_str):
+def screen_commodity_tq(code, df, start_date_str):
     """
-    Pull 10-year continuous main-contract history via TqSdk and compute OI significance.
-    Returns (screening_result_dict, daily_dataframe) or (None, None) on failure.
+    Compute OI significance on preloaded TqSdk daily K-line DataFrame.
     """
     cfg = ALL_CFG[code]
-    symbol = get_tq_main_symbol(code, cfg['exch'])
     try:
-        df = api.get_kline_serial(symbol, duration_seconds=86400, data_length=2500)
         if df is None or df.empty:
-            return None, None
+            return None
         
         df_nz = df.copy()
         df_nz = df_nz.dropna(subset=['datetime', 'open', 'high', 'low', 'close'])
@@ -326,7 +327,7 @@ def screen_commodity_tq(api, code, start_date_str):
         
         df_nz = df_nz[df_nz['hold'] > 0]
         if df_nz.empty:
-            return None, None
+            return None
             
         if len(df_nz) > 1:
             past_df = df_nz.iloc[:-1]
@@ -371,14 +372,14 @@ def screen_commodity_tq(api, code, start_date_str):
             'oiRatio': oi_ratio,
             'alert': alert
         }
-        return res, df
+        return res
     except Exception as e:
         print(f"[-] screen_commodity_tq failed for {code}: {e}")
-        return None, None
+        return None
 
 def sync_futures():
     print("=" * 70)
-    print("  Summit Wind Portal | Full Market OI Screener + Sync  v6.0 (TqSdk Only)")
+    print("  Summit Wind Portal | Full Market OI Screener + Sync  v6.1 (TqSdk Only Optimized)")
     print("  Coverage: SHFE / DCE / CZCE / INE / GFEX  (~50 contracts)")
     print("=" * 70)
 
@@ -407,16 +408,33 @@ def sync_futures():
         return False
 
     # ──────────────────────────────────────────────────────────
-    # PHASE 1: OI SCREEN — all commodities via TqSdk API
+    # PHASE 1: OI SCREEN — all commodities via TqSdk API (Parallel)
     # ──────────────────────────────────────────────────────────
     total = len(ALL_CFG)
-    print(f"\n[Phase 1] OI screening {total} commodities since {start_date_str}...\n")
+    print(f"\n[Phase 1] Pre-registering all daily K-lines in parallel since {start_date_str}...\n")
+    daily_klines_raw = {}
+    for code in ALL_CFG.keys():
+        sym = get_tq_main_symbol(code, ALL_CFG[code]['exch'])
+        daily_klines_raw[code] = api.get_kline_serial(sym, duration_seconds=86400, data_length=2500)
+
+    # Wait for all daily K-lines to download in parallel
+    print("[+] Downloading all daily K-lines in parallel...")
+    start_dl = time.time()
+    while time.time() - start_dl < 10.0:
+        all_loaded = all(not df.empty for df in daily_klines_raw.values())
+        if not api.wait_update(deadline=time.time() + 0.2):
+            if all_loaded:
+                break
+    print(f"[+] All daily K-lines download finished in {time.time() - start_dl:.2f} seconds.")
+
+    print(f"\n[Phase 1] OI screening {total} commodities...\n")
     screening  = {}  # code -> screening result dict
     anomalies  = []  # codes meeting near_high or new_high
     daily_dfs  = {}  # code -> TqSdk daily DataFrame
 
     for idx, (code, cfg) in enumerate(ALL_CFG.items(), 1):
-        result, df = screen_commodity_tq(api, code, start_date_str)
+        df = daily_klines_raw.get(code)
+        result = screen_commodity_tq(code, df, start_date_str)
         if result and df is not None:
             screening[code] = result
             daily_dfs[code] = df
@@ -476,8 +494,17 @@ def sync_futures():
             print("[+] Downloading target detailed K-lines in parallel...")
             start_dl_det = time.time()
             while time.time() - start_dl_det < 8.0:
-                if not api.wait_update(deadline=time.time() + 1.0):
-                    break
+                all_loaded = True
+                for code_det, kline_dict in target_klines.items():
+                    for df_det in kline_dict.values():
+                        if df_det.empty:
+                            all_loaded = False
+                            break
+                    if not all_loaded:
+                        break
+                if not api.wait_update(deadline=time.time() + 0.2):
+                    if all_loaded:
+                        break
             print(f"[+] Target K-lines download finished in {time.time() - start_dl_det:.2f} seconds.")
 
         except Exception as e:
@@ -588,8 +615,8 @@ def sync_futures():
     output = {
         'metadata': {
             'sync_time':      now_str,
-            'version':        '6.0',
-            'description':    'Full market TqSdk OI screen | K-line data (TqSdk Only)',
+            'version':        '6.1',
+            'description':    'Full market TqSdk OI screen | K-line data (TqSdk Only Optimized)',
             'historyYears':   HISTORY_YEARS,
             'nearHighThresh': NEAR_HIGH_THRESH,
             'anomalies':      anomalies,
@@ -609,7 +636,7 @@ def sync_futures():
             json.dump(output, f, ensure_ascii=False, indent=2, allow_nan=False)
 
         print("\n" + "=" * 70)
-        print("[OK] Sync complete! (TqSdk Only)")
+        print("[OK] Sync complete! (TqSdk Only Optimized)")
         print(f"     Screened : {len(screening)} commodities")
         print(f"     Anomalies: {len(anomalies)} -> {anomalies if anomalies else 'none today'}")
         print(f"     Detail   : {len(data_out)} contracts with K-line data")
