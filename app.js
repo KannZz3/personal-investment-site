@@ -5631,7 +5631,7 @@ function closeArticleReader() {
 /* TECHNICAL ANOMALY UI BUILDER */
 // ==========================================================================
 
-const COST_ANCHORS = {
+const COST_ANCHORS = Object.freeze({
     FG: 1000,
     LH: 11500,
     SA: 1150,
@@ -5639,7 +5639,8 @@ const COST_ANCHORS = {
     SI: 6500,
     SP: 4600,
     P: 4500,
-};
+    V: 4400,
+});
 
 function formatCapitalAmount(amount) {
     if (!Number.isFinite(amount) || amount <= 0) return '--';
