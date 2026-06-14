@@ -2192,9 +2192,15 @@ class FuturesChart {
         visibleData.forEach(d => {
             if (d.high > maxPrice) maxPrice = d.high;
             if (d.low < minPrice) minPrice = d.low;
-            if (this.chartType === 'line' && Number.isFinite(d.vwap)) {
-                if (d.vwap > maxPrice) maxPrice = d.vwap;
-                if (d.vwap < minPrice) minPrice = d.vwap;
+            if (this.chartType === 'line') {
+                if (Number.isFinite(d.vwap)) {
+                    if (d.vwap > maxPrice) maxPrice = d.vwap;
+                    if (d.vwap < minPrice) minPrice = d.vwap;
+                }
+                if (Number.isFinite(d.prevClose)) {
+                    if (d.prevClose > maxPrice) maxPrice = d.prevClose;
+                    if (d.prevClose < minPrice) minPrice = d.prevClose;
+                }
             }
             if (d.volume > maxVol) maxVol = d.volume;
         });
@@ -2379,6 +2385,33 @@ class FuturesChart {
                 }
             });
         } else {
+            // Draw previous day's close reference line (stepped dashed line, distinct color #8b5cf6)
+            ctx.save();
+            ctx.beginPath();
+            ctx.strokeStyle = '#8b5cf6'; // Violet-500, visible in both dark & light modes
+            ctx.setLineDash([4, 4]);
+            ctx.lineWidth = 1;
+            
+            let lastY = null;
+            visibleData.forEach((d, i) => {
+                const value = Number(d.prevClose);
+                if (!Number.isFinite(value)) return;
+                const x = this.paddingLeft + (i * candleWidth) + (candleWidth / 2);
+                const y = getPriceY(value);
+                if (lastY === null) {
+                    ctx.moveTo(x, y);
+                } else if (lastY !== y) {
+                    // Draw step to the new day's reference price
+                    ctx.lineTo(x, lastY);
+                    ctx.lineTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+                lastY = y;
+            });
+            ctx.stroke();
+            ctx.restore();
+
             // Traditional intraday chart: close line + cumulative VWAP line.
             const closeLineColor = isDark ? '#f9fafb' : '#64748b';
             const vwapLineColor = '#eab308';

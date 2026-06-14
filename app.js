@@ -5576,6 +5576,17 @@ function updateChartData() {
 function buildTraditionalTimeShareData(dataContainer) {
     const min1Bars = Array.isArray(dataContainer?.min1) ? dataContainer.min1 : [];
     const min5Bars = Array.isArray(dataContainer?.min5) ? dataContainer.min5 : [];
+    const dailyBars = Array.isArray(dataContainer?.daily) ? dataContainer.daily : [];
+
+    // Map each trading day to the close price of the previous trading day in the daily list
+    const prevCloseMap = {};
+    dailyBars.forEach((bar, index) => {
+        if (bar && bar.date) {
+            if (index > 0 && dailyBars[index - 1]) {
+                prevCloseMap[bar.date] = Number(dailyBars[index - 1].close);
+            }
+        }
+    });
 
     const min1Groups = {};
     const min5Groups = {};
@@ -5624,7 +5635,6 @@ function buildTraditionalTimeShareData(dataContainer) {
     let currentTradingDay = null;
     let cumulativePriceVolume = 0;
     let cumulativeVolume = 0;
-    let fallbackCount = 0;
 
     mergedBars.forEach(bar => {
         if (!bar) return;
@@ -5639,20 +5649,18 @@ function buildTraditionalTimeShareData(dataContainer) {
             currentTradingDay = tradingDay;
             cumulativePriceVolume = 0;
             cumulativeVolume = 0;
-            fallbackCount = 0;
         }
 
         if (Number.isFinite(volume) && volume > 0) {
             cumulativePriceVolume += close * volume;
             cumulativeVolume += volume;
-        } else {
-            fallbackCount += 1;
-            cumulativePriceVolume += close;
         }
 
         const vwap = cumulativeVolume > 0
             ? cumulativePriceVolume / cumulativeVolume
-            : cumulativePriceVolume / Math.max(1, fallbackCount);
+            : close;
+
+        const prevClose = prevCloseMap[tradingDay] || null;
 
         output.push({
             datetime,
@@ -5662,6 +5670,7 @@ function buildTraditionalTimeShareData(dataContainer) {
             low: close,
             close,
             vwap,
+            prevClose,
             volume: Number.isFinite(volume) ? volume : 0,
             hold: Number.isFinite(Number(bar.hold)) ? Number(bar.hold) : 0,
             tradingDay
