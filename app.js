@@ -19,6 +19,7 @@ const state = {
     },
     activeContract: 'CU',
     chartPeriod: 'D', // 'D' (日K), 'W' (周K), 'Month' (月K), '5M', '15M', '30M', '60M', '240M'
+    chartType: 'candle',
     isDataReal: false,
     futuresData: {}, // Holds real or simulated data for each base commodity code
     realDataLoadError: false,
@@ -5360,7 +5361,9 @@ function initializeChartComponent() {
             typeButtons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             const type = btn.getAttribute('data-type');
+            state.chartType = type;
             window.activeChart.setChartType(type);
+            updateChartData();
         });
     });
 
@@ -5500,6 +5503,9 @@ function updateChartData() {
     } else if (state.chartPeriod === 'Month') {
         dataset = compressToMonthly(dataContainer.daily);
     }
+    if (state.chartType === 'line') {
+        dataset = buildTraditionalTimeShareData(dataContainer);
+    }
     
     // Display actual contract symbol (from metadata, e.g. CU2609) or base code
     const displaySym = contract.symbol || baseCode;
@@ -5525,6 +5531,61 @@ function updateChartData() {
     updateProfileAvailabilityPanel();
     syncProfileButtons();
     updateMaTrendSignal(dataset);
+}
+
+function buildTraditionalTimeShareData(dataContainer) {
+    const source = Array.isArray(dataContainer?.min1) ? dataContainer.min1 : [];
+    if (!source.length) return [];
+
+    const output = [];
+    let currentTradingDay = null;
+    let cumulativePriceVolume = 0;
+    let cumulativeVolume = 0;
+    let fallbackCount = 0;
+
+    source.forEach(bar => {
+        if (!bar) return;
+
+        const datetime = bar.datetime || bar.date;
+        const close = Number(bar.close);
+        const volume = Number(bar.volume);
+        if (!datetime || !Number.isFinite(close)) return;
+
+        const tradingDay = getTradingDayForIntradayBar(datetime);
+        if (tradingDay !== currentTradingDay) {
+            currentTradingDay = tradingDay;
+            cumulativePriceVolume = 0;
+            cumulativeVolume = 0;
+            fallbackCount = 0;
+        }
+
+        if (Number.isFinite(volume) && volume > 0) {
+            cumulativePriceVolume += close * volume;
+            cumulativeVolume += volume;
+        } else {
+            fallbackCount += 1;
+            cumulativePriceVolume += close;
+        }
+
+        const vwap = cumulativeVolume > 0
+            ? cumulativePriceVolume / cumulativeVolume
+            : cumulativePriceVolume / Math.max(1, fallbackCount);
+
+        output.push({
+            datetime,
+            date: bar.date || datetime,
+            open: close,
+            high: close,
+            low: close,
+            close,
+            vwap,
+            volume: Number.isFinite(volume) ? volume : 0,
+            hold: Number.isFinite(Number(bar.hold)) ? Number(bar.hold) : 0,
+            tradingDay
+        });
+    });
+
+    return output;
 }
 
 function calculateLatestMA(dataList, period) {

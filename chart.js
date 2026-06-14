@@ -599,6 +599,7 @@ class FuturesChart {
                 high: parseFloat(d.high),
                 low: parseFloat(d.low),
                 close: parseFloat(d.close),
+                vwap: Number.isFinite(parseFloat(d.vwap)) ? parseFloat(d.vwap) : null,
                 volume: parseFloat(d.volume),
                 hold: d.hold ? parseFloat(d.hold) : 0,
                 ma5: getMA(5),
@@ -2191,13 +2192,23 @@ class FuturesChart {
         visibleData.forEach(d => {
             if (d.high > maxPrice) maxPrice = d.high;
             if (d.low < minPrice) minPrice = d.low;
+            if (this.chartType === 'line' && Number.isFinite(d.vwap)) {
+                if (d.vwap > maxPrice) maxPrice = d.vwap;
+                if (d.vwap < minPrice) minPrice = d.vwap;
+            }
             if (d.volume > maxVol) maxVol = d.volume;
         });
 
         // Add 5% padding to top and bottom of price chart
         const priceRange = maxPrice - minPrice;
-        maxPrice += priceRange * 0.05;
-        minPrice -= priceRange * 0.05;
+        if (!Number.isFinite(priceRange) || priceRange === 0) {
+            const padding = Math.max(Math.abs(maxPrice) * 0.01, 1);
+            maxPrice += padding;
+            minPrice -= padding;
+        } else {
+            maxPrice += priceRange * 0.05;
+            minPrice -= priceRange * 0.05;
+        }
         if (minPrice < 0) minPrice = 0;
 
         // Calculate TPO and Volume Profiles if requested
@@ -2368,27 +2379,33 @@ class FuturesChart {
                 }
             });
         } else {
-            // Tick / Line Chart (Connecting Close prices)
-            ctx.beginPath();
-            visibleData.forEach((d, i) => {
-                const x = this.paddingLeft + (i * candleWidth) + (candleWidth / 2);
-                const y = getPriceY(d.close);
-                if (i === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            });
-            ctx.strokeStyle = varColor('--primary');
-            ctx.lineWidth = 2;
-            ctx.stroke();
+            // Traditional intraday chart: close line + cumulative VWAP line.
+            const closeLineColor = isDark ? '#f9fafb' : '#64748b';
+            const vwapLineColor = '#eab308';
+            const drawLineSeries = (key, color, lineWidth) => {
+                ctx.beginPath();
+                let started = false;
+                visibleData.forEach((d, i) => {
+                    const value = Number(d[key]);
+                    if (!Number.isFinite(value)) return;
+                    const x = this.paddingLeft + (i * candleWidth) + (candleWidth / 2);
+                    const y = getPriceY(value);
+                    if (!started) {
+                        ctx.moveTo(x, y);
+                        started = true;
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                });
+                if (started) {
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = lineWidth;
+                    ctx.stroke();
+                }
+            };
 
-            // Gradient area fill under price line
-            ctx.lineTo(this.paddingLeft + (count - 1) * candleWidth + (candleWidth / 2), this.paddingTop + priceHeight);
-            ctx.lineTo(this.paddingLeft + (candleWidth / 2), this.paddingTop + priceHeight);
-            ctx.closePath();
-            const areaGradient = ctx.createLinearGradient(0, this.paddingTop, 0, this.paddingTop + priceHeight);
-            areaGradient.addColorStop(0, hexToRgba(varColor('--primary'), 0.2));
-            areaGradient.addColorStop(1, hexToRgba(varColor('--primary'), 0.0));
-            ctx.fillStyle = areaGradient;
-            ctx.fill();
+            drawLineSeries('close', closeLineColor, 1.35);
+            drawLineSeries('vwap', vwapLineColor, 1.45);
 
             // Volume Bars for line chart
             if (hasVolume) {
@@ -2678,6 +2695,17 @@ class FuturesChart {
                 { label: '量:', val: this.formatVolume(d.volume), color: colorTextBright },
                 { label: '仓:', val: this.formatVolume(d.hold), color: colorTextBright }
             ];
+            if (this.chartType === 'line') {
+                items.splice(
+                    1,
+                    items.length - 1,
+                    { label: '价:', val: d.close.toFixed(1), color: priceColor },
+                    ...(Number.isFinite(d.vwap) ? [{ label: '均:', val: d.vwap.toFixed(1), color: '#eab308' }] : []),
+                    { label: '幅:', val: pctText, color: priceColor },
+                    { label: '量:', val: this.formatVolume(d.volume), color: colorTextBright },
+                    { label: '仓:', val: this.formatVolume(d.hold), color: colorTextBright }
+                );
+            }
 
             const isNarrow = w < 520;
             const row1Items = isNarrow ? items.slice(0, 5) : items;
