@@ -5695,6 +5695,13 @@ function updateMaTrendSignal(dataset) {
     const signalBadge = document.getElementById('maTrendSignalBadge');
     if (!signalBadge) return;
 
+    // Do not display MA trend signal badge in line chart (time-share) mode
+    if (state.chartType === 'line') {
+        signalBadge.style.display = 'none';
+        signalBadge.textContent = '';
+        return;
+    }
+
     const ma5 = calculateLatestMA(dataset, 5);
     const ma10 = calculateLatestMA(dataset, 10);
     const ma20 = calculateLatestMA(dataset, 20);

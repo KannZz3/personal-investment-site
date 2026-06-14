@@ -2273,7 +2273,28 @@ class FuturesChart {
             ctx.fillStyle = colorText;
             ctx.font = '10px Inter';
             ctx.textBaseline = 'middle';
+            ctx.textAlign = 'left';
             ctx.fillText(priceVal.toFixed(1), w - this.paddingRight + 6, y);
+
+            // Left Y-axis percentage labels in line mode (relative to latest day's prevClose)
+            if (this.chartType === 'line' && visibleData.length > 0) {
+                let latestPrevClose = null;
+                for (let j = visibleData.length - 1; j >= 0; j--) {
+                    if (visibleData[j] && Number.isFinite(visibleData[j].prevClose)) {
+                        latestPrevClose = visibleData[j].prevClose;
+                        break;
+                    }
+                }
+
+                if (latestPrevClose > 0) {
+                    const changePct = ((priceVal - latestPrevClose) / latestPrevClose) * 100;
+                    const sign = changePct > 0 ? '+' : '';
+                    const pctLabel = `${sign}${changePct.toFixed(2)}%`;
+                    ctx.fillStyle = changePct > 0 ? colorUp : (changePct < 0 ? colorDown : colorText);
+                    ctx.textAlign = 'right';
+                    ctx.fillText(pctLabel, this.paddingLeft - 6, y);
+                }
+            }
         }
 
         // Draw horizontal grid lines in volume chart
@@ -2385,6 +2406,22 @@ class FuturesChart {
                 }
             });
         } else {
+            // Draw vertical day separators (LOD Date Boundary Visual Separators)
+            ctx.save();
+            ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([2, 4]);
+            visibleData.forEach((d, i) => {
+                if (i > 0 && d.tradingDay !== visibleData[i - 1].tradingDay) {
+                    const xBoundary = this.paddingLeft + (i * candleWidth);
+                    ctx.beginPath();
+                    ctx.moveTo(xBoundary, this.paddingTop);
+                    ctx.lineTo(xBoundary, this.paddingTop + priceHeight);
+                    ctx.stroke();
+                }
+            });
+            ctx.restore();
+
             // Draw previous day's close reference line (stepped dashed line, distinct color #8b5cf6)
             ctx.save();
             ctx.beginPath();
@@ -2746,8 +2783,17 @@ class FuturesChart {
             ctx.font = '10px Inter, sans-serif';
             const prevBar = this.hoverIndex > 0 ? this.data[this.hoverIndex - 1] : null;
             const refPrice = prevBar ? prevBar.close : d.open;
-            const priceColor = d.close >= refPrice ? colorUp : colorDown;
-            const pct = refPrice !== 0 ? ((d.close - refPrice) / refPrice * 100) : 0;
+            
+            const isLineMode = this.chartType === 'line' && Number.isFinite(d.prevClose);
+            const refBaseline = isLineMode ? d.prevClose : refPrice;
+            const priceColor = d.close >= refBaseline ? colorUp : colorDown;
+            
+            let pct = 0;
+            if (isLineMode) {
+                pct = ((d.close - d.prevClose) / d.prevClose) * 100;
+            } else {
+                pct = refPrice !== 0 ? ((d.close - refPrice) / refPrice * 100) : 0;
+            }
             const pctText = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
 
             const items = [
