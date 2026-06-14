@@ -5574,45 +5574,21 @@ function updateChartData() {
 }
 
 function buildTraditionalTimeShareData(dataContainer) {
-    let min1Bars = Array.isArray(dataContainer?.min1) ? dataContainer.min1 : [];
-    let min5Bars = Array.isArray(dataContainer?.min5) ? dataContainer.min5 : [];
-    let dailyBars = Array.isArray(dataContainer?.daily) ? dataContainer.daily : [];
+    const deduplicateBars = (bars) => {
+        const seen = new Set();
+        return bars.filter(bar => {
+            if (!bar) return false;
+            const dt = bar.datetime || bar.date;
+            if (!dt) return false;
+            if (seen.has(dt)) return false;
+            seen.add(dt);
+            return true;
+        });
+    };
 
-    // Deduplicate min1Bars, min5Bars, and dailyBars by time strings to prevent data overlap
-    const uniqueMin1 = [];
-    const seenMin1 = new Set();
-    min1Bars.forEach(bar => {
-        if (!bar) return;
-        const datetime = bar.datetime || bar.date;
-        if (datetime && !seenMin1.has(datetime)) {
-            seenMin1.add(datetime);
-            uniqueMin1.push(bar);
-        }
-    });
-    min1Bars = uniqueMin1;
-
-    const uniqueMin5 = [];
-    const seenMin5 = new Set();
-    min5Bars.forEach(bar => {
-        if (!bar) return;
-        const datetime = bar.datetime || bar.date;
-        if (datetime && !seenMin5.has(datetime)) {
-            seenMin5.add(datetime);
-            uniqueMin5.push(bar);
-        }
-    });
-    min5Bars = uniqueMin5;
-
-    const uniqueDaily = [];
-    const seenDaily = new Set();
-    dailyBars.forEach(bar => {
-        if (!bar) return;
-        if (bar.date && !seenDaily.has(bar.date)) {
-            seenDaily.add(bar.date);
-            uniqueDaily.push(bar);
-        }
-    });
-    dailyBars = uniqueDaily;
+    const min1Bars = deduplicateBars(Array.isArray(dataContainer?.min1) ? dataContainer.min1 : []);
+    const min5Bars = deduplicateBars(Array.isArray(dataContainer?.min5) ? dataContainer.min5 : []);
+    const dailyBars = deduplicateBars(Array.isArray(dataContainer?.daily) ? dataContainer.daily : []);
 
     // Map each trading day to the close price of the previous trading day in the daily list
     const prevCloseMap = {};
