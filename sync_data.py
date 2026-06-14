@@ -282,6 +282,7 @@ def fetch_minute(pd, df, n=1500):
         df['datetime_str'] = dt.dt.tz_localize('UTC').dt.tz_convert('Asia/Shanghai').dt.strftime('%Y-%m-%d %H:%M:%S')
         df['hold'] = pd.to_numeric(df['close_oi'], errors='coerce').fillna(0)
         df['volume'] = pd.to_numeric(df['volume'], errors='coerce').fillna(0)
+        df = df.drop_duplicates(subset=['datetime_str'], keep='last')
         df = df.sort_values('datetime_str').tail(n)
 
         out = []
@@ -320,6 +321,7 @@ def fetch_daily_tq(pd, df, start_date_str):
         df['date_str'] = dt.dt.tz_localize('UTC').dt.tz_convert('Asia/Shanghai').dt.strftime('%Y-%m-%d')
         df['hold'] = pd.to_numeric(df['close_oi'], errors='coerce').fillna(0)
         df['volume'] = pd.to_numeric(df['volume'], errors='coerce').fillna(0)
+        df = df.drop_duplicates(subset=['date_str'], keep='last')
         df = df.sort_values('date_str')
         
         df = df[df['date_str'] >= start_date_str]

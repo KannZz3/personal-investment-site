@@ -5574,9 +5574,45 @@ function updateChartData() {
 }
 
 function buildTraditionalTimeShareData(dataContainer) {
-    const min1Bars = Array.isArray(dataContainer?.min1) ? dataContainer.min1 : [];
-    const min5Bars = Array.isArray(dataContainer?.min5) ? dataContainer.min5 : [];
-    const dailyBars = Array.isArray(dataContainer?.daily) ? dataContainer.daily : [];
+    let min1Bars = Array.isArray(dataContainer?.min1) ? dataContainer.min1 : [];
+    let min5Bars = Array.isArray(dataContainer?.min5) ? dataContainer.min5 : [];
+    let dailyBars = Array.isArray(dataContainer?.daily) ? dataContainer.daily : [];
+
+    // Deduplicate min1Bars, min5Bars, and dailyBars by time strings to prevent data overlap
+    const uniqueMin1 = [];
+    const seenMin1 = new Set();
+    min1Bars.forEach(bar => {
+        if (!bar) return;
+        const datetime = bar.datetime || bar.date;
+        if (datetime && !seenMin1.has(datetime)) {
+            seenMin1.add(datetime);
+            uniqueMin1.push(bar);
+        }
+    });
+    min1Bars = uniqueMin1;
+
+    const uniqueMin5 = [];
+    const seenMin5 = new Set();
+    min5Bars.forEach(bar => {
+        if (!bar) return;
+        const datetime = bar.datetime || bar.date;
+        if (datetime && !seenMin5.has(datetime)) {
+            seenMin5.add(datetime);
+            uniqueMin5.push(bar);
+        }
+    });
+    min5Bars = uniqueMin5;
+
+    const uniqueDaily = [];
+    const seenDaily = new Set();
+    dailyBars.forEach(bar => {
+        if (!bar) return;
+        if (bar.date && !seenDaily.has(bar.date)) {
+            seenDaily.add(bar.date);
+            uniqueDaily.push(bar);
+        }
+    });
+    dailyBars = uniqueDaily;
 
     // Map each trading day to the close price of the previous trading day in the daily list
     const prevCloseMap = {};
@@ -5674,7 +5710,7 @@ function buildTraditionalTimeShareData(dataContainer) {
             const prevTime = new Date(prevBar.datetime).getTime();
             const currTime = new Date(datetime).getTime();
             const diffMin = Math.round((currTime - prevTime) / 60000);
-            if (diffMin > 0 && diffMin <= 15) {
+            if (diffMin >= 0 && diffMin <= 15) {
                 dt = diffMin;
             }
         }
