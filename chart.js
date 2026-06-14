@@ -2626,9 +2626,24 @@ class FuturesChart {
         ctx.font = '10px Inter';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
+        const leftLimit = this.paddingLeft + 4;
+        const rightLimit = w - this.paddingRight - 8;
+        const lastLabel = visibleData[count - 1]?.axisDate || visibleData[count - 1]?.displayDate || '';
+        const lastLabelLeft = Math.max(leftLimit, rightLimit - ctx.measureText(lastLabel).width);
+        let lastDrawnLabelRight = -Infinity;
         visibleData.forEach((d, i) => {
             if (i % labelInterval === 0 || i === count - 1) {
                 const x = this.paddingLeft + (i * candleWidth) + (candleWidth / 2);
+                const label = d.axisDate || d.displayDate || '';
+                const labelWidth = ctx.measureText(label).width;
+                if (i !== count - 1) {
+                    const rawLeft = x - labelWidth / 2;
+                    const rawRight = x + labelWidth / 2;
+                    if (rawRight > lastLabelLeft - 8 || rawLeft < lastDrawnLabelRight + 8) {
+                        return;
+                    }
+                }
+
                 ctx.beginPath();
                 ctx.strokeStyle = colorGrid;
                 ctx.moveTo(x, this.paddingTop);
@@ -2637,7 +2652,24 @@ class FuturesChart {
                 
                 // Print date text
                 ctx.fillStyle = colorText;
-                ctx.fillText(d.axisDate || d.displayDate, x, this.paddingTop + priceHeight + 6);
+                let labelX = x;
+                let labelAlign = 'center';
+                let labelLeft = labelX - labelWidth / 2;
+                let labelRight = labelX + labelWidth / 2;
+                if (labelX + labelWidth / 2 > rightLimit) {
+                    labelX = rightLimit;
+                    labelAlign = 'right';
+                    labelLeft = labelX - labelWidth;
+                    labelRight = labelX;
+                } else if (labelX - labelWidth / 2 < leftLimit) {
+                    labelX = leftLimit;
+                    labelAlign = 'left';
+                    labelLeft = labelX;
+                    labelRight = labelX + labelWidth;
+                }
+                ctx.textAlign = labelAlign;
+                ctx.fillText(label, labelX, this.paddingTop + priceHeight + 6);
+                lastDrawnLabelRight = labelRight;
             }
         });
 

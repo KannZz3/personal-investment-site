@@ -27,6 +27,36 @@ const state = {
     selectedVolumeProfileLevel: 'none' // 'none', '30m', 'daily', 'weekly'
 };
 
+function expandCzceDisplayCode(symbolPart) {
+    const match = String(symbolPart || '').toUpperCase().match(/^([A-Z]+)(\d{3})$/);
+    if (!match) return symbolPart;
+    const [, prefix, digits] = match;
+    const refYear = new Date().getFullYear();
+    const yearDigit = Number(digits[0]);
+    const decade = Math.floor(refYear / 10) * 10;
+    const candidates = [decade - 10 + yearDigit, decade + yearDigit, decade + 10 + yearDigit];
+    const plausible = candidates.filter(year => year >= refYear - 1 && year <= refYear + 6);
+    const chosen = (plausible.length ? plausible : candidates)
+        .sort((a, b) => Math.abs(a - refYear) - Math.abs(b - refYear))[0];
+    return `${prefix}${String(chosen % 100).padStart(2, '0')}${digits.slice(1)}`;
+}
+
+function normalizeDisplayContractCode(rawSymbol, exchange, baseCode) {
+    if (!rawSymbol) return baseCode || '';
+    const text = String(rawSymbol).trim().toUpperCase();
+    const parts = text.split('.');
+    const symbolPart = parts.length === 2 ? parts[1] : text;
+    const inferredExchange = (exchange || (parts.length === 2 ? parts[0] : '') || state.contracts?.[baseCode]?.exchange || '').toUpperCase();
+    if (inferredExchange === 'CZCE') {
+        return expandCzceDisplayCode(symbolPart);
+    }
+    return symbolPart;
+}
+
+function getContractDisplaySymbol(contract, baseCode) {
+    return normalizeDisplayContractCode(contract?.contractCode || contract?.symbol || baseCode, contract?.exchange, baseCode);
+}
+
 // Custom articles database
 const articles = [
     {
@@ -5263,7 +5293,7 @@ function buildDashboardUI() {
         const sign = isUp ? '+' : '';
         
         // Display the actual contract month symbol (e.g. AU2608) from metadata, or base code
-        const displaySym = contract.symbol || baseCode;
+        const displaySym = getContractDisplaySymbol(contract, baseCode);
         
         // Technical Badges
         const alertType = contract.oiAnalysis?.alert;
@@ -5508,7 +5538,7 @@ function updateChartData() {
     }
     
     // Display actual contract symbol (from metadata, e.g. CU2609) or base code
-    const displaySym = contract.symbol || baseCode;
+    const displaySym = getContractDisplaySymbol(contract, baseCode);
     const oiInfo = contract.oiAnalysis ? `当下持仓量: ${(contract.oiAnalysis.currentOI/10000).toFixed(1)}万手 · 峰值持仓量: ${(contract.oiAnalysis.historicalMaxOI/10000).toFixed(1)}万手` : (contract.openInterest ? `持仓量: ${(contract.openInterest/10000).toFixed(1)}万手` : '');
     document.getElementById('chartActiveTitle').innerHTML = `${contract.name}<br><span style="font-size: 0.95rem; color: var(--text-secondary); font-weight: 500;">(${displaySym})</span>`;
     document.getElementById('chartActiveSubtitle').textContent = oiInfo;
@@ -6469,7 +6499,7 @@ function buildTechnicalUI(data) {
                     <div class="anomaly-card-header">
                         <div class="anomaly-card-header-left">
                             <h3>${contract.name}</h3>
-                            <div class="card-meta">${contract.symbol} · ${contract.exchange}</div>
+                            <div class="card-meta">${getContractDisplaySymbol(contract, code)} · ${contract.exchange}</div>
                         </div>
                         <span class="oi-badge ${badgeClass}">${badgeText}</span>
                     </div>

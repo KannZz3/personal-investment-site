@@ -7,7 +7,7 @@ Output  : data/futures_data.json
 Requires: pip install pandas tqsdk
 """
 
-import os, json, sys, datetime, math, time
+import os, json, sys, datetime, math, time, re
 import pandas as pd
 from tqsdk import TqApi, TqAuth
 
@@ -102,16 +102,48 @@ def finite_float(value, default=0.0):
     except Exception:
         return default
 
-def normalize_contract_code(symbol):
+def _reference_year(reference_datetime=None):
+    if isinstance(reference_datetime, datetime.datetime):
+        return reference_datetime.year
+    if isinstance(reference_datetime, str):
+        m = re.search(r'(20\d{2})', reference_datetime)
+        if m:
+            return int(m.group(1))
+    return datetime.datetime.now().year
+
+def _expand_czce_contract_code(symbol_part, reference_datetime=None):
+    """Expand CZCE 3-digit year-month codes, e.g. SR609 -> SR2609."""
+    match = re.match(r'^([A-Z]+)(\d{3})$', symbol_part.upper())
+    if not match:
+        return symbol_part
+    prefix, digits = match.groups()
+    ref_year = _reference_year(reference_datetime)
+    year_digit = int(digits[0])
+    month = digits[1:]
+    decade = (ref_year // 10) * 10
+    candidates = [decade - 10 + year_digit, decade + year_digit, decade + 10 + year_digit]
+    plausible = [year for year in candidates if ref_year - 1 <= year <= ref_year + 6]
+    chosen = min(plausible or candidates, key=lambda year: abs(year - ref_year))
+    return f"{prefix}{str(chosen % 100).zfill(2)}{month}"
+
+def normalize_contract_code(symbol, exchange=None, reference_datetime=None):
     """Normalize exchange-prefixed symbols such as SHFE.sp2609 to SP2609."""
     if not symbol:
         return ''
     text = str(symbol).strip()
+    exchange_part = ''
     if '.' in text:
         parts = text.split('.')
-        symbol_part = parts[1].upper() if len(parts) == 2 else text
-        return symbol_part
-    return text.upper()
+        exchange_part = parts[0].upper() if len(parts) == 2 else ''
+        symbol_part = parts[1].upper() if len(parts) == 2 else text.upper()
+    else:
+        symbol_part = text.upper()
+    base_match = re.match(r'^([A-Z]+)', symbol_part)
+    base_code = base_match.group(1) if base_match else ''
+    inferred_exchange = (exchange or exchange_part or ALL_CFG.get(base_code, {}).get('exch', '')).upper()
+    if inferred_exchange == 'CZCE':
+        return _expand_czce_contract_code(symbol_part, reference_datetime)
+    return symbol_part
 
 def load_tq_credentials():
     """Load TqSdk credentials from env first, then local private config files."""
@@ -147,7 +179,7 @@ def load_tq_credentials():
 
 def resolve_tq_margin_info(code, margin_lookup, preferred_contract=None):
     """Resolve TqSdk per-lot margin metadata."""
-    normalized = normalize_contract_code(preferred_contract)
+    normalized = normalize_contract_code(preferred_contract, ALL_CFG.get(code.upper(), {}).get('exch'))
     info = margin_lookup.get('by_contract', {}).get(normalized) if normalized else None
     if info is None:
         info = margin_lookup.get('by_code', {}).get(code.upper())
@@ -175,7 +207,7 @@ def build_margin_info_from_tq_quote(code, quote, now_str):
     if margin_per_lot <= 0:
         return None
     return {
-        'contractCode': normalize_contract_code(quote.instrument_id),
+        'contractCode': normalize_contract_code(quote.instrument_id, ALL_CFG.get(code.upper(), {}).get('exch'), now_str),
         'marginPerLot': margin_per_lot,
         'marginPerLotLong': margin_per_lot,
         'marginPerLotShort': margin_per_lot,
@@ -539,11 +571,7 @@ def sync_futures():
             main_sym_specific = target_contracts.get(code)
             if main_sym_specific:
                 kline_sym = main_sym_specific
-                if '.' in main_sym_specific:
-                    parts = main_sym_specific.split('.')
-                    display_sym = parts[1].upper() if len(parts) == 2 else main_sym_specific
-                else:
-                    display_sym = main_sym_specific
+                display_sym = normalize_contract_code(main_sym_specific, cfg['exch'], now_str)
 
                 spec_quote = target_specific_quotes.get(code)
                 if spec_quote:
