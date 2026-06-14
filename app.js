@@ -24,7 +24,8 @@ const state = {
     futuresData: {}, // Holds real or simulated data for each base commodity code
     realDataLoadError: false,
     selectedTpoProfileLevel: 'none', // 'none', '30m', 'daily', 'weekly'
-    selectedVolumeProfileLevel: 'none' // 'none', '30m', 'daily', 'weekly'
+    selectedVolumeProfileLevel: 'none', // 'none', '30m', 'daily', 'weekly'
+    tdoiWapDays: 25
 };
 
 function expandCzceDisplayCode(symbolPart) {
@@ -5397,6 +5398,26 @@ function initializeChartComponent() {
         });
     });
 
+    // Handle TDOI-WAP Days Input change
+    const tdoiWapDaysInput = document.getElementById('tdoiWapDaysInput');
+    if (tdoiWapDaysInput) {
+        tdoiWapDaysInput.addEventListener('input', (e) => {
+            let val = parseInt(e.target.value);
+            if (isNaN(val) || val < 1) return;
+            if (val > 500) val = 500;
+            state.tdoiWapDays = val;
+            updateChartData();
+        });
+        tdoiWapDaysInput.addEventListener('blur', (e) => {
+            let val = parseInt(e.target.value);
+            if (isNaN(val) || val < 1) val = 25;
+            if (val > 500) val = 500;
+            e.target.value = val;
+            state.tdoiWapDays = val;
+            updateChartData();
+        });
+    }
+
     // Handle indicator toggles with collapsible panel
     const indicatorGroup  = document.getElementById('indicatorGroup');
     const indicatorToggle = document.getElementById('indicatorToggle');
@@ -5546,6 +5567,16 @@ function updateChartData() {
             periodGroup.style.display = '';
         }
     }
+
+    // Toggle TDOI-WAP Days Input visibility
+    const tdoiWapDaysGroup = document.getElementById('chartTdoiWapDaysGroup');
+    if (tdoiWapDaysGroup) {
+        if (state.chartType === 'line') {
+            tdoiWapDaysGroup.style.display = 'flex';
+        } else {
+            tdoiWapDaysGroup.style.display = 'none';
+        }
+    }
     
     // Display actual contract symbol (from metadata, e.g. CU2609) or base code
     const displaySym = getContractDisplaySymbol(contract, baseCode);
@@ -5690,7 +5721,10 @@ function buildTraditionalTimeShareData(dataContainer) {
                 dt = diffMin;
             }
         }
-        const gamma = 0.9993;
+        // Dynamic gamma calculation based on user input trading days (default 25)
+        const days = state.tdoiWapDays || 25;
+        const minutesPerDay = 375; // Average active minutes per trading day (including night session)
+        const gamma = Math.pow(0.5, 1 / (days * minutesPerDay));
         const lambda = Math.pow(gamma, dt);
         const hold = Number(bar.hold) || 0;
 

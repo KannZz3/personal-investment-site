@@ -464,6 +464,49 @@ main {
     padding: 2px;
 }
 
+.tdoi-days-group {
+    display: flex;
+    align-items: center;
+    background: var(--bg-app);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 2px 6px;
+    gap: 4px;
+}
+
+.tdoi-days-input {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    width: 38px;
+    text-align: center;
+    font-size: 0.8rem;
+    padding: 2px 0;
+    outline: none;
+    transition: border-color var(--transition-fast);
+}
+
+.tdoi-days-input::-webkit-outer-spin-button,
+.tdoi-days-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.tdoi-days-input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.tdoi-days-input:focus {
+    border-color: var(--primary);
+}
+
+.tdoi-days-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
 .btn-tab {
     background: none;
     border: none;
