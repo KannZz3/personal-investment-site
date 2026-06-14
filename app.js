@@ -5623,9 +5623,13 @@ function buildTraditionalTimeShareData(dataContainer) {
     sortedTradingDays.forEach(td => {
         // Preference: if 1m is available, use 1m. Otherwise, fall back to 5m.
         if (min1Groups[td] && min1Groups[td].length > 0) {
-            mergedBars.push(...min1Groups[td]);
+            min1Groups[td].forEach(bar => {
+                mergedBars.push({ ...bar, _sourcePeriod: 'min1' });
+            });
         } else if (min5Groups[td] && min5Groups[td].length > 0) {
-            mergedBars.push(...min5Groups[td]);
+            min5Groups[td].forEach(bar => {
+                mergedBars.push({ ...bar, _sourcePeriod: 'min5' });
+            });
         }
     });
 
@@ -5635,6 +5639,8 @@ function buildTraditionalTimeShareData(dataContainer) {
     let currentTradingDay = null;
     let cumulativePriceVolume = 0;
     let cumulativeVolume = 0;
+    let cumulativeWeight = 0;
+    let cumulativePriceWeight = 0;
 
     mergedBars.forEach(bar => {
         if (!bar) return;
@@ -5660,6 +5666,26 @@ function buildTraditionalTimeShareData(dataContainer) {
             ? cumulativePriceVolume / cumulativeVolume
             : close;
 
+        // Calculate step-based time decay for TDOI-WAP
+        const defaultStep = bar._sourcePeriod === 'min5' ? 5 : 1;
+        let dt = defaultStep;
+        if (output.length > 0) {
+            const prevBar = output[output.length - 1];
+            const prevTime = new Date(prevBar.datetime).getTime();
+            const currTime = new Date(datetime).getTime();
+            const diffMin = Math.round((currTime - prevTime) / 60000);
+            if (diffMin > 0 && diffMin <= 15) {
+                dt = diffMin;
+            }
+        }
+        const gamma = 0.9993;
+        const lambda = Math.pow(gamma, dt);
+        const hold = Number(bar.hold) || 0;
+
+        cumulativeWeight = lambda * cumulativeWeight + hold;
+        cumulativePriceWeight = lambda * cumulativePriceWeight + (close * hold);
+        const tdoiWap = cumulativeWeight > 0 ? (cumulativePriceWeight / cumulativeWeight) : close;
+
         const prevClose = prevCloseMap[tradingDay] || null;
 
         output.push({
@@ -5670,6 +5696,7 @@ function buildTraditionalTimeShareData(dataContainer) {
             low: close,
             close,
             vwap,
+            tdoiWap,
             prevClose,
             volume: Number.isFinite(volume) ? volume : 0,
             hold: Number.isFinite(Number(bar.hold)) ? Number(bar.hold) : 0,

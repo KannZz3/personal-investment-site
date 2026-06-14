@@ -600,6 +600,7 @@ class FuturesChart {
                 low: parseFloat(d.low),
                 close: parseFloat(d.close),
                 vwap: Number.isFinite(parseFloat(d.vwap)) ? parseFloat(d.vwap) : null,
+                tdoiWap: Number.isFinite(parseFloat(d.tdoiWap)) ? parseFloat(d.tdoiWap) : null,
                 volume: parseFloat(d.volume),
                 hold: d.hold ? parseFloat(d.hold) : 0,
                 ma5: getMA(5),
@@ -2200,6 +2201,10 @@ class FuturesChart {
                     if (d.vwap > maxPrice) maxPrice = d.vwap;
                     if (d.vwap < minPrice) minPrice = d.vwap;
                 }
+                if (Number.isFinite(d.tdoiWap)) {
+                    if (d.tdoiWap > maxPrice) maxPrice = d.tdoiWap;
+                    if (d.tdoiWap < minPrice) minPrice = d.tdoiWap;
+                }
             }
             if (d.volume > maxVol) maxVol = d.volume;
         });
@@ -2450,6 +2455,7 @@ class FuturesChart {
 
             drawLineSeries('close', closeLineColor, 1.35);
             drawLineSeries('vwap', vwapLineColor, 1.45);
+            drawLineSeries('tdoiWap', '#0d9488', 1.45);
 
             // Volume Bars for line chart
             if (hasVolume) {
@@ -2786,6 +2792,7 @@ class FuturesChart {
                     items.length - 1,
                     { label: '价:', val: d.close.toFixed(1), color: priceColor },
                     ...(Number.isFinite(d.vwap) ? [{ label: '均:', val: d.vwap.toFixed(1), color: '#eab308' }] : []),
+                    ...(Number.isFinite(d.tdoiWap) ? [{ label: '仓均:', val: d.tdoiWap.toFixed(1), color: '#0d9488' }] : []),
                     { label: '幅:', val: pctText, color: priceColor },
                     { label: '量:', val: this.formatVolume(d.volume), color: colorTextBright },
                     { label: '仓:', val: this.formatVolume(d.hold), color: colorTextBright }
