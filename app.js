@@ -5607,24 +5607,14 @@ function buildTraditionalTimeShareData(dataContainer) {
 
     // Sort unique trading days chronologically
     const sortedTradingDays = Array.from(allTradingDaysSet).sort();
-    
-    // Determine the latest 2 trading days for high-resolution 1m data
-    const recentDays = new Set(sortedTradingDays.slice(-2));
 
     const mergedBars = [];
     sortedTradingDays.forEach(td => {
-        if (recentDays.has(td)) {
-            // For the latest 2 days: prefer 1m data if available, fallback to 5m.
-            if (min1Groups[td] && min1Groups[td].length > 0) {
-                mergedBars.push(...min1Groups[td]);
-            } else if (min5Groups[td] && min5Groups[td].length > 0) {
-                mergedBars.push(...min5Groups[td]);
-            }
-        } else {
-            // For older days: use 5m data if available (avoid high-density 1m data overhead)
-            if (min5Groups[td] && min5Groups[td].length > 0) {
-                mergedBars.push(...min5Groups[td]);
-            }
+        // Preference: if 1m is available, use 1m. Otherwise, fall back to 5m.
+        if (min1Groups[td] && min1Groups[td].length > 0) {
+            mergedBars.push(...min1Groups[td]);
+        } else if (min5Groups[td] && min5Groups[td].length > 0) {
+            mergedBars.push(...min5Groups[td]);
         }
     });
 
