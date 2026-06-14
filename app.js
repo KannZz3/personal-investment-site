@@ -5536,6 +5536,16 @@ function updateChartData() {
     if (state.chartType === 'line') {
         dataset = buildTraditionalTimeShareData(dataContainer);
     }
+
+    // Toggle period toolbar visibility based on chart type (Scheme A)
+    const periodGroup = document.getElementById('chartPeriodGroup');
+    if (periodGroup) {
+        if (state.chartType === 'line') {
+            periodGroup.style.display = 'none';
+        } else {
+            periodGroup.style.display = '';
+        }
+    }
     
     // Display actual contract symbol (from metadata, e.g. CU2609) or base code
     const displaySym = getContractDisplaySymbol(contract, baseCode);
@@ -5564,8 +5574,54 @@ function updateChartData() {
 }
 
 function buildTraditionalTimeShareData(dataContainer) {
-    const source = Array.isArray(dataContainer?.min1) ? dataContainer.min1 : [];
-    if (!source.length) return [];
+    const min1Bars = Array.isArray(dataContainer?.min1) ? dataContainer.min1 : [];
+    const min5Bars = Array.isArray(dataContainer?.min5) ? dataContainer.min5 : [];
+
+    const min1Groups = {};
+    const min5Groups = {};
+    const allTradingDaysSet = new Set();
+
+    min1Bars.forEach(bar => {
+        if (!bar) return;
+        const datetime = bar.datetime || bar.date;
+        if (!datetime) return;
+        const td = getTradingDayForIntradayBar(datetime);
+        if (td) {
+            if (!min1Groups[td]) min1Groups[td] = [];
+            min1Groups[td].push(bar);
+            allTradingDaysSet.add(td);
+        }
+    });
+
+    min5Bars.forEach(bar => {
+        if (!bar) return;
+        const datetime = bar.datetime || bar.date;
+        if (!datetime) return;
+        const td = getTradingDayForIntradayBar(datetime);
+        if (td) {
+            if (!min5Groups[td]) min5Groups[td] = [];
+            min5Groups[td].push(bar);
+            allTradingDaysSet.add(td);
+        }
+    });
+
+    // Sort unique trading days chronologically
+    const sortedTradingDays = Array.from(allTradingDaysSet).sort();
+    
+    // Restrict to at most the latest two trading days (performance rate limiting)
+    const latestDays = sortedTradingDays.slice(-2);
+
+    const mergedBars = [];
+    latestDays.forEach(td => {
+        // Preference: if 1m is available, use 1m. Otherwise, fall back to 5m.
+        if (min1Groups[td] && min1Groups[td].length > 0) {
+            mergedBars.push(...min1Groups[td]);
+        } else if (min5Groups[td] && min5Groups[td].length > 0) {
+            mergedBars.push(...min5Groups[td]);
+        }
+    });
+
+    if (!mergedBars.length) return [];
 
     const output = [];
     let currentTradingDay = null;
@@ -5573,7 +5629,7 @@ function buildTraditionalTimeShareData(dataContainer) {
     let cumulativeVolume = 0;
     let fallbackCount = 0;
 
-    source.forEach(bar => {
+    mergedBars.forEach(bar => {
         if (!bar) return;
 
         const datetime = bar.datetime || bar.date;
