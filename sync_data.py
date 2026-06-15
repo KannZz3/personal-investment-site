@@ -518,13 +518,13 @@ def sync_futures():
                 if main_sym_specific:
                     target_contracts[code] = main_sym_specific
                     target_specific_quotes[code] = api.get_quote(main_sym_specific)
-                    sym = get_tq_main_symbol(code, ALL_CFG[code]['exch'])
                     target_klines[code] = {
-                        'min1':  api.get_kline_serial(sym, 60, 1500),
-                        'min5':  api.get_kline_serial(sym, 300, 1500),
-                        'min15': api.get_kline_serial(sym, 900, 1500),
-                        'min30': api.get_kline_serial(sym, 1800, 1500),
-                        'min60': api.get_kline_serial(sym, 3600, 1500),
+                        'daily': api.get_kline_serial(main_sym_specific, 86400, 1500),
+                        'min1':  api.get_kline_serial(main_sym_specific, 60, 1500),
+                        'min5':  api.get_kline_serial(main_sym_specific, 300, 1500),
+                        'min15': api.get_kline_serial(main_sym_specific, 900, 1500),
+                        'min30': api.get_kline_serial(main_sym_specific, 1800, 1500),
+                        'min60': api.get_kline_serial(main_sym_specific, 3600, 1500),
                     }
                 else:
                     print(f"      [!] Warning: Could not resolve underlying specific symbol for {code}")
@@ -597,6 +597,7 @@ def sync_futures():
 
             if code in target_klines:
                 min_dict = target_klines[code]
+                daily = fetch_daily_tq(pd, min_dict['daily'], start_date_str)
                 min1  = fetch_minute(pd, min_dict['min1'], n=1500)
                 min5  = fetch_minute(pd, min_dict['min5'], n=1500)
                 min15 = fetch_minute(pd, min_dict['min15'], n=1500)
