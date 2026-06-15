@@ -604,6 +604,16 @@ def sync_futures():
                 min30 = fetch_minute(pd, min_dict['min30'], n=1500)
                 min60 = fetch_minute(pd, min_dict['min60'], n=1500)
 
+                # Filter out previous decade's recycled contract months (e.g. CZCE contract codes reused every 10 years)
+                cutoff_date = (datetime.datetime.utcnow() + datetime.timedelta(hours=8) - datetime.timedelta(days=730)).strftime('%Y-%m-%d')
+                cutoff_datetime = cutoff_date + " 00:00:00"
+                daily = [b for b in daily if b['date'] >= cutoff_date]
+                min1  = [b for b in min1 if b['datetime'] >= cutoff_datetime]
+                min5  = [b for b in min5 if b['datetime'] >= cutoff_datetime]
+                min15 = [b for b in min15 if b['datetime'] >= cutoff_datetime]
+                min30 = [b for b in min30 if b['datetime'] >= cutoff_datetime]
+                min60 = [b for b in min60 if b['datetime'] >= cutoff_datetime]
+
             print(f"      1-min: {len(min1)} bars | 5-min: {len(min5)} bars | 15-min: {len(min15)} bars | 30-min: {len(min30)} bars | 60-min: {len(min60)} bars")
         else:
             kline_sym   = f"{code}0"
