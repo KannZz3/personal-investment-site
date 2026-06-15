@@ -170,6 +170,9 @@ def load_tq_credentials():
             username = cfg_data.get('tq_username')
             password = cfg_data.get('tq_password')
             if str(username or '').strip() and str(password or '').strip():
+                # Skip placeholder credentials
+                if "请输入" in username or "请输入" in password:
+                    continue
                 print(f"[+] Loaded TqSdk credentials from {path}")
                 return username, password
         except Exception as e:
@@ -579,9 +582,13 @@ def sync_futures():
                 spec_quote = target_specific_quotes.get(code)
                 if spec_quote:
                     if spec_quote.open_interest:
-                        main_oi = int(spec_quote.open_interest)
+                        val_oi = int(finite_float(spec_quote.open_interest, 0.0))
+                        if val_oi > 0:
+                            main_oi = val_oi
                     if spec_quote.last_price:
-                        main_price = float(spec_quote.last_price)
+                        val_price = finite_float(spec_quote.last_price, 0.0)
+                        if val_price > 0:
+                            main_price = val_price
 
                 print(f"      Main: {display_sym} ({main_sym_specific})  OI={main_oi:,}  price={main_price}")
             else:
