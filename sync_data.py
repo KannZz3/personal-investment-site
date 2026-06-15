@@ -92,7 +92,7 @@ ALL_CFG = {
 }
 
 NEAR_HIGH_THRESH = 0.90
-HISTORY_YEARS = 10
+HISTORY_YEARS = 35
 
 def finite_float(value, default=0.0):
     """Convert numeric values while preventing NaN/Infinity from reaching JSON."""
@@ -452,7 +452,7 @@ def sync_futures():
     daily_klines_raw = {}
     for code in ALL_CFG.keys():
         sym = get_tq_main_symbol(code, ALL_CFG[code]['exch'])
-        daily_klines_raw[code] = api.get_kline_serial(sym, duration_seconds=86400, data_length=2500)
+        daily_klines_raw[code] = api.get_kline_serial(sym, duration_seconds=86400, data_length=10000)
 
     # Wait for all daily K-lines to download in parallel
     print("[+] Downloading all daily K-lines in parallel...")
