@@ -5532,13 +5532,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Theme Management
 function initTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
+    const savedTheme = localStorage.getItem('theme') || 'light';
     setTheme(savedTheme);
 
     const toggleBtn = document.getElementById('themeToggleBtn');
     if (toggleBtn) {
         toggleBtn.addEventListener('click', () => {
-            const currentTheme = document.body.getAttribute('data-theme') || 'dark';
+            const currentTheme = document.body.getAttribute('data-theme') || 'light';
             const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
             setTheme(nextTheme);
         });
