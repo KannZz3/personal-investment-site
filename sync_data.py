@@ -648,7 +648,8 @@ def sync_futures():
             },
         }
 
-        data_out[code] = {'daily': daily, 'min1': min1, 'min5': min5, 'min15': min15, 'min30': min30, 'min60': min60}
+        if code in anomalies:
+            data_out[code] = {'daily': daily, 'min1': min1, 'min5': min5, 'min15': min15, 'min30': min30, 'min60': min60}
 
     try:
         api.close()
