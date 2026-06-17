@@ -1119,9 +1119,9 @@ main {
 
 .article-data-table th,
 .article-data-table td {
-    padding: 0.75rem 0.85rem;
-    text-align: left;
-    vertical-align: top;
+    padding: 0.85rem 1rem;
+    text-align: center;
+    vertical-align: middle;
     border-bottom: 1px solid var(--border-color);
 }
 
