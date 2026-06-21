@@ -7021,6 +7021,7 @@ const COST_ANCHORS = Object.freeze({
     HC: 2625,
     LC: 40000,
     SH: 1466,
+    AG: 6500,
 });
 
 function formatCapitalAmount(amount) {
