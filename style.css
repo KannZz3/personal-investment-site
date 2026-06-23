@@ -368,8 +368,10 @@ main {
 }
 
 .ticker-symbol {
+    display: block;
     font-size: 0.75rem;
     color: var(--text-muted);
+    margin-top: 0.15rem;
 }
 
 .ticker-exchange {
