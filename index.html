@@ -10,7 +10,7 @@
     <meta name="keywords" content="个人投资, 商品期货, 行情分析, K线图, 仓位计算器, CTA策略, 量化交易">
     
     <!-- Premium Fonts and Icons -->
-    <link rel="stylesheet" href="./style.css?v=167266e">
+    <link rel="stylesheet" href="./style.css?v=profile-confluence">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body data-theme="light">
@@ -115,6 +115,12 @@
                                     <button class="btn-tab vp-btn" data-vp="daily">日 VP</button>
                                     <button class="btn-tab vp-btn" data-vp="weekly">周 VP</button>
                                     <button class="btn-tab period-toggle-btn" id="vpToggle">»</button>
+                                </div>
+
+                                <div class="period-group profile-mode-group" id="chartProfileModeGroup">
+                                    <button class="btn-tab profile-mode-btn active" data-profile-mode="confluence" title="只显示共识价值区和核心结构线">共识</button>
+                                    <button class="btn-tab profile-mode-btn" data-profile-mode="distribution" title="显示 TPO/VP 分布条">分布</button>
+                                    <button class="btn-tab profile-mode-btn" data-profile-mode="full" title="显示完整 Profile 细节">完整</button>
                                 </div>
                                 
                                 <!-- Indicators Toggles (collapsible) -->
@@ -363,9 +369,9 @@
     </div>
 
     <!-- Script Entrypoint -->
-    <script src="./profile.js?v=167266e"></script>
-    <script src="./chart.js?v=167266e"></script>
-    <script src="./app.js?v=167266e"></script>
+    <script src="./profile.js?v=profile-confluence"></script>
+    <script src="./chart.js?v=profile-confluence"></script>
+    <script src="./app.js?v=profile-confluence"></script>
     <script>
         // Trigger initial lucide icons compilation
         document.addEventListener('DOMContentLoaded', () => {

@@ -25,6 +25,7 @@ const state = {
     realDataLoadError: false,
     selectedTpoProfileLevel: 'none', // 'none', '30m', 'daily', 'weekly'
     selectedVolumeProfileLevel: 'none', // 'none', '30m', 'daily', 'weekly'
+    profileDisplayMode: 'confluence', // 'confluence', 'distribution', 'full'
     tdoiWapDays: 25
 };
 
@@ -6634,6 +6635,19 @@ function initializeChartComponent() {
         });
     });
 
+    const profileModeButtons = document.querySelectorAll('#chartProfileModeGroup .profile-mode-btn');
+    profileModeButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const mode = btn.getAttribute('data-profile-mode');
+            state.profileDisplayMode = mode || 'confluence';
+            profileModeButtons.forEach(b => b.classList.toggle('active', b === btn));
+            if (window.activeChart && window.activeChart.setProfileDisplayMode) {
+                window.activeChart.setProfileDisplayMode(state.profileDisplayMode);
+            }
+            updateChartData();
+        });
+    });
+
     // Populate initial data to chart
     updateChartData();
 }
@@ -6698,6 +6712,9 @@ function updateChartData() {
     // Configure TPO and Volume Profiles on chart
     window.activeChart.symbol = baseCode;
     window.activeChart.setProfileLevels(state.selectedTpoProfileLevel, state.selectedVolumeProfileLevel);
+    if (window.activeChart.setProfileDisplayMode) {
+        window.activeChart.setProfileDisplayMode(state.profileDisplayMode);
+    }
     window.activeChart.setIntradayData({
         bars1m: dataContainer.min1 || [],
         bars5m: dataContainer.min5 || [],
@@ -7848,4 +7865,9 @@ function syncProfileButtons() {
             vpGroup.classList.remove('has-active');
         }
     }
+
+    const profileModeButtons = document.querySelectorAll('#chartProfileModeGroup .profile-mode-btn');
+    profileModeButtons.forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-profile-mode') === state.profileDisplayMode);
+    });
 }
