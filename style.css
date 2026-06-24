@@ -616,6 +616,12 @@ main {
     align-items: center;
 }
 
+.profile-mode-group .btn-tab {
+    min-width: 38px;
+    padding-left: 7px;
+    padding-right: 7px;
+}
+
 .period-group .period-extra {
     display: none;
     max-width: 0;

@@ -280,7 +280,10 @@ function buildTpoProfile({ bars30m, tickSize, symbol, sessionDate, dailyDates })
         value: tpoCounts[idx],
         normalizedValue: maxTpos > 0 ? tpoCounts[idx] / maxTpos : 0,
         isPoc: idx === pocIdx,
-        isValueArea: valueAreaIndices.has(idx)
+        isValueArea: valueAreaIndices.has(idx),
+        isSinglePrint: tpoCounts[idx] === 1,
+        isBuyingTail: idx < buyingTailLength,
+        isSellingTail: idx >= numRows - sellingTailLength
     }));
     
     return {
@@ -496,6 +499,8 @@ function buildVolumeProfile({ bars1m, tickSize, symbol, sessionDate, dailyDates,
             totalVolume: totalVolume,
             hvnList: hvnList,
             lvnList: lvnList,
+            isEstimated: true,
+            volumeEstimation: allocationMethod,
             dataQuality: "fallback" // We fallback to 15m/30m data in frontend
         }
     };
@@ -614,7 +619,8 @@ function buildDailyCompositeTpo({ bars30m, tickSize, symbol, endDate, dailyDates
         value: tpoCounts[idx],
         normalizedValue: maxTpos > 0 ? tpoCounts[idx] / maxTpos : 0,
         isPoc: idx === pocIdx,
-        isValueArea: valueAreaIndices.has(idx)
+        isValueArea: valueAreaIndices.has(idx),
+        isSinglePrint: tpoCounts[idx] === 1
     }));
     
     return {
@@ -817,6 +823,8 @@ function buildDailyCompositeVolume({ bars1m, tickSize, symbol, endDate, dailyDat
             totalVolume: totalVolume,
             hvnList: hvnList,
             lvnList: lvnList,
+            isEstimated: true,
+            volumeEstimation: "uniform",
             dataQuality: "fallback"
         }
     };

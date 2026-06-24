@@ -53,6 +53,7 @@ class FuturesChart {
         this.symbol = '';
         this.tpoLevel = 'none';
         this.vpLevel = 'none';
+        this.profileDisplayMode = 'confluence'; // 'confluence', 'distribution', 'full'
         this.bars1m = [];
         this.bars5m = [];
         this.bars15m = [];
@@ -640,6 +641,12 @@ class FuturesChart {
         this.vpLevel = vpLevel || 'none';
     }
 
+    setProfileDisplayMode(mode) {
+        const allowed = new Set(['confluence', 'distribution', 'full']);
+        this.profileDisplayMode = allowed.has(mode) ? mode : 'confluence';
+        this.render();
+    }
+
     setIntradayData({ bars1m, bars5m, bars15m, bars30m, bars60m, dailyDates }) {
         this.bars1m = bars1m || [];
         this.bars5m = bars5m || [];
@@ -931,178 +938,90 @@ class FuturesChart {
         const ctx = this.ctx;
         const isDark = this.theme === 'dark';
         const meta = profile.meta || {};
-        
-        // Calculate dynamic height based on metadata lines
-        // TPO base: title + ProfileType + DataQuality + 价格 + TPO计数 + 区域属性 + 日内结构 = 6 content lines
-        // VP base: title + ProfileType + DataQuality + 价格 + 估算成交 + 成交比率 + 区域属性 = 7 content lines
-        let linesCount = type === 'tpo' ? 6 : 7;
-        if (meta.actualFrequencyUsed) linesCount++; // Freq Used (conditional)
-        if (meta.dataCoverageDays) linesCount++;
-        if (meta.profileStartTime && meta.profileEndTime) linesCount++;
-        if (type === 'volume' && meta.fallbackUsed && meta.fallbackReason) linesCount++;
-        if (type === 'volume' && meta.dataQuality === 'partial' && meta.actualLookbackDays && meta.targetLookbackDays) linesCount++;
-        
-        const tooltipW = 210;
-        const tooltipH = 38 + linesCount * 16;
-        
-        let tooltipX = mouseX + 15;
-        let tooltipY = mouseY + 15;
-        
-        if (tooltipX + tooltipW > w) tooltipX = mouseX - tooltipW - 15;
-        if (tooltipY + tooltipH > h) tooltipY = mouseY - tooltipH - 15;
-        if (tooltipX < 0) tooltipX = 10;
-        if (tooltipY < 0) tooltipY = 10;
-        
-        ctx.fillStyle = isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)';
-        ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.15)';
+        const levelLabel = meta.profileLevel === 'daily' ? 'Daily' :
+                           meta.profileLevel === 'weekly' ? 'Weekly' : '30m';
+        const quality = String(meta.dataQuality || 'full').toUpperCase();
+        const freq = meta.actualFrequencyUsed
+            ? `${meta.actualFrequencyUsed}${meta.fallbackUsed ? ' fallback' : ''}`
+            : (type === 'tpo' ? '30m' : 'est.');
+        const distToPoc = Number.isFinite(profile.poc) ? row.price - profile.poc : 0;
+        const distText = `${distToPoc >= 0 ? '+' : ''}${distToPoc.toFixed(1)}`;
+        const totalVol = meta.totalVolume || 1;
+
+        let role = 'Outside VA';
+        let roleColor = isDark ? '#cbd5e1' : '#475569';
+        if (row.isPoc) {
+            role = type === 'tpo' ? 'TPOC' : 'VPOC';
+            roleColor = type === 'tpo' ? '#a855f7' : '#2563eb';
+        } else if (row.isHvn) {
+            role = 'HVN';
+            roleColor = '#2563eb';
+        } else if (row.isLvn) {
+            role = 'LVN';
+            roleColor = '#f43f5e';
+        } else if (row.isSinglePrint) {
+            role = 'Single';
+            roleColor = '#f97316';
+        } else if (row.isValueArea) {
+            role = 'Value Area';
+            roleColor = type === 'tpo' ? '#8b5cf6' : '#3b82f6';
+        }
+
+        const lines = type === 'tpo'
+            ? [
+                [`${levelLabel} TPO`, quality, quality === 'FULL' ? '#10b981' : '#f59e0b'],
+                ['Price', row.price.toFixed(1)],
+                ['Time', `${row.value} TPO | ${role}`, roleColor],
+                ['POC Dist', distText]
+            ]
+            : [
+                [`${levelLabel} VP`, `${quality} | ${freq}`, quality === 'FULL' ? '#10b981' : '#f59e0b'],
+                ['Price', row.price.toFixed(1)],
+                ['Est Vol', `${this.formatVolume(row.value)} | ${((row.value / totalVol) * 100).toFixed(2)}%`],
+                ['POC Dist', `${role} | ${distText}`, roleColor]
+            ];
+
+        const tooltipW = 184;
+        const tooltipH = 24 + lines.length * 17;
+        let tooltipX = mouseX + 14;
+        let tooltipY = mouseY + 14;
+        if (tooltipX + tooltipW > w) tooltipX = mouseX - tooltipW - 14;
+        if (tooltipY + tooltipH > h) tooltipY = mouseY - tooltipH - 14;
+        tooltipX = Math.max(8, tooltipX);
+        tooltipY = Math.max(8, tooltipY);
+
+        ctx.save();
+        ctx.fillStyle = isDark ? 'rgba(15, 23, 42, 0.94)' : 'rgba(255, 255, 255, 0.96)';
+        ctx.strokeStyle = isDark ? 'rgba(148, 163, 184, 0.26)' : 'rgba(15, 23, 42, 0.16)';
         ctx.lineWidth = 1;
-        
-        ctx.shadowColor = isDark ? 'rgba(0, 0, 0, 0.5)' : 'rgba(0, 0, 0, 0.1)';
+        ctx.shadowColor = isDark ? 'rgba(0, 0, 0, 0.36)' : 'rgba(15, 23, 42, 0.12)';
         ctx.shadowBlur = 10;
-        ctx.shadowOffsetX = 2;
         ctx.shadowOffsetY = 2;
-        
+        ctx.beginPath();
         if (ctx.roundRect) {
-            ctx.beginPath();
             ctx.roundRect(tooltipX, tooltipY, tooltipW, tooltipH, 8);
-            ctx.fill();
-            ctx.stroke();
         } else {
-            ctx.beginPath();
             ctx.rect(tooltipX, tooltipY, tooltipW, tooltipH);
-            ctx.fill();
-            ctx.stroke();
         }
-        
+        ctx.fill();
+        ctx.stroke();
+
         ctx.shadowBlur = 0;
-        ctx.shadowOffsetX = 0;
         ctx.shadowOffsetY = 0;
-        
-        ctx.fillStyle = isDark ? '#f3f4f6' : '#0f172a';
-        ctx.font = 'bold 11px Inter';
-        ctx.textAlign = 'left';
         ctx.textBaseline = 'top';
-        
-        let textY = tooltipY + 10;
-        const lineH = 16;
-        
-        const drawLine = (label, val, color) => {
-            ctx.fillStyle = isDark ? '#9ca3af' : '#475569';
-            ctx.font = '10px Inter';
-            ctx.fillText(label, tooltipX + 10, textY);
-            
-            ctx.fillStyle = color || (isDark ? '#f3f4f6' : '#0f172a');
+        lines.forEach((line, idx) => {
+            const y = tooltipY + 10 + idx * 17;
+            const [label, value, color] = line;
+            ctx.fillStyle = idx === 0 ? (isDark ? '#e5e7eb' : '#0f172a') : (isDark ? '#94a3b8' : '#64748b');
+            ctx.font = idx === 0 ? 'bold 10px Inter' : '10px Inter';
+            ctx.textAlign = 'left';
+            ctx.fillText(label, tooltipX + 10, y);
+            ctx.fillStyle = color || (isDark ? '#f8fafc' : '#111827');
             ctx.font = 'bold 10px Inter';
-            const labelW = ctx.measureText(label).width;
-            ctx.fillText(val, tooltipX + 10 + labelW + 5, textY);
-            
-            textY += lineH;
-        };
-        
-        if (type === 'tpo') {
-            ctx.fillText("TPO Profile Details", tooltipX + 10, textY);
-            textY += 18;
-            
-            // Profile Type
-            const profileTypeLabel = meta.profileLevel === 'daily' ? 'Daily Composite TPO' :
-                                     meta.profileLevel === 'weekly' ? 'Weekly Composite TPO' : '30m TPO';
-            drawLine("Profile Type:", profileTypeLabel);
-            
-            // Actual Frequency Used
-            if (meta.actualFrequencyUsed) {
-                drawLine("Freq Used:", meta.actualFrequencyUsed);
-            }
-            
-            // Data Quality
-            const tpoQuality = meta.dataQuality || 'full';
-            const tpoQualityColor = tpoQuality === 'full' ? '#10b981' : tpoQuality === 'fallback' ? '#f59e0b' : '#9ca3af';
-            drawLine("Data Quality:", tpoQuality.toUpperCase(), tpoQualityColor);
-            
-            drawLine("价格:", row.price.toFixed(1));
-            drawLine("TPO 计数:", String(row.value));
-            
-            let areaText = "Outside VA";
-            let areaColor = isDark ? '#9ca3af' : '#475569';
-            if (row.isPoc) {
-                areaText = "POC";
-                areaColor = '#c084fc';
-            } else if (row.isValueArea) {
-                areaText = "Value Area";
-                areaColor = '#818cf8';
-            }
-            drawLine("区域属性:", areaText, areaColor);
-            
-            const dayType = meta.dayType ? meta.dayType : "Normal";
-            drawLine("日内结构:", dayType);
-            
-            if (meta.dataCoverageDays) {
-                drawLine("覆盖天数:", meta.dataCoverageDays + " 天");
-            }
-            if (meta.profileStartTime && meta.profileEndTime) {
-                const formatTime = (t) => t.length >= 16 ? t.slice(5, 16) : t;
-                drawLine("计算区间:", `${formatTime(meta.profileStartTime)} 至 ${formatTime(meta.profileEndTime)}`);
-            }
-        } else {
-            ctx.fillText("Volume Profile Details", tooltipX + 10, textY);
-            textY += 18;
-            
-            // Profile Type
-            const vpTypeLabel = meta.profileLevel === 'daily' ? 'Daily Composite VP' :
-                                meta.profileLevel === 'weekly' ? 'Weekly Composite VP' : '30m VP';
-            drawLine("Profile Type:", vpTypeLabel);
-            
-            // Actual Frequency Used
-            if (meta.actualFrequencyUsed) {
-                drawLine("Freq Used:", meta.actualFrequencyUsed + (meta.fallbackUsed ? " (fallback)" : ""));
-            }
-            
-            // Data Quality
-            const vpQuality = meta.dataQuality || 'unknown';
-            const vpQualityColor = vpQuality === 'full' ? '#10b981' :
-                                   vpQuality === 'partial' ? '#f59e0b' :
-                                   vpQuality === 'fallback' ? '#f59e0b' : '#9ca3af';
-            drawLine("Data Quality:", vpQuality.toUpperCase(), vpQualityColor);
-            
-            // Partial coverage: show actual vs target days
-            if (vpQuality === 'partial' && meta.actualLookbackDays && meta.targetLookbackDays) {
-                drawLine("Coverage:", `${meta.actualLookbackDays}D / ${meta.targetLookbackDays}D target`, '#f59e0b');
-            }
-            
-            drawLine("价格:", row.price.toFixed(1));
-            drawLine("估算成交:", this.formatVolume(row.value));
-            
-            const totalVol = meta.totalVolume ? meta.totalVolume : 1;
-            const percent = ((row.value / totalVol) * 100).toFixed(2) + "%";
-            drawLine("成交比率:", percent);
-            
-            let areaText = "Outside VA";
-            let areaColor = isDark ? '#9ca3af' : '#475569';
-            if (row.isPoc) {
-                areaText = "VPOC";
-                areaColor = '#60a5fa';
-            } else if (row.isHvn) {
-                areaText = "HVN";
-                areaColor = '#3b82f6';
-            } else if (row.isLvn) {
-                areaText = "LVN";
-                areaColor = '#f43f5e';
-            } else if (row.isValueArea) {
-                areaText = "Value Area";
-                areaColor = '#60a5fa';
-            }
-            drawLine("区域属性:", areaText, areaColor);
-            
-            if (meta.dataCoverageDays) {
-                drawLine("覆盖天数:", meta.dataCoverageDays + " 天");
-            }
-            if (meta.profileStartTime && meta.profileEndTime) {
-                const formatTime = (t) => t.length >= 16 ? t.slice(5, 16) : t;
-                drawLine("计算区间:", `${formatTime(meta.profileStartTime)} 至 ${formatTime(meta.profileEndTime)}`);
-            }
-            if (meta.fallbackUsed && meta.fallbackReason) {
-                drawLine("降级原因:", "1m数据覆盖不足");
-            }
-        }
+            ctx.textAlign = 'right';
+            ctx.fillText(value, tooltipX + tooltipW - 10, y);
+        });
+        ctx.restore();
     }
 
     setChartType(type) {
@@ -1231,7 +1150,7 @@ class FuturesChart {
             const { priceHeight } = this.getPriceHeightParams();
             const isInsideChartY = mouseY >= this.paddingTop && mouseY <= this.paddingTop + priceHeight;
             if (isInsideChartX && isInsideChartY && this.hoverIndex >= 0) {
-                this.selectedBarIndex = this.hoverIndex;
+                this.selectedBarIndex = this.selectedBarIndex === this.hoverIndex ? -1 : this.hoverIndex;
                 this.render();
             }
 
@@ -1469,7 +1388,7 @@ class FuturesChart {
                 const offsetIndex = Math.floor(relativeX / candleWidth);
                 const index = this.visibleStart + offsetIndex;
                 if (index >= this.visibleStart && index < this.visibleEnd && index < this.data.length) {
-                    this.selectedBarIndex = index;
+                    this.selectedBarIndex = this.selectedBarIndex === index ? -1 : index;
                     this.hoverIndex = index;
                     this.render();
                 }
@@ -1758,6 +1677,13 @@ class FuturesChart {
                 this.visibleEnd = this.data.length;
             }
             this.render();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.selectedBarIndex !== -1) {
+                this.selectedBarIndex = -1;
+                this.render();
+            }
         });
 
         // Handle resizing and locking/cleanup when entering/exiting native fullscreen mode
@@ -2153,8 +2079,11 @@ class FuturesChart {
     render() {
         if (!this.canvas || !this.ctx || !this.data.length) return;
 
-        // Set dynamic paddingLeft based on chartType to avoid clipping left-side labels (LOD Percentage labels)
-        this.paddingLeft = this.chartType === 'line' ? 55 : 15;
+        // Reserve side gutters for compact profile level tags. This keeps labels out of candles.
+        const hasTpoProfile = this.tpoLevel !== 'none';
+        const hasVpProfile = this.vpLevel !== 'none';
+        this.paddingLeft = Math.max(this.chartType === 'line' ? 55 : 15, hasTpoProfile ? 88 : 0);
+        this.paddingRight = hasVpProfile ? 136 : 65;
 
         try {
             // Detect current theme by looking at body data attribute
@@ -2225,10 +2154,10 @@ class FuturesChart {
         const lastVisibleBar = visibleData[visibleData.length - 1];
         
         let targetBar = null;
-        if (this.hoverIndex >= 0 && this.hoverIndex < this.data.length) {
-            targetBar = this.data[this.hoverIndex];
-        } else if (this.selectedBarIndex >= 0 && this.selectedBarIndex < this.data.length) {
+        if (this.selectedBarIndex >= 0 && this.selectedBarIndex < this.data.length) {
             targetBar = this.data[this.selectedBarIndex];
+        } else if (this.hoverIndex >= 0 && this.hoverIndex < this.data.length) {
+            targetBar = this.data[this.hoverIndex];
         } else {
             targetBar = lastVisibleBar;
         }
@@ -2333,41 +2262,143 @@ class FuturesChart {
             return volumeTop + volumeHeight * (1 - vol / maxVol);
         };
 
-        const maxProfileWidth = chartWidth * 0.3;
+        const profileMode = this.profileDisplayMode || 'confluence';
+        const showProfileBars = profileMode === 'distribution' || profileMode === 'full';
+        const showFullProfileDetail = profileMode === 'full';
+        const maxProfileWidth = chartWidth * (profileMode === 'full' ? 0.22 : 0.16);
+        const profileHitWidth = Math.max(maxProfileWidth, 72);
+        const levelTags = [];
+        const plotLeft = this.paddingLeft;
+        const plotRight = w - this.paddingRight;
+        const priceTop = this.paddingTop;
+        const priceBottom = this.paddingTop + priceHeight;
+        const isYInPricePane = (y) => y >= priceTop && y <= priceBottom;
 
-        // Draw TPO Profile Histogram under K-lines
-        if (tpoProfile && tpoProfile.rows && tpoProfile.rows.length > 0) {
-            const vaFillStyle = isDark ? 'rgba(139, 92, 246, 0.32)' : 'rgba(139, 92, 246, 0.22)';
-            const nonVaFillStyle = isDark ? 'rgba(139, 92, 246, 0.12)' : 'rgba(139, 92, 246, 0.08)';
+        const strokeProfileLevel = (price, color, width = 1, dash = []) => {
+            const y = getPriceY(price);
+            if (!isYInPricePane(y)) return;
+            ctx.save();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width;
+            ctx.setLineDash(dash);
+            ctx.beginPath();
+            ctx.moveTo(plotLeft, y);
+            ctx.lineTo(plotRight, y);
+            ctx.stroke();
+            ctx.restore();
+        };
+
+        const addLevelTag = (side, label, price, color) => {
+            const y = getPriceY(price);
+            if (!isYInPricePane(y)) return;
+            levelTags.push({ side, label, price, y, color });
+        };
+
+        const drawLevelTags = () => {
+            const placeTags = (side) => {
+                const tags = levelTags
+                    .filter(tag => tag.side === side)
+                    .sort((a, b) => a.y - b.y);
+                const gapY = 15;
+                const topLimit = priceTop + 8;
+                const bottomLimit = priceBottom - 8;
+                const placed = tags.map(tag => ({
+                    ...tag,
+                    placedY: Math.min(bottomLimit, Math.max(topLimit, tag.y))
+                }));
+
+                for (let i = 1; i < placed.length; i++) {
+                    placed[i].placedY = Math.max(placed[i].placedY, placed[i - 1].placedY + gapY);
+                }
+
+                const overflow = placed.length ? placed[placed.length - 1].placedY - bottomLimit : 0;
+                if (overflow > 0) {
+                    placed.forEach(tag => {
+                        tag.placedY = Math.max(topLimit, tag.placedY - overflow);
+                    });
+                }
+
+                for (let i = 1; i < placed.length; i++) {
+                    placed[i].placedY = Math.max(placed[i].placedY, placed[i - 1].placedY + gapY);
+                }
+
+                return placed.map(tag => {
+                    tag.placedY = Math.min(bottomLimit, Math.max(topLimit, tag.placedY));
+                    return tag;
+                });
+            };
+
+            ctx.save();
+            ctx.font = 'bold 8px Inter';
+            ctx.textBaseline = 'middle';
+            ['left', 'right'].forEach(side => {
+                placeTags(side).forEach(tag => {
+                    const tagW = side === 'left' ? this.paddingLeft - 12 : 78;
+                    const tagH = 13;
+                    const x = side === 'left' ? 4 : w - tagW - 4;
+                    const y = tag.placedY - tagH / 2;
+                    ctx.fillStyle = isDark ? 'rgba(15, 23, 42, 0.82)' : 'rgba(248, 250, 252, 0.9)';
+                    ctx.strokeStyle = tag.color;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    if (ctx.roundRect) {
+                        ctx.roundRect(x, y, tagW, tagH, 4);
+                    } else {
+                        ctx.rect(x, y, tagW, tagH);
+                    }
+                    ctx.fill();
+                    ctx.stroke();
+                    ctx.fillStyle = tag.color;
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`${tag.label} ${tag.price.toFixed(1)}`, x + tagW / 2, tag.placedY);
+                });
+            });
+            ctx.restore();
+        };
+
+        if (tpoProfile && vpProfile && tpoProfile.rows?.length && vpProfile.rows?.length) {
+            const overlapLow = Math.max(tpoProfile.val, vpProfile.val);
+            const overlapHigh = Math.min(tpoProfile.vah, vpProfile.vah);
+            if (overlapLow <= overlapHigh) {
+                const yHigh = getPriceY(overlapHigh);
+                const yLow = getPriceY(overlapLow);
+                ctx.save();
+                ctx.fillStyle = isDark ? 'rgba(14, 165, 233, 0.10)' : 'rgba(14, 165, 233, 0.08)';
+                ctx.fillRect(plotLeft, yHigh, plotRight - plotLeft, Math.max(1, yLow - yHigh));
+                ctx.restore();
+            }
+        }
+
+        if (showProfileBars && tpoProfile && tpoProfile.rows && tpoProfile.rows.length > 0) {
+            const vaFillStyle = isDark ? 'rgba(139, 92, 246, 0.22)' : 'rgba(139, 92, 246, 0.16)';
+            const nonVaFillStyle = isDark ? 'rgba(139, 92, 246, 0.07)' : 'rgba(139, 92, 246, 0.05)';
             
             tpoProfile.rows.forEach(row => {
                 const yBottom = getPriceY(row.price - tpoStep / 2);
                 const yTop = getPriceY(row.price + tpoStep / 2);
                 const barHeight = Math.max(1, yBottom - yTop);
                 
-                if (yTop >= this.paddingTop - barHeight && yBottom <= this.paddingTop + priceHeight + barHeight) {
+                if (yTop >= priceTop - barHeight && yBottom <= priceBottom + barHeight) {
                     const barWidth = row.normalizedValue * maxProfileWidth;
                     ctx.fillStyle = row.isValueArea ? vaFillStyle : nonVaFillStyle;
-                    ctx.fillRect(this.paddingLeft, yTop, barWidth, barHeight);
+                    ctx.fillRect(plotLeft, yTop, barWidth, barHeight);
                 }
             });
         }
 
-        // Draw Volume Profile Histogram under K-lines
-        if (vpProfile && vpProfile.rows && vpProfile.rows.length > 0) {
-            const vaFillStyle = isDark ? 'rgba(59, 130, 246, 0.32)' : 'rgba(59, 130, 246, 0.22)';
-            const nonVaFillStyle = isDark ? 'rgba(59, 130, 246, 0.12)' : 'rgba(59, 130, 246, 0.08)';
+        if (showProfileBars && vpProfile && vpProfile.rows && vpProfile.rows.length > 0) {
+            const vaFillStyle = isDark ? 'rgba(59, 130, 246, 0.22)' : 'rgba(59, 130, 246, 0.16)';
+            const nonVaFillStyle = isDark ? 'rgba(59, 130, 246, 0.07)' : 'rgba(59, 130, 246, 0.05)';
             
             vpProfile.rows.forEach(row => {
                 const yBottom = getPriceY(row.price - vpStep / 2);
                 const yTop = getPriceY(row.price + vpStep / 2);
                 const barHeight = Math.max(1, yBottom - yTop);
                 
-                if (yTop >= this.paddingTop - barHeight && yBottom <= this.paddingTop + priceHeight + barHeight) {
+                if (yTop >= priceTop - barHeight && yBottom <= priceBottom + barHeight) {
                     const barWidth = row.normalizedValue * maxProfileWidth;
                     ctx.fillStyle = row.isValueArea ? vaFillStyle : nonVaFillStyle;
-                    const xStart = w - this.paddingRight - barWidth;
-                    ctx.fillRect(xStart, yTop, barWidth, barHeight);
+                    ctx.fillRect(plotRight - barWidth, yTop, barWidth, barHeight);
                 }
             });
         }
@@ -2516,158 +2547,75 @@ class FuturesChart {
             if (this.indicators.ma40) drawMA('ma40', '#14b8a6'); // Teal
         }
 
-        // Draw TPO Reference levels on top of K-lines
         if (tpoProfile && tpoProfile.rows && tpoProfile.rows.length > 0) {
-            // TPO POC
-            const yPoc = getPriceY(tpoProfile.poc);
-            if (yPoc >= this.paddingTop && yPoc <= this.paddingTop + priceHeight) {
-                ctx.strokeStyle = '#c084fc';
-                ctx.lineWidth = 1.5;
-                ctx.beginPath();
-                ctx.moveTo(this.paddingLeft, yPoc);
-                ctx.lineTo(w - this.paddingRight, yPoc);
-                ctx.stroke();
-                
-                ctx.fillStyle = '#c084fc';
-                ctx.font = 'bold 9px Inter';
-                ctx.textAlign = 'left';
-                ctx.textBaseline = 'bottom';
-                ctx.fillText(`TPO POC: ${tpoProfile.poc.toFixed(1)}`, this.paddingLeft + 5, yPoc - 2);
-            }
-            
-            // TPO VAH & VAL
-            ctx.strokeStyle = 'rgba(192, 132, 252, 0.5)';
-            ctx.lineWidth = 1;
-            ctx.setLineDash([4, 4]);
-            
-            const yVah = getPriceY(tpoProfile.vah);
-            if (yVah >= this.paddingTop && yVah <= this.paddingTop + priceHeight) {
-                ctx.beginPath();
-                ctx.moveTo(this.paddingLeft, yVah);
-                ctx.lineTo(w - this.paddingRight, yVah);
-                ctx.stroke();
-                
-                ctx.fillStyle = 'rgba(192, 132, 252, 0.8)';
-                ctx.font = '9px Inter';
-                ctx.textAlign = 'left';
-                ctx.textBaseline = 'bottom';
-                ctx.fillText(`TPO VAH: ${tpoProfile.vah.toFixed(1)}`, this.paddingLeft + 5, yVah - 2);
-            }
-            
-            const yVal = getPriceY(tpoProfile.val);
-            if (yVal >= this.paddingTop && yVal <= this.paddingTop + priceHeight) {
-                ctx.beginPath();
-                ctx.moveTo(this.paddingLeft, yVal);
-                ctx.lineTo(w - this.paddingRight, yVal);
-                ctx.stroke();
-                
-                ctx.fillStyle = 'rgba(192, 132, 252, 0.8)';
-                ctx.font = '9px Inter';
-                ctx.textAlign = 'left';
-                ctx.textBaseline = 'bottom';
-                ctx.fillText(`TPO VAL: ${tpoProfile.val.toFixed(1)}`, this.paddingLeft + 5, yVal - 2);
-            }
-            ctx.setLineDash([]);
+            strokeProfileLevel(tpoProfile.poc, '#a855f7', 1.4);
+            strokeProfileLevel(tpoProfile.vah, 'rgba(168, 85, 247, 0.46)', 1, [4, 4]);
+            strokeProfileLevel(tpoProfile.val, 'rgba(168, 85, 247, 0.46)', 1, [4, 4]);
+            addLevelTag('left', 'TPOC', tpoProfile.poc, '#a855f7');
+            addLevelTag('left', 'TVH', tpoProfile.vah, '#8b5cf6');
+            addLevelTag('left', 'TVL', tpoProfile.val, '#8b5cf6');
         }
 
-        // Draw Volume Profile Reference levels on top of K-lines
         if (vpProfile && vpProfile.rows && vpProfile.rows.length > 0) {
-            // VP POC
-            const yPoc = getPriceY(vpProfile.poc);
-            if (yPoc >= this.paddingTop && yPoc <= this.paddingTop + priceHeight) {
-                ctx.strokeStyle = '#60a5fa';
-                ctx.lineWidth = 1.5;
-                ctx.beginPath();
-                ctx.moveTo(this.paddingLeft, yPoc);
-                ctx.lineTo(w - this.paddingRight, yPoc);
-                ctx.stroke();
-                
-                ctx.fillStyle = '#60a5fa';
-                ctx.font = 'bold 9px Inter';
-                ctx.textAlign = 'right';
-                ctx.textBaseline = 'bottom';
-                ctx.fillText(`VP POC: ${vpProfile.poc.toFixed(1)}`, w - this.paddingRight - 5, yPoc - 2);
-            }
-            
-            // VP VAH & VAL
-            ctx.strokeStyle = 'rgba(96, 165, 250, 0.5)';
-            ctx.lineWidth = 1;
-            ctx.setLineDash([4, 4]);
-            
-            const yVah = getPriceY(vpProfile.vah);
-            if (yVah >= this.paddingTop && yVah <= this.paddingTop + priceHeight) {
-                ctx.beginPath();
-                ctx.moveTo(this.paddingLeft, yVah);
-                ctx.lineTo(w - this.paddingRight, yVah);
-                ctx.stroke();
-                
-                ctx.fillStyle = 'rgba(96, 165, 250, 0.8)';
-                ctx.font = '9px Inter';
-                ctx.textAlign = 'right';
-                ctx.textBaseline = 'bottom';
-                ctx.fillText(`VP VAH: ${vpProfile.vah.toFixed(1)}`, w - this.paddingRight - 5, yVah - 2);
-            }
-            
-            const yVal = getPriceY(vpProfile.val);
-            if (yVal >= this.paddingTop && yVal <= this.paddingTop + priceHeight) {
-                ctx.beginPath();
-                ctx.moveTo(this.paddingLeft, yVal);
-                ctx.lineTo(w - this.paddingRight, yVal);
-                ctx.stroke();
-                
-                ctx.fillStyle = 'rgba(96, 165, 250, 0.8)';
-                ctx.font = '9px Inter';
-                ctx.textAlign = 'right';
-                ctx.textBaseline = 'bottom';
-                ctx.fillText(`VP VAL: ${vpProfile.val.toFixed(1)}`, w - this.paddingRight - 5, yVal - 2);
-            }
-            ctx.setLineDash([]);
+            strokeProfileLevel(vpProfile.poc, '#2563eb', 1.4);
+            strokeProfileLevel(vpProfile.vah, 'rgba(37, 99, 235, 0.46)', 1, [4, 4]);
+            strokeProfileLevel(vpProfile.val, 'rgba(37, 99, 235, 0.46)', 1, [4, 4]);
+            addLevelTag('right', vpProfile.meta?.isEstimated ? 'VPOC*' : 'VPOC', vpProfile.poc, '#2563eb');
+            addLevelTag('right', 'VVH', vpProfile.vah, '#3b82f6');
+            addLevelTag('right', 'VVL', vpProfile.val, '#3b82f6');
 
-            // Draw HVN & LVN lines
-            const vpMaxProfileWidth = chartWidth * 0.3;
-            const xStart = w - this.paddingRight - vpMaxProfileWidth;
-            
-            if (vpProfile.meta && vpProfile.meta.hvnList) {
-                ctx.strokeStyle = 'rgba(96, 165, 250, 0.4)';
-                ctx.lineWidth = 1;
+            const vpSignalSpan = showFullProfileDetail ? (plotRight - maxProfileWidth) : plotRight;
+            if (showFullProfileDetail && vpProfile.meta && vpProfile.meta.hvnList) {
                 vpProfile.meta.hvnList.forEach(hvn => {
                     const y = getPriceY(hvn);
-                    if (y >= this.paddingTop && y <= this.paddingTop + priceHeight) {
-                        ctx.beginPath();
-                        ctx.moveTo(xStart, y);
-                        ctx.lineTo(w - this.paddingRight, y);
-                        ctx.stroke();
-                        
-                        ctx.fillStyle = 'rgba(96, 165, 250, 0.6)';
-                        ctx.font = '8px Inter';
-                        ctx.textAlign = 'right';
-                        ctx.textBaseline = 'middle';
-                        ctx.fillText(`HVN`, w - this.paddingRight - 5, y);
-                    }
+                    if (!isYInPricePane(y)) return;
+                    ctx.save();
+                    ctx.strokeStyle = 'rgba(37, 99, 235, 0.26)';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(vpSignalSpan, y);
+                    ctx.lineTo(plotRight, y);
+                    ctx.stroke();
+                    ctx.restore();
+                    addLevelTag('right', 'HVN', hvn, '#3b82f6');
                 });
             }
-            
+
             if (vpProfile.meta && vpProfile.meta.lvnList) {
-                ctx.strokeStyle = 'rgba(244, 63, 94, 0.35)';
-                ctx.lineWidth = 1;
-                ctx.setLineDash([2, 2]);
+                const tpoSingles = tpoProfile?.rows?.filter(row => row.isSinglePrint).map(row => row.price) || [];
+                const lowAcceptanceTolerance = Math.max(Math.abs(tpoStep || 0), Math.abs(vpStep || 0), 1) * 1.25;
                 vpProfile.meta.lvnList.forEach(lvn => {
+                    const hasTpoLowAcceptance = tpoSingles.some(price => Math.abs(price - lvn) <= lowAcceptanceTolerance);
+                    if (!showFullProfileDetail && !hasTpoLowAcceptance) return;
                     const y = getPriceY(lvn);
-                    if (y >= this.paddingTop && y <= this.paddingTop + priceHeight) {
-                        ctx.beginPath();
-                        ctx.moveTo(xStart, y);
-                        ctx.lineTo(w - this.paddingRight, y);
-                        ctx.stroke();
-                        
-                        ctx.fillStyle = 'rgba(244, 63, 94, 0.6)';
-                        ctx.font = '8px Inter';
-                        ctx.textAlign = 'right';
-                        ctx.textBaseline = 'middle';
-                        ctx.fillText(`LVN`, w - this.paddingRight - 5, y);
-                    }
+                    if (!isYInPricePane(y)) return;
+                    ctx.save();
+                    ctx.strokeStyle = hasTpoLowAcceptance ? 'rgba(249, 115, 22, 0.62)' : 'rgba(244, 63, 94, 0.32)';
+                    ctx.lineWidth = hasTpoLowAcceptance ? 1.2 : 1;
+                    ctx.setLineDash([3, 3]);
+                    ctx.beginPath();
+                    ctx.moveTo(hasTpoLowAcceptance ? plotLeft : vpSignalSpan, y);
+                    ctx.lineTo(plotRight, y);
+                    ctx.stroke();
+                    ctx.restore();
+                    addLevelTag('right', hasTpoLowAcceptance ? 'LOW' : 'LVN', lvn, hasTpoLowAcceptance ? '#f97316' : '#f43f5e');
                 });
-                ctx.setLineDash([]);
             }
+        }
+
+        drawLevelTags();
+
+        if (this.selectedBarIndex >= this.visibleStart && this.selectedBarIndex < this.visibleEnd) {
+            const lockX = this.paddingLeft + ((this.selectedBarIndex - this.visibleStart) * candleWidth) + (candleWidth / 2);
+            ctx.save();
+            ctx.strokeStyle = isDark ? 'rgba(15, 23, 42, 0.55)' : 'rgba(15, 23, 42, 0.24)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(lockX, this.paddingTop);
+            ctx.lineTo(lockX, this.paddingTop + priceHeight);
+            ctx.stroke();
+            ctx.restore();
         }
 
         // 4. X-Axis Date Labels (draw about 5 labels depending on count)
@@ -2939,17 +2887,30 @@ class FuturesChart {
         if (this.mouseX >= this.paddingLeft && this.mouseX <= w - this.paddingRight &&
             this.mouseY >= this.paddingTop && this.mouseY <= this.paddingTop + priceHeight) {
             
-            const hoverPrice = maxPrice - ((maxPrice - minPrice) * ((this.mouseY - this.paddingTop) / priceHeight));
+            const findNearestVisibleProfileRow = (profile) => {
+                let nearest = null;
+                let nearestDistance = Infinity;
+                profile.rows.forEach(row => {
+                    const rowY = getPriceY(row.price);
+                    if (!isYInPricePane(rowY)) return;
+                    const distance = Math.abs(rowY - this.mouseY);
+                    if (distance < nearestDistance) {
+                        nearest = row;
+                        nearestDistance = distance;
+                    }
+                });
+                return nearestDistance <= 12 ? nearest : null;
+            };
             
             if (tpoProfile && tpoProfile.rows && tpoProfile.rows.length > 0 && 
-                this.mouseX >= this.paddingLeft && this.mouseX <= this.paddingLeft + maxProfileWidth) {
-                const row = tpoProfile.rows.find(r => Math.abs(r.price - hoverPrice) <= tpoStep / 2);
+                this.mouseX >= this.paddingLeft && this.mouseX <= this.paddingLeft + profileHitWidth) {
+                const row = findNearestVisibleProfileRow(tpoProfile);
                 if (row) {
                     this.drawProfileTooltip('tpo', row, tpoProfile, this.mouseX, this.mouseY, w, h);
                 }
             } else if (vpProfile && vpProfile.rows && vpProfile.rows.length > 0 && 
-                       this.mouseX >= w - this.paddingRight - maxProfileWidth && this.mouseX <= w - this.paddingRight) {
-                const row = vpProfile.rows.find(r => Math.abs(r.price - hoverPrice) <= vpStep / 2);
+                       this.mouseX >= w - this.paddingRight - profileHitWidth && this.mouseX <= w - this.paddingRight) {
+                const row = findNearestVisibleProfileRow(vpProfile);
                 if (row) {
                     this.drawProfileTooltip('volume', row, vpProfile, this.mouseX, this.mouseY, w, h);
                 }
