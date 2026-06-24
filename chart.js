@@ -2295,13 +2295,30 @@ class FuturesChart {
         };
 
         const drawLevelTags = () => {
+            // Priority for pruning when tags overflow vertical space:
+            // 4=POC, 3=VA bounds, 2=HVN, 1=LVN/LOW
+            const TAG_PRIORITY = { 'TPOC': 4, 'VPOC': 4, 'VPOC*': 4, 'TVH': 3, 'TVL': 3, 'VVH': 3, 'VVL': 3, 'HVN': 2, 'LVN': 1, 'LOW': 1 };
+            const getTagPriority = (label) => TAG_PRIORITY[label] ?? 2;
+
             const placeTags = (side) => {
-                const tags = levelTags
-                    .filter(tag => tag.side === side)
-                    .sort((a, b) => a.y - b.y);
-                const gapY = 15;
+                const gapY = 14;
                 const topLimit = priceTop + 8;
                 const bottomLimit = priceBottom - 8;
+                const availableHeight = bottomLimit - topLimit;
+                const maxFit = Math.floor(availableHeight / gapY);
+
+                let tags = levelTags
+                    .filter(tag => tag.side === side)
+                    .sort((a, b) => a.y - b.y);
+
+                // Prune lowest-priority tags if we have too many to fit
+                if (tags.length > maxFit) {
+                    // Sort by priority ascending so we drop low-priority first
+                    const sorted = [...tags].sort((a, b) => getTagPriority(a.label) - getTagPriority(b.label));
+                    const toDrop = new Set(sorted.slice(0, tags.length - maxFit).map(t => t));
+                    tags = tags.filter(t => !toDrop.has(t));
+                }
+
                 const placed = tags.map(tag => ({
                     ...tag,
                     placedY: Math.min(bottomLimit, Math.max(topLimit, tag.y))

@@ -473,14 +473,15 @@ function buildVolumeProfile({ bars1m, tickSize, symbol, sessionDate, dailyDates,
     const hvnList = hvnCandidates.sort((a, b) => b.volume - a.volume).slice(0, 3).map(c => c.price);
     const lvnList = lvnCandidates.sort((a, b) => a.volume - b.volume).slice(0, 3).map(c => c.price);
     
+    const halfStep = step * 0.5;
     const rows = priceBins.map((price, idx) => ({
         price: price,
         value: volCounts[idx],
         normalizedValue: maxVol > 0 ? volCounts[idx] / maxVol : 0,
         isPoc: idx === pocIdx,
         isValueArea: valueAreaIndices.has(idx),
-        isHvn: hvnList.includes(price),
-        isLvn: lvnList.includes(price)
+        isHvn: hvnList.some(h => Math.abs(h - price) < halfStep),
+        isLvn: lvnList.some(l => Math.abs(l - price) < halfStep)
     }));
     
     return {
@@ -797,14 +798,15 @@ function buildDailyCompositeVolume({ bars1m, tickSize, symbol, endDate, dailyDat
     const hvnList = hvnCandidates.sort((a, b) => b.volume - a.volume).slice(0, 3).map(c => c.price);
     const lvnList = lvnCandidates.sort((a, b) => a.volume - b.volume).slice(0, 3).map(c => c.price);
     
+    const halfStep = step * 0.5;
     const rows = priceBins.map((price, idx) => ({
         price: price,
         value: volCounts[idx],
         normalizedValue: maxVol > 0 ? volCounts[idx] / maxVol : 0,
         isPoc: idx === pocIdx,
         isValueArea: valueAreaIndices.has(idx),
-        isHvn: hvnList.includes(price),
-        isLvn: lvnList.includes(price)
+        isHvn: hvnList.some(h => Math.abs(h - price) < halfStep),
+        isLvn: lvnList.some(l => Math.abs(l - price) < halfStep)
     }));
     
     return {
