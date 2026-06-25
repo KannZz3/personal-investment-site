@@ -1614,16 +1614,16 @@ footer {
     }
     
     .period-group, #chartTypeToolbar, .indicator-stack, .indicator-group {
-        flex: 1 1 auto;
+        flex: 0 0 auto;
         justify-content: center;
     }
 
     .chart-panel:not(.mobile-fullscreen-simulated) .indicator-stack {
-        flex: 1 1 100% !important;
-        width: 100% !important;
+        flex: 0 0 auto !important;
+        width: auto !important;
         max-width: 100% !important;
-        flex-direction: column !important;
-        align-items: flex-end !important;
+        flex-direction: row !important;
+        align-items: center !important;
         gap: 4px !important;
     }
 
@@ -2760,17 +2760,17 @@ body.has-fullscreen-simulated .page-section {
     .chart-panel:not(.mobile-fullscreen-simulated) .indicator-group,
     .chart-panel:not(.mobile-fullscreen-simulated) #chartTpoGroup,
     .chart-panel:not(.mobile-fullscreen-simulated) #chartVpGroup {
-        flex: 1 1 auto !important;
+        flex: 0 0 auto !important;
         justify-content: center !important;
         min-width: fit-content !important;
     }
 
     .chart-panel:not(.mobile-fullscreen-simulated) .indicator-stack {
-        flex: 1 1 100% !important;
-        width: 100% !important;
+        flex: 0 0 auto !important;
+        width: auto !important;
         max-width: 100% !important;
-        flex-direction: column !important;
-        align-items: flex-end !important;
+        flex-direction: row !important;
+        align-items: center !important;
         gap: 4px !important;
     }
 
