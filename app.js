@@ -6702,6 +6702,12 @@ function updateChartData() {
             tdoiWapDaysGroup.style.display = 'none';
         }
     }
+
+    // In 分时 mode, hide TPO / VP / Profile-mode controls
+    ['chartTpoGroup', 'chartVpGroup', 'chartProfileModeGroup'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = state.chartType === 'line' ? 'none' : '';
+    });
     
     // Display actual contract symbol (from metadata, e.g. CU2609) or base code
     const displaySym = getContractDisplaySymbol(contract, baseCode);
