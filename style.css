@@ -540,15 +540,10 @@ main {
     align-items: center;
 }
 
-.ma-trend-signal-row {
-    display: flex;
-    align-items: center;
-    min-height: 20px;
-}
-
 .ma-trend-signal {
-    display: inline-flex;
-    align-items: center;
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 4px);
     padding: 3px 8px;
     border-radius: 6px;
     background: var(--color-up-bg);
@@ -557,7 +552,7 @@ main {
     font-size: 0.68rem;
     font-weight: 700;
     white-space: nowrap;
-    z-index: 4;
+    z-index: 6;
 }
 
 /* Collapsible Indicator Group */
@@ -1626,10 +1621,6 @@ footer {
         flex: 0 0 auto !important;
         width: auto !important;
         max-width: 100% !important;
-    }
-
-    .chart-panel:not(.mobile-fullscreen-simulated) .ma-trend-signal-row {
-        justify-content: flex-end !important;
     }
 
     .chart-panel:not(.mobile-fullscreen-simulated) .ma-trend-signal {
@@ -2777,11 +2768,6 @@ body.has-fullscreen-simulated .page-section {
         flex: 0 0 auto !important;
         width: auto !important;
         max-width: 100% !important;
-    }
-
-    .chart-panel:not(.mobile-fullscreen-simulated) .ma-trend-signal-row {
-        justify-content: flex-end !important;
-        flex: 1 1 100% !important;
     }
 
     .chart-panel:not(.mobile-fullscreen-simulated) .ma-trend-signal {
