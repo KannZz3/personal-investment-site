@@ -6703,10 +6703,22 @@ function updateChartData() {
         }
     }
 
-    // In 分时 mode, hide TPO / VP / Profile-mode controls
+    // In 分时 mode, hide TPO / VP / Profile-mode controls.
+    // In K线 mode, normally hide Profile-mode controls unless TPO or VP is active.
     ['chartTpoGroup', 'chartVpGroup', 'chartProfileModeGroup'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.style.display = state.chartType === 'line' ? 'none' : '';
+        if (el) {
+            if (state.chartType === 'line') {
+                el.style.display = 'none';
+            } else {
+                if (id === 'chartProfileModeGroup') {
+                    const hasActiveProfile = (state.selectedTpoProfileLevel !== 'none' || state.selectedVolumeProfileLevel !== 'none');
+                    el.style.display = hasActiveProfile ? '' : 'none';
+                } else {
+                    el.style.display = '';
+                }
+            }
+        }
     });
     
     // Display actual contract symbol (from metadata, e.g. CU2609) or base code
