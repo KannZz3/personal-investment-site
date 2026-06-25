@@ -1084,6 +1084,35 @@ class FuturesChart {
             setTimeout(() => this.resize(), 250);
         });
 
+        // Click outside chart to clear selected bar (K-line lock)
+        const clearSelectionHandler = (e) => {
+            // Prevent error if clientX/Y are not accessible (e.g. touchstart touches empty)
+            if (e.touches && (!e.touches[0] || e.touches[0].clientX === undefined)) return;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            if (e.target === this.canvas) {
+                const coords = this.getEventCoords(clientX, clientY);
+                const isInsideChartX = coords.x >= this.paddingLeft && coords.x <= this.logicalWidth - this.paddingRight;
+                const { priceHeight } = this.getPriceHeightParams();
+                const isInsideChartY = coords.y >= this.paddingTop && coords.y <= this.paddingTop + priceHeight;
+                
+                if (!(isInsideChartX && isInsideChartY)) {
+                    if (this.selectedBarIndex !== -1) {
+                        this.selectedBarIndex = -1;
+                        this.render();
+                    }
+                }
+            } else {
+                if (this.selectedBarIndex !== -1) {
+                    this.selectedBarIndex = -1;
+                    this.render();
+                }
+            }
+        };
+        document.addEventListener('mousedown', clearSelectionHandler);
+        document.addEventListener('touchstart', clearSelectionHandler, { passive: true });
+
         // Mouse interactions for crosshair & panning & drawing
         this.canvas.addEventListener('mousemove', (e) => {
             const coords = this.getEventCoords(e.clientX, e.clientY);
