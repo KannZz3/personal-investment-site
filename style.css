@@ -455,6 +455,7 @@ main {
     display: flex;
     gap: 0.75rem;
     align-items: center;
+    position: relative;
 }
 
 .btn-group {
@@ -546,13 +547,22 @@ main {
     bottom: calc(100% + 4px);
     padding: 3px 8px;
     border-radius: 6px;
-    background: var(--color-up-bg);
-    color: var(--color-up);
-    border: 1px solid rgba(239, 68, 68, 0.22);
     font-size: 0.68rem;
     font-weight: 700;
     white-space: nowrap;
     z-index: 6;
+}
+
+.ma-trend-signal.trend-up {
+    background: var(--color-up-bg);
+    color: var(--color-up);
+    border: 1px solid rgba(239, 68, 68, 0.22);
+}
+
+.ma-trend-signal.trend-down {
+    background: var(--color-down-bg);
+    color: var(--color-down);
+    border: 1px solid rgba(16, 185, 129, 0.22);
 }
 
 /* Collapsible Indicator Group */
@@ -1592,7 +1602,7 @@ footer {
     .chart-header {
         flex-direction: column;
         align-items: flex-start;
-        gap: 0.75rem;
+        gap: 1.25rem !important;
     }
     
     .chart-toolbar {
@@ -2701,7 +2711,7 @@ body.has-fullscreen-simulated .page-section {
     .chart-panel:not(.mobile-fullscreen-simulated) .chart-header {
         flex-direction: column !important;
         align-items: stretch !important;
-        gap: 0.5rem !important;
+        gap: 1.25rem !important;
         margin-bottom: 0.5rem !important;
     }
     

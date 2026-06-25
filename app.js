@@ -6921,9 +6921,11 @@ function updateMaTrendSignal(dataset) {
 
     if (ma5 > ma10 && ma10 > ma20) {
         signalBadge.textContent = 'MA趋势多头排列';
+        signalBadge.className = 'ma-trend-signal trend-up';
         signalBadge.style.display = '';
     } else if (ma5 < ma10 && ma10 < ma20) {
         signalBadge.textContent = 'MA趋势空头排列';
+        signalBadge.className = 'ma-trend-signal trend-down';
         signalBadge.style.display = '';
     } else {
         signalBadge.style.display = 'none';
