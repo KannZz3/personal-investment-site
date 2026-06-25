@@ -1108,24 +1108,12 @@ class FuturesChart {
 
         const lines = [
             [headerText, metaVp.actualFrequencyUsed || '1m'],
-            ['Price', rowTpo.price.toFixed(1)]
+            ['Price', rowTpo.price.toFixed(1)],
+            ['Est Vol', `${this.formatVolume(rowVp.value)} | ${((rowVp.value / totalVolVp) * 100).toFixed(2)}%`],
+            ['Time', `${rowTpo.value} TPO | ${roleTpo}`, roleColorTpo],
+            ['VP POC Dist', `${roleVp} | ${distTextVp}`, roleColorVp],
+            ['TPO POC Dist', distTextTpo]
         ];
-
-        if (vpWeight > tpoWeight) {
-            lines.push(
-                ['Est Vol', `${this.formatVolume(rowVp.value)} | ${((rowVp.value / totalVolVp) * 100).toFixed(2)}%`],
-                ['VP POC Dist', `${roleVp} | ${distTextVp}`, roleColorVp],
-                ['Time', `${rowTpo.value} TPO | ${roleTpo}`, roleColorTpo],
-                ['TPO POC Dist', distTextTpo]
-            );
-        } else {
-            lines.push(
-                ['Time', `${rowTpo.value} TPO | ${roleTpo}`, roleColorTpo],
-                ['TPO POC Dist', distTextTpo],
-                ['Est Vol', `${this.formatVolume(rowVp.value)} | ${((rowVp.value / totalVolVp) * 100).toFixed(2)}%`],
-                ['VP POC Dist', `${roleVp} | ${distTextVp}`, roleColorVp]
-            );
-        }
 
         const tooltipW = 194;
         const tooltipH = 24 + lines.length * 17;
