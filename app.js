@@ -7687,7 +7687,7 @@ function buildTechnicalUI(data) {
                 <td>${s.historicalMaxDate}</td>
                 <td>
                     <div class="ratio-bar-wrap">
-                        <span style="width: 38px; font-weight: 600; color: ${fillColor}">${(s.oiRatio*100).toFixed(1)}%</span>
+                        <span style="display: inline-block; width: 50px; font-weight: 600; color: ${fillColor}">${(s.oiRatio*100).toFixed(1)}%</span>
                         <div class="ratio-bar-bg"><div class="ratio-bar-fill" style="width: ${fillWidth}%; background-color: ${fillColor};"></div></div>
                     </div>
                 </td>
