@@ -987,8 +987,8 @@ class FuturesChart {
         const ctx = this.ctx;
         const isDark = this.theme === 'dark';
         const meta = profile.meta || {};
-        const levelLabel = meta.profileLevel === 'daily' ? 'Daily' :
-                           meta.profileLevel === 'weekly' ? 'Weekly' : '30m';
+        const levelLabel = meta.profileLevel === 'daily' ? '日' :
+                           meta.profileLevel === 'weekly' ? '周' : '30m';
         const quality = String(meta.dataQuality || 'full').toUpperCase();
         const freq = meta.actualFrequencyUsed
             ? `${meta.actualFrequencyUsed}${meta.fallbackUsed ? ' fallback' : ''}`
@@ -1024,7 +1024,7 @@ class FuturesChart {
                 ['POC Dist', distText]
             ]
             : [
-                [`${levelLabel} VP`, meta.actualFrequencyUsed || '1m'],
+                [`${levelLabel} VP(${meta.actualFrequencyUsed || '1m'})`, ''],
                 ['Price', row.price.toFixed(1)],
                 ['Est Vol', `${this.formatVolume(row.value)} | ${((row.value / totalVol) * 100).toFixed(2)}%`],
                 ['POC Dist', `${role} | ${distText}`, roleColor]
@@ -1085,11 +1085,12 @@ class FuturesChart {
         const levelLabelVp = metaVp.profileLevel === 'daily' ? '日' :
                             metaVp.profileLevel === 'weekly' ? '周' : '30m';
         
+        const freqVp = metaVp.actualFrequencyUsed || '1m';
         let headerText = '';
         if (levelLabelTpo === levelLabelVp) {
-            headerText = `${levelLabelTpo} TPO & VP`;
+            headerText = `${levelLabelTpo} TPO & VP(${freqVp})`;
         } else {
-            headerText = `${levelLabelTpo} TPO & ${levelLabelVp} VP`;
+            headerText = `${levelLabelTpo} TPO & ${levelLabelVp} VP(${freqVp})`;
         }
 
         const distToPocTpo = Number.isFinite(tpoProfile.poc) ? rowTpo.price - tpoProfile.poc : 0;
@@ -1141,7 +1142,7 @@ class FuturesChart {
         }
 
         const lines = [
-            [headerText, metaVp.actualFrequencyUsed || '1m'],
+            [headerText, ''],
             ['Price', rowTpo.price.toFixed(1)],
             ['Est Vol', `${this.formatVolume(rowVp.value)} | ${((rowVp.value / totalVolVp) * 100).toFixed(2)}%`],
             ['Time', `${rowTpo.value} TPO | ${roleTpo}`, roleColorTpo],
