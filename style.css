@@ -274,6 +274,7 @@ nav li.active a {
     justify-content: center;
     color: var(--text-secondary);
     transition: all var(--transition-fast);
+    flex-shrink: 0;
 }
 
 .theme-toggle:hover {
