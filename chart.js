@@ -2713,8 +2713,10 @@ class FuturesChart {
                 // Draw coordinate label on Y axis
                 const hoverPrice = maxPrice - ((maxPrice - minPrice) * ((this.mouseY - this.paddingTop) / priceHeight));
                 ctx.setLineDash([]); // solid background for label
-                ctx.fillStyle = isDark ? '#1e293b' : '#cbd5e1';
-                ctx.fillRect(w - this.paddingRight + 1, this.mouseY - 8, this.paddingRight - 2, 16);
+                const labelW = 60;
+                const labelH = 14;
+                ctx.fillStyle = isDark ? 'rgba(30, 41, 59, 0.75)' : 'rgba(203, 213, 225, 0.75)';
+                ctx.fillRect(w - this.paddingRight + 1, this.mouseY - labelH / 2, labelW, labelH);
                 ctx.fillStyle = colorTextBright;
                 ctx.font = '10px Inter';
                 ctx.textAlign = 'left';
@@ -3097,6 +3099,6 @@ class FuturesChart {
         } else if (num >= 1000) {
             return (num / 1000).toFixed(1) + 'K';
         }
-        return String(num);
+        return String(Math.round(num));
     }
 }
