@@ -969,13 +969,13 @@ class FuturesChart {
 
         const lines = type === 'tpo'
             ? [
-                [`${levelLabel} TPO`, quality, quality === 'FULL' ? '#10b981' : '#f59e0b'],
+                [`${levelLabel} TPO`, ''],
                 ['Price', row.price.toFixed(1)],
                 ['Time', `${row.value} TPO | ${role}`, roleColor],
                 ['POC Dist', distText]
             ]
             : [
-                [`${levelLabel} VP`, `${quality} | ${freq}`, quality === 'FULL' ? '#10b981' : '#f59e0b'],
+                [`${levelLabel} VP`, meta.actualFrequencyUsed || '1m'],
                 ['Price', row.price.toFixed(1)],
                 ['Est Vol', `${this.formatVolume(row.value)} | ${((row.value / totalVol) * 100).toFixed(2)}%`],
                 ['POC Dist', `${role} | ${distText}`, roleColor]
