@@ -62,6 +62,8 @@ class FuturesChart {
         this.dailyDates = [];
         this.profileCache = {};
         this.selectedBarIndex = -1;
+        this.lastValidMouseX = -1;
+        this.lastValidMouseY = -1;
         
         // Drawing Tool States
         this.drawingMode = 'none'; // 'none', 'hline', 'trendline', 'polyline'
@@ -613,6 +615,8 @@ class FuturesChart {
         
         this.hoverIndex = -1;
         this.selectedBarIndex = -1;
+        this.lastValidMouseX = -1;
+        this.lastValidMouseY = -1;
         this.selectedHLine = null;
         this.selectedTrendLine = null;
         this.selectedPolyline = null;
@@ -1024,6 +1028,148 @@ class FuturesChart {
         ctx.restore();
     }
 
+    drawAggregatedProfileTooltip(rowTpo, rowVp, tpoProfile, vpProfile, mouseX, mouseY, w, h) {
+        const ctx = this.ctx;
+        const isDark = this.theme === 'dark';
+        
+        const metaTpo = tpoProfile.meta || {};
+        const metaVp = vpProfile.meta || {};
+        
+        const levelLabelTpo = metaTpo.profileLevel === 'daily' ? '日' :
+                             metaTpo.profileLevel === 'weekly' ? '周' : '30m';
+        const levelLabelVp = metaVp.profileLevel === 'daily' ? '日' :
+                            metaVp.profileLevel === 'weekly' ? '周' : '30m';
+        
+        const getLevelWeight = (level) => {
+            if (level === 'weekly') return 3;
+            if (level === 'daily') return 2;
+            if (level === '30m') return 1;
+            return 0;
+        };
+        const tpoWeight = getLevelWeight(metaTpo.profileLevel);
+        const vpWeight = getLevelWeight(metaVp.profileLevel);
+
+        let headerText = '';
+        if (levelLabelTpo === levelLabelVp) {
+            headerText = `${levelLabelTpo} TPO & VP`;
+        } else if (vpWeight > tpoWeight) {
+            headerText = `${levelLabelVp} VP & ${levelLabelTpo} TPO`;
+        } else {
+            headerText = `${levelLabelTpo} TPO & ${levelLabelVp} VP`;
+        }
+
+        const distToPocTpo = Number.isFinite(tpoProfile.poc) ? rowTpo.price - tpoProfile.poc : 0;
+        const distTextTpo = `${distToPocTpo >= 0 ? '+' : ''}${distToPocTpo.toFixed(1)}`;
+        
+        const distToPocVp = Number.isFinite(vpProfile.poc) ? rowVp.price - vpProfile.poc : 0;
+        const distTextVp = `${distToPocVp >= 0 ? '+' : ''}${distToPocVp.toFixed(1)}`;
+        
+        const totalVolVp = metaVp.totalVolume || 1;
+
+        // TPO Role
+        let roleTpo = 'Outside VA';
+        let roleColorTpo = isDark ? '#cbd5e1' : '#475569';
+        if (rowTpo.isPoc) {
+            roleTpo = 'TPOC';
+            roleColorTpo = '#a855f7';
+        } else if (rowTpo.isHvn) {
+            roleTpo = 'HVN';
+            roleColorTpo = '#2563eb';
+        } else if (rowTpo.isLvn) {
+            roleTpo = 'LVN';
+            roleColorTpo = '#f43f5e';
+        } else if (rowTpo.isSinglePrint) {
+            roleTpo = 'Single';
+            roleColorTpo = '#f97316';
+        } else if (rowTpo.isValueArea) {
+            roleTpo = 'Value Area';
+            roleColorTpo = '#8b5cf6';
+        }
+
+        // VP Role
+        let roleVp = 'Outside VA';
+        let roleColorVp = isDark ? '#cbd5e1' : '#475569';
+        if (rowVp.isPoc) {
+            roleVp = 'VPOC';
+            roleColorVp = '#2563eb';
+        } else if (rowVp.isHvn) {
+            roleVp = 'HVN';
+            roleColorVp = '#2563eb';
+        } else if (rowVp.isLvn) {
+            roleVp = 'LVN';
+            roleColorVp = '#f43f5e';
+        } else if (rowVp.isSinglePrint) {
+            roleVp = 'Single';
+            roleColorVp = '#f97316';
+        } else if (rowVp.isValueArea) {
+            roleVp = 'Value Area';
+            roleColorVp = '#3b82f6';
+        }
+
+        const lines = [
+            [headerText, metaVp.actualFrequencyUsed || '1m'],
+            ['Price', rowTpo.price.toFixed(1)]
+        ];
+
+        if (vpWeight > tpoWeight) {
+            lines.push(
+                ['Est Vol', `${this.formatVolume(rowVp.value)} | ${((rowVp.value / totalVolVp) * 100).toFixed(2)}%`],
+                ['VP POC Dist', `${roleVp} | ${distTextVp}`, roleColorVp],
+                ['Time', `${rowTpo.value} TPO | ${roleTpo}`, roleColorTpo],
+                ['TPO POC Dist', distTextTpo]
+            );
+        } else {
+            lines.push(
+                ['Time', `${rowTpo.value} TPO | ${roleTpo}`, roleColorTpo],
+                ['TPO POC Dist', distTextTpo],
+                ['Est Vol', `${this.formatVolume(rowVp.value)} | ${((rowVp.value / totalVolVp) * 100).toFixed(2)}%`],
+                ['VP POC Dist', `${roleVp} | ${distTextVp}`, roleColorVp]
+            );
+        }
+
+        const tooltipW = 194;
+        const tooltipH = 24 + lines.length * 17;
+        let tooltipX = mouseX + 14;
+        let tooltipY = mouseY + 14;
+        if (tooltipX + tooltipW > w) tooltipX = mouseX - tooltipW - 14;
+        if (tooltipY + tooltipH > h) tooltipY = mouseY - tooltipH - 14;
+        tooltipX = Math.max(8, tooltipX);
+        tooltipY = Math.max(8, tooltipY);
+
+        ctx.save();
+        ctx.fillStyle = isDark ? 'rgba(15, 23, 42, 0.94)' : 'rgba(255, 255, 255, 0.96)';
+        ctx.strokeStyle = isDark ? 'rgba(148, 163, 184, 0.26)' : 'rgba(15, 23, 42, 0.16)';
+        ctx.lineWidth = 1;
+        ctx.shadowColor = isDark ? 'rgba(0, 0, 0, 0.36)' : 'rgba(15, 23, 42, 0.12)';
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetY = 2;
+        ctx.beginPath();
+        if (ctx.roundRect) {
+            ctx.roundRect(tooltipX, tooltipY, tooltipW, tooltipH, 8);
+        } else {
+            ctx.rect(tooltipX, tooltipY, tooltipW, tooltipH);
+        }
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 0;
+        ctx.textBaseline = 'top';
+        lines.forEach((line, idx) => {
+            const y = tooltipY + 10 + idx * 17;
+            const [label, value, color] = line;
+            ctx.fillStyle = idx === 0 ? (isDark ? '#e5e7eb' : '#0f172a') : (isDark ? '#94a3b8' : '#64748b');
+            ctx.font = idx === 0 ? 'bold 10px Inter' : '10px Inter';
+            ctx.textAlign = 'left';
+            ctx.fillText(label, tooltipX + 10, y);
+            ctx.fillStyle = color || (isDark ? '#f8fafc' : '#111827');
+            ctx.font = 'bold 10px Inter';
+            ctx.textAlign = 'right';
+            ctx.fillText(value, tooltipX + tooltipW - 10, y);
+        });
+        ctx.restore();
+    }
+
     setChartType(type) {
         this.chartType = type;
         this.render();
@@ -1100,12 +1246,16 @@ class FuturesChart {
                 if (!(isInsideChartX && isInsideChartY)) {
                     if (this.selectedBarIndex !== -1) {
                         this.selectedBarIndex = -1;
+                        this.lastValidMouseX = -1;
+                        this.lastValidMouseY = -1;
                         this.render();
                     }
                 }
             } else {
                 if (this.selectedBarIndex !== -1) {
                     this.selectedBarIndex = -1;
+                    this.lastValidMouseX = -1;
+                    this.lastValidMouseY = -1;
                     this.render();
                 }
             }
@@ -1119,6 +1269,13 @@ class FuturesChart {
             this.mouseX = coords.x;
             this.mouseY = coords.y;
             this.updateHoverIndex();
+            
+            const { priceHeight } = this.getPriceHeightParams();
+            if (this.mouseX >= this.paddingLeft && this.mouseX <= this.logicalWidth - this.paddingRight &&
+                this.mouseY >= this.paddingTop && this.mouseY <= this.paddingTop + priceHeight) {
+                this.lastValidMouseX = this.mouseX;
+                this.lastValidMouseY = this.mouseY;
+            }
             
             const chartWidth = this.logicalWidth - this.paddingLeft - this.paddingRight;
             if (chartWidth > 0 && this.mouseX >= this.paddingLeft && this.mouseX <= this.logicalWidth - this.paddingRight) {
@@ -1180,6 +1337,13 @@ class FuturesChart {
             const isInsideChartY = mouseY >= this.paddingTop && mouseY <= this.paddingTop + priceHeight;
             if (isInsideChartX && isInsideChartY && this.hoverIndex >= 0) {
                 this.selectedBarIndex = this.selectedBarIndex === this.hoverIndex ? -1 : this.hoverIndex;
+                if (this.selectedBarIndex === -1) {
+                    this.lastValidMouseX = -1;
+                    this.lastValidMouseY = -1;
+                } else {
+                    this.lastValidMouseX = mouseX;
+                    this.lastValidMouseY = mouseY;
+                }
                 this.render();
             }
 
@@ -1419,6 +1583,13 @@ class FuturesChart {
                 if (index >= this.visibleStart && index < this.visibleEnd && index < this.data.length) {
                     this.selectedBarIndex = this.selectedBarIndex === index ? -1 : index;
                     this.hoverIndex = index;
+                    if (this.selectedBarIndex !== -1) {
+                        this.lastValidMouseX = touchX;
+                        this.lastValidMouseY = touchY;
+                    } else {
+                        this.lastValidMouseX = -1;
+                        this.lastValidMouseY = -1;
+                    }
                     this.render();
                 }
             }
@@ -1711,6 +1882,8 @@ class FuturesChart {
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && this.selectedBarIndex !== -1) {
                 this.selectedBarIndex = -1;
+                this.lastValidMouseX = -1;
+                this.lastValidMouseY = -1;
                 this.render();
             }
         });
@@ -2931,36 +3104,67 @@ class FuturesChart {
             }
         }
 
-        // Draw profile tooltips if mouse is hovering on profiles
-        if (this.mouseX >= this.paddingLeft && this.mouseX <= w - this.paddingRight &&
-            this.mouseY >= this.paddingTop && this.mouseY <= this.paddingTop + priceHeight) {
+        // Draw profile tooltips if K-line is locked (selectedBarIndex !== -1)
+        if (this.selectedBarIndex !== -1) {
+            let targetX = this.mouseX;
+            let targetY = this.mouseY;
             
-            const findNearestVisibleProfileRow = (profile) => {
+            // If mouse coordinates are not active (-1), fallback to last valid coordinates
+            if (targetX === -1 || targetY === -1) {
+                if (this.lastValidMouseX !== undefined && this.lastValidMouseY !== undefined && this.lastValidMouseX !== -1 && this.lastValidMouseY !== -1) {
+                    targetX = this.lastValidMouseX;
+                    targetY = this.lastValidMouseY;
+                } else {
+                    // Default fallback: center on the locked K-line bar X and the POC/close price Y
+                    const candleWidth = (w - this.paddingLeft - this.paddingRight) / (this.visibleEnd - this.visibleStart);
+                    const lockX = this.paddingLeft + ((this.selectedBarIndex - this.visibleStart) * candleWidth) + (candleWidth / 2);
+                    targetX = lockX;
+                    
+                    let defaultPrice = 0;
+                    if (tpoProfile && Number.isFinite(tpoProfile.poc)) {
+                        defaultPrice = tpoProfile.poc;
+                    } else if (vpProfile && Number.isFinite(vpProfile.poc)) {
+                        defaultPrice = vpProfile.poc;
+                    } else if (targetBar) {
+                        defaultPrice = targetBar.close;
+                    }
+                    targetY = getPriceY(defaultPrice);
+                }
+            }
+
+            const findNearestVisibleProfileRow = (profile, yVal) => {
                 let nearest = null;
                 let nearestDistance = Infinity;
                 profile.rows.forEach(row => {
                     const rowY = getPriceY(row.price);
                     if (!isYInPricePane(rowY)) return;
-                    const distance = Math.abs(rowY - this.mouseY);
+                    const distance = Math.abs(rowY - yVal);
                     if (distance < nearestDistance) {
                         nearest = row;
                         nearestDistance = distance;
                     }
                 });
-                return nearestDistance <= 12 ? nearest : null;
+                return nearest;
             };
-            
-            if (tpoProfile && tpoProfile.rows && tpoProfile.rows.length > 0 && 
-                this.mouseX >= this.paddingLeft && this.mouseX <= this.paddingLeft + profileHitWidth) {
-                const row = findNearestVisibleProfileRow(tpoProfile);
-                if (row) {
-                    this.drawProfileTooltip('tpo', row, tpoProfile, this.mouseX, this.mouseY, w, h);
+
+            const isTpoActive = this.tpoLevel !== 'none' && tpoProfile && tpoProfile.rows && tpoProfile.rows.length > 0;
+            const isVpActive = this.vpLevel !== 'none' && vpProfile && vpProfile.rows && vpProfile.rows.length > 0;
+
+            if (isTpoActive && isVpActive) {
+                const rowTpo = findNearestVisibleProfileRow(tpoProfile, targetY);
+                const rowVp = findNearestVisibleProfileRow(vpProfile, targetY);
+                if (rowTpo && rowVp) {
+                    this.drawAggregatedProfileTooltip(rowTpo, rowVp, tpoProfile, vpProfile, targetX, targetY, w, h);
                 }
-            } else if (vpProfile && vpProfile.rows && vpProfile.rows.length > 0 && 
-                       this.mouseX >= w - this.paddingRight - profileHitWidth && this.mouseX <= w - this.paddingRight) {
-                const row = findNearestVisibleProfileRow(vpProfile);
-                if (row) {
-                    this.drawProfileTooltip('volume', row, vpProfile, this.mouseX, this.mouseY, w, h);
+            } else if (isTpoActive) {
+                const rowTpo = findNearestVisibleProfileRow(tpoProfile, targetY);
+                if (rowTpo) {
+                    this.drawProfileTooltip('tpo', rowTpo, tpoProfile, targetX, targetY, w, h);
+                }
+            } else if (isVpActive) {
+                const rowVp = findNearestVisibleProfileRow(vpProfile, targetY);
+                if (rowVp) {
+                    this.drawProfileTooltip('volume', rowVp, vpProfile, targetX, targetY, w, h);
                 }
             }
         }
