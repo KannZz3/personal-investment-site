@@ -1066,20 +1066,9 @@ class FuturesChart {
         const levelLabelVp = metaVp.profileLevel === 'daily' ? '日' :
                             metaVp.profileLevel === 'weekly' ? '周' : '30m';
         
-        const getLevelWeight = (level) => {
-            if (level === 'weekly') return 3;
-            if (level === 'daily') return 2;
-            if (level === '30m') return 1;
-            return 0;
-        };
-        const tpoWeight = getLevelWeight(metaTpo.profileLevel);
-        const vpWeight = getLevelWeight(metaVp.profileLevel);
-
         let headerText = '';
         if (levelLabelTpo === levelLabelVp) {
             headerText = `${levelLabelTpo} TPO & VP`;
-        } else if (vpWeight > tpoWeight) {
-            headerText = `${levelLabelVp} VP & ${levelLabelTpo} TPO`;
         } else {
             headerText = `${levelLabelTpo} TPO & ${levelLabelVp} VP`;
         }
