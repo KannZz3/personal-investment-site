@@ -3144,67 +3144,46 @@ class FuturesChart {
             }
         }
 
-        // Draw profile tooltips if K-line is locked (selectedBarIndex !== -1)
-        if (this.selectedBarIndex !== -1) {
-            let targetX = this.mouseX;
-            let targetY = this.mouseY;
+        // Draw profile tooltips if K-line is locked AND mouse is hovering inside the locked K-line column
+        if (this.selectedBarIndex !== -1 && this.hoverIndex === this.selectedBarIndex) {
+            const targetX = this.mouseX;
+            const targetY = this.mouseY;
             
-            // If mouse coordinates are not active (-1), fallback to last valid coordinates
-            if (targetX === -1 || targetY === -1) {
-                if (this.lastValidMouseX !== undefined && this.lastValidMouseY !== undefined && this.lastValidMouseX !== -1 && this.lastValidMouseY !== -1) {
-                    targetX = this.lastValidMouseX;
-                    targetY = this.lastValidMouseY;
-                } else {
-                    // Default fallback: center on the locked K-line bar X and the POC/close price Y
-                    const candleWidth = (w - this.paddingLeft - this.paddingRight) / (this.visibleEnd - this.visibleStart);
-                    const lockX = this.paddingLeft + ((this.selectedBarIndex - this.visibleStart) * candleWidth) + (candleWidth / 2);
-                    targetX = lockX;
-                    
-                    let defaultPrice = 0;
-                    if (tpoProfile && Number.isFinite(tpoProfile.poc)) {
-                        defaultPrice = tpoProfile.poc;
-                    } else if (vpProfile && Number.isFinite(vpProfile.poc)) {
-                        defaultPrice = vpProfile.poc;
-                    } else if (targetBar) {
-                        defaultPrice = targetBar.close;
+            if (targetX !== -1 && targetY !== -1) {
+                const findNearestVisibleProfileRow = (profile, yVal) => {
+                    let nearest = null;
+                    let nearestDistance = Infinity;
+                    profile.rows.forEach(row => {
+                        const rowY = getPriceY(row.price);
+                        if (!isYInPricePane(rowY)) return;
+                        const distance = Math.abs(rowY - yVal);
+                        if (distance < nearestDistance) {
+                            nearest = row;
+                            nearestDistance = distance;
+                        }
+                    });
+                    return nearest;
+                };
+
+                const isTpoActive = this.tpoLevel !== 'none' && tpoProfile && tpoProfile.rows && tpoProfile.rows.length > 0;
+                const isVpActive = this.vpLevel !== 'none' && vpProfile && vpProfile.rows && vpProfile.rows.length > 0;
+
+                if (isTpoActive && isVpActive) {
+                    const rowTpo = findNearestVisibleProfileRow(tpoProfile, targetY);
+                    const rowVp = findNearestVisibleProfileRow(vpProfile, targetY);
+                    if (rowTpo && rowVp) {
+                        this.drawAggregatedProfileTooltip(rowTpo, rowVp, tpoProfile, vpProfile, targetX, targetY, w, h);
                     }
-                    targetY = getPriceY(defaultPrice);
-                }
-            }
-
-            const findNearestVisibleProfileRow = (profile, yVal) => {
-                let nearest = null;
-                let nearestDistance = Infinity;
-                profile.rows.forEach(row => {
-                    const rowY = getPriceY(row.price);
-                    if (!isYInPricePane(rowY)) return;
-                    const distance = Math.abs(rowY - yVal);
-                    if (distance < nearestDistance) {
-                        nearest = row;
-                        nearestDistance = distance;
+                } else if (isTpoActive) {
+                    const rowTpo = findNearestVisibleProfileRow(tpoProfile, targetY);
+                    if (rowTpo) {
+                        this.drawProfileTooltip('tpo', rowTpo, tpoProfile, targetX, targetY, w, h);
                     }
-                });
-                return nearest;
-            };
-
-            const isTpoActive = this.tpoLevel !== 'none' && tpoProfile && tpoProfile.rows && tpoProfile.rows.length > 0;
-            const isVpActive = this.vpLevel !== 'none' && vpProfile && vpProfile.rows && vpProfile.rows.length > 0;
-
-            if (isTpoActive && isVpActive) {
-                const rowTpo = findNearestVisibleProfileRow(tpoProfile, targetY);
-                const rowVp = findNearestVisibleProfileRow(vpProfile, targetY);
-                if (rowTpo && rowVp) {
-                    this.drawAggregatedProfileTooltip(rowTpo, rowVp, tpoProfile, vpProfile, targetX, targetY, w, h);
-                }
-            } else if (isTpoActive) {
-                const rowTpo = findNearestVisibleProfileRow(tpoProfile, targetY);
-                if (rowTpo) {
-                    this.drawProfileTooltip('tpo', rowTpo, tpoProfile, targetX, targetY, w, h);
-                }
-            } else if (isVpActive) {
-                const rowVp = findNearestVisibleProfileRow(vpProfile, targetY);
-                if (rowVp) {
-                    this.drawProfileTooltip('volume', rowVp, vpProfile, targetX, targetY, w, h);
+                } else if (isVpActive) {
+                    const rowVp = findNearestVisibleProfileRow(vpProfile, targetY);
+                    if (rowVp) {
+                        this.drawProfileTooltip('volume', rowVp, vpProfile, targetX, targetY, w, h);
+                    }
                 }
             }
         }
