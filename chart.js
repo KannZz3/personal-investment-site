@@ -51,6 +51,7 @@ class FuturesChart {
         
         // Market Profile states
         this.symbol = '';
+        this.lastSymbol = '';
         this.tpoLevel = 'none';
         this.vpLevel = 'none';
         this.profileDisplayMode = 'confluence'; // 'confluence', 'distribution', 'full'
@@ -567,6 +568,12 @@ class FuturesChart {
     }
 
     setData(data) {
+        // Record selected bar date before loading new data (only if symbol did not change)
+        let selectedBarDate = null;
+        if (this.symbol === this.lastSymbol && this.selectedBarIndex !== -1 && this.data && this.data[this.selectedBarIndex]) {
+            selectedBarDate = this.data[this.selectedBarIndex].date || this.data[this.selectedBarIndex].datetime;
+        }
+
         const sourceData = Array.isArray(data) ? data : [];
         const validData = sourceData.filter(d => {
             if (!d) return false;
@@ -614,9 +621,27 @@ class FuturesChart {
         });
         
         this.hoverIndex = -1;
-        this.selectedBarIndex = -1;
-        this.lastValidMouseX = -1;
-        this.lastValidMouseY = -1;
+        
+        // Restore selected K-line if possible
+        let newSelectedIndex = -1;
+        if (selectedBarDate && this.data) {
+            // Exact match
+            newSelectedIndex = this.data.findIndex(d => (d.date || d.datetime) === selectedBarDate);
+            // Prefix match (for switching periods)
+            if (newSelectedIndex === -1) {
+                const selectedDateStr = String(selectedBarDate).split(' ')[0];
+                newSelectedIndex = this.data.findIndex(d => {
+                    const curDateStr = String(d.date || d.datetime).split(' ')[0];
+                    return curDateStr === selectedDateStr;
+                });
+            }
+        }
+        
+        this.selectedBarIndex = newSelectedIndex;
+        if (this.selectedBarIndex === -1) {
+            this.lastValidMouseX = -1;
+            this.lastValidMouseY = -1;
+        }
         this.selectedHLine = null;
         this.selectedTrendLine = null;
         this.selectedPolyline = null;
@@ -637,6 +662,7 @@ class FuturesChart {
             this.visibleEnd = this.data.length;
         }
         
+        this.lastSymbol = this.symbol;
         this.resize();
     }
 
@@ -1225,6 +1251,18 @@ class FuturesChart {
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             
+            // Right-click anywhere unlocks selection
+            const isRightClick = !e.touches && e.button === 2;
+            if (isRightClick) {
+                if (this.selectedBarIndex !== -1) {
+                    this.selectedBarIndex = -1;
+                    this.lastValidMouseX = -1;
+                    this.lastValidMouseY = -1;
+                    this.render();
+                }
+                return;
+            }
+
             if (e.target === this.canvas) {
                 const coords = this.getEventCoords(clientX, clientY);
                 const isInsideChartX = coords.x >= this.paddingLeft && coords.x <= this.logicalWidth - this.paddingRight;
@@ -1240,16 +1278,29 @@ class FuturesChart {
                     }
                 }
             } else {
-                if (this.selectedBarIndex !== -1) {
-                    this.selectedBarIndex = -1;
-                    this.lastValidMouseX = -1;
-                    this.lastValidMouseY = -1;
-                    this.render();
+                // Clicking outside the canvas
+                // Exclude clicks inside top toolbars (.chart-toolbar) and bottom navigation/drawing bar (.chart-navigation-bar)
+                const isClickOnToolbar = e.target.closest('.chart-toolbar') || 
+                                         e.target.closest('.chart-navigation-bar') ||
+                                         e.target.closest('.scrollbar-container');
+                
+                if (!isClickOnToolbar) {
+                    if (this.selectedBarIndex !== -1) {
+                        this.selectedBarIndex = -1;
+                        this.lastValidMouseX = -1;
+                        this.lastValidMouseY = -1;
+                        this.render();
+                    }
                 }
             }
         };
         document.addEventListener('mousedown', clearSelectionHandler);
         document.addEventListener('touchstart', clearSelectionHandler, { passive: true });
+
+        // Prevent default context menu on the canvas to allow right-click K-line unlocking
+        this.canvas.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
 
         // Mouse interactions for crosshair & panning & drawing
         this.canvas.addEventListener('mousemove', (e) => {
@@ -1315,6 +1366,7 @@ class FuturesChart {
 
         // Start panning / drawing / selection
         this.canvas.addEventListener('mousedown', (e) => {
+            if (e.button !== 0) return; // Only process left click
             const coords = this.getEventCoords(e.clientX, e.clientY);
             const mouseX = coords.x;
             const mouseY = coords.y;
