@@ -31,6 +31,10 @@ class FuturesChart {
         this.mouseX = -1;
         this.mouseY = -1;
 
+        this.chartPeriod = '';
+        this.lastChartPeriod = '';
+        this.lastChartType = '';
+
         // Viewport data windowing (for zooming and panning)
         this.visibleStart = 0;
         this.visibleEnd = 0;
@@ -652,17 +656,32 @@ class FuturesChart {
         this.drawingMode = 'none';
         if (this.updateDrawingBtnStates) this.updateDrawingBtnStates();
 
-        // Default to showing 100% of data on desktop, but only 45 bars on mobile to prevent crowding
-        if (window.innerWidth < 768) {
-            const mobileCount = Math.min(this.data.length, 45);
-            this.visibleStart = this.data.length - mobileCount;
-            this.visibleEnd = this.data.length;
-        } else {
-            this.visibleStart = 0;
-            this.visibleEnd = this.data.length;
+        const isSameSymbol = (this.symbol === this.lastSymbol);
+        const isSamePeriod = (this.chartPeriod === this.lastChartPeriod);
+        const isSameChartType = (this.chartType === this.lastChartType);
+
+        let preserved = false;
+        if (isSameSymbol && isSamePeriod && isSameChartType && typeof this.visibleStart === 'number' && typeof this.visibleEnd === 'number') {
+            if (this.visibleStart >= 0 && this.visibleEnd <= this.data.length && this.visibleStart < this.visibleEnd) {
+                preserved = true;
+            }
+        }
+
+        if (!preserved) {
+            // Default to showing 100% of data on desktop, but only 45 bars on mobile to prevent crowding
+            if (window.innerWidth < 768) {
+                const mobileCount = Math.min(this.data.length, 45);
+                this.visibleStart = this.data.length - mobileCount;
+                this.visibleEnd = this.data.length;
+            } else {
+                this.visibleStart = 0;
+                this.visibleEnd = this.data.length;
+            }
         }
         
         this.lastSymbol = this.symbol;
+        this.lastChartPeriod = this.chartPeriod;
+        this.lastChartType = this.chartType;
         this.resize();
     }
 
