@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "sync_time": "2026-09-09 22:08:41",
+    "sync_time": "2026-09-10 05:59:55",
     "version": "6.1",
     "description": "Full market TqSdk OI screen | K-line data (TqSdk Only Optimized)",
     "historyYears": 35,
@@ -17,352 +17,352 @@
         "code": "AU",
         "name": "沪金",
         "exchange": "SHFE",
-        "currentOI": 153220,
+        "currentOI": 150321,
         "historicalMaxOI": 304793,
         "historicalMaxDate": "2019-08-29",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.5027018337035299,
+        "oiRatio": 0.4931904604108362,
         "alert": "normal"
       },
       "AG": {
         "code": "AG",
         "name": "沪银",
         "exchange": "SHFE",
-        "currentOI": 207589,
+        "currentOI": 199422,
         "historicalMaxOI": 711182,
         "historicalMaxDate": "2019-08-29",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.2918929331732243,
+        "oiRatio": 0.28040923420446523,
         "alert": "normal"
       },
       "CU": {
         "code": "CU",
         "name": "沪铜",
         "exchange": "SHFE",
-        "currentOI": 228777,
+        "currentOI": 231822,
         "historicalMaxOI": 293384,
         "historicalMaxDate": "2025-10-27",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.7797869004444686,
+        "oiRatio": 0.7901657895454421,
         "alert": "normal"
       },
       "AL": {
         "code": "AL",
         "name": "沪铝",
         "exchange": "SHFE",
-        "currentOI": 244929,
+        "currentOI": 244790,
         "historicalMaxOI": 446659,
         "historicalMaxDate": "2025-11-13",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.5483579195762315,
+        "oiRatio": 0.5480467202048991,
         "alert": "normal"
       },
       "ZN": {
         "code": "ZN",
         "name": "沪锌",
         "exchange": "SHFE",
-        "currentOI": 158257,
+        "currentOI": 157529,
         "historicalMaxOI": 189286,
         "historicalMaxDate": "2017-04-19",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.8360734549834642,
+        "oiRatio": 0.8322274230529463,
         "alert": "normal"
       },
       "PB": {
         "code": "PB",
         "name": "沪铅",
         "exchange": "SHFE",
-        "currentOI": 64758,
+        "currentOI": 64287,
         "historicalMaxOI": 137369,
         "historicalMaxDate": "2024-06-19",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.4714164039921671,
+        "oiRatio": 0.4679876828105322,
         "alert": "normal"
       },
       "NI": {
         "code": "NI",
         "name": "沪镍",
         "exchange": "SHFE",
-        "currentOI": 118171,
+        "currentOI": 115753,
         "historicalMaxOI": 358806,
         "historicalMaxDate": "2017-01-25",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.32934510571172165,
+        "oiRatio": 0.32260608796954343,
         "alert": "normal"
       },
       "SN": {
         "code": "SN",
         "name": "沪锡",
         "exchange": "SHFE",
-        "currentOI": 37007,
+        "currentOI": 37290,
         "historicalMaxOI": 77521,
         "historicalMaxDate": "2023-03-13",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.47738032275125447,
+        "oiRatio": 0.48103094645321914,
         "alert": "normal"
       },
       "RB": {
         "code": "RB",
         "name": "螺纹钢",
         "exchange": "SHFE",
-        "currentOI": 1568170,
+        "currentOI": 1579033,
         "historicalMaxOI": 2441388,
         "historicalMaxDate": "2025-05-28",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.642327233524536,
+        "oiRatio": 0.6467767515855735,
         "alert": "normal"
       },
       "HC": {
         "code": "HC",
         "name": "热轧板",
         "exchange": "SHFE",
-        "currentOI": 1361917,
+        "currentOI": 1355292,
         "historicalMaxOI": 2107115,
         "historicalMaxDate": "2026-05-11",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.6463420363862438,
+        "oiRatio": 0.643197927023442,
         "alert": "normal"
       },
       "SS": {
         "code": "SS",
         "name": "不锈钢",
         "exchange": "SHFE",
-        "currentOI": 94040,
+        "currentOI": 92183,
         "historicalMaxOI": 201245,
         "historicalMaxDate": "2025-10-16",
         "dataStart": "2019-09-25",
-        "oiRatio": 0.4672911128226788,
+        "oiRatio": 0.45806355437402174,
         "alert": "normal"
       },
       "FU": {
         "code": "FU",
         "name": "燃油",
         "exchange": "SHFE",
-        "currentOI": 232157,
+        "currentOI": 227565,
         "historicalMaxOI": 880157,
         "historicalMaxDate": "2020-04-27",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.26376771416917666,
+        "oiRatio": 0.2585504631560051,
         "alert": "normal"
       },
       "BU": {
         "code": "BU",
         "name": "沥青",
         "exchange": "SHFE",
-        "currentOI": 186921,
+        "currentOI": 184141,
         "historicalMaxOI": 668607,
         "historicalMaxDate": "2016-09-27",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.2795678178661007,
+        "oiRatio": 0.27540991942950044,
         "alert": "normal"
       },
       "RU": {
         "code": "RU",
         "name": "橡胶",
         "exchange": "SHFE",
-        "currentOI": 168528,
+        "currentOI": 167484,
         "historicalMaxOI": 300869,
         "historicalMaxDate": "2023-05-08",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.5601374684663425,
+        "oiRatio": 0.5566675197511209,
         "alert": "normal"
       },
       "SP": {
         "code": "SP",
         "name": "纸浆",
         "exchange": "SHFE",
-        "currentOI": 222160,
+        "currentOI": 220694,
         "historicalMaxOI": 450995,
         "historicalMaxDate": "2026-06-04",
         "dataStart": "2018-11-27",
-        "oiRatio": 0.4925996962272309,
+        "oiRatio": 0.4893491058659187,
         "alert": "normal"
       },
       "EB": {
         "code": "EB",
         "name": "苯乙烯",
         "exchange": "DCE",
-        "currentOI": 333367,
+        "currentOI": 342944,
         "historicalMaxOI": 469636,
         "historicalMaxDate": "2026-06-26",
         "dataStart": "2019-09-26",
-        "oiRatio": 0.7098412387466038,
+        "oiRatio": 0.7302336277457435,
         "alert": "normal"
       },
       "BR": {
         "code": "BR",
         "name": "合成橡胶",
         "exchange": "SHFE",
-        "currentOI": 42522,
+        "currentOI": 41397,
         "historicalMaxOI": 136399,
         "historicalMaxDate": "2023-09-07",
         "dataStart": "2023-07-28",
-        "oiRatio": 0.3117471535715071,
+        "oiRatio": 0.3034992925168073,
         "alert": "normal"
       },
       "AO": {
         "code": "AO",
         "name": "氧化铝",
         "exchange": "SHFE",
-        "currentOI": 189273,
+        "currentOI": 189745,
         "historicalMaxOI": 555607,
         "historicalMaxDate": "2026-01-08",
         "dataStart": "2023-06-19",
-        "oiRatio": 0.3406598548974365,
+        "oiRatio": 0.3415093762317609,
         "alert": "normal"
       },
       "I": {
         "code": "I",
         "name": "铁矿石",
         "exchange": "DCE",
-        "currentOI": 615429,
+        "currentOI": 612487,
         "historicalMaxOI": 1096584,
         "historicalMaxDate": "2017-06-08",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.5612237639797772,
+        "oiRatio": 0.558540886972635,
         "alert": "normal"
       },
       "JM": {
         "code": "JM",
         "name": "焦煤",
         "exchange": "DCE",
-        "currentOI": 538501,
+        "currentOI": 524948,
         "historicalMaxOI": 763605,
         "historicalMaxDate": "2025-09-16",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.7052088448870817,
+        "oiRatio": 0.6874601397319294,
         "alert": "normal"
       },
       "J": {
         "code": "J",
         "name": "焦炭",
         "exchange": "DCE",
-        "currentOI": 62540,
+        "currentOI": 62292,
         "historicalMaxOI": 223080,
         "historicalMaxDate": "2016-10-31",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.2803478572709342,
+        "oiRatio": 0.2792361484669177,
         "alert": "normal"
       },
       "C": {
         "code": "C",
         "name": "玉米",
         "exchange": "DCE",
-        "currentOI": 1200252,
+        "currentOI": 1195017,
         "historicalMaxOI": 1760261,
         "historicalMaxDate": "2017-02-08",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.6818602468611189,
+        "oiRatio": 0.678886256072253,
         "alert": "normal"
       },
       "CS": {
         "code": "CS",
         "name": "淀粉",
         "exchange": "DCE",
-        "currentOI": 288889,
+        "currentOI": 288248,
         "historicalMaxOI": 638868,
         "historicalMaxDate": "2017-02-14",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.4521888715665834,
+        "oiRatio": 0.4511855344139947,
         "alert": "normal"
       },
       "A": {
         "code": "A",
         "name": "豆一",
         "exchange": "DCE",
-        "currentOI": 372456,
+        "currentOI": 370878,
         "historicalMaxOI": 416645,
         "historicalMaxDate": "2026-08-20",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.8939408849260162,
+        "oiRatio": 0.8901534879813751,
         "alert": "normal"
       },
       "M": {
         "code": "M",
         "name": "豆粕",
         "exchange": "DCE",
-        "currentOI": 2807056,
+        "currentOI": 2787889,
         "historicalMaxOI": 2900282,
         "historicalMaxDate": "2026-09-04",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.9678562291528893,
+        "oiRatio": 0.9612475614440251,
         "alert": "near_high"
       },
       "Y": {
         "code": "Y",
         "name": "豆油",
         "exchange": "DCE",
-        "currentOI": 734218,
+        "currentOI": 720573,
         "historicalMaxOI": 839796,
         "historicalMaxDate": "2026-01-29",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.8742813730953708,
+        "oiRatio": 0.8580333795350299,
         "alert": "normal"
       },
       "P": {
         "code": "P",
         "name": "棕榈油",
         "exchange": "DCE",
-        "currentOI": 608402,
+        "currentOI": 598922,
         "historicalMaxOI": 845921,
         "historicalMaxDate": "2020-01-10",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.7192184612983955,
+        "oiRatio": 0.708011741049105,
         "alert": "normal"
       },
       "V": {
         "code": "V",
         "name": "PVC",
         "exchange": "DCE",
-        "currentOI": 1206056,
+        "currentOI": 1189246,
         "historicalMaxOI": 1462620,
         "historicalMaxDate": "2025-11-18",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.8245860168738292,
+        "oiRatio": 0.8130929428012744,
         "alert": "normal"
       },
       "L": {
         "code": "L",
         "name": "聚乙烯",
         "exchange": "DCE",
-        "currentOI": 449341,
+        "currentOI": 448690,
         "historicalMaxOI": 620857,
         "historicalMaxDate": "2024-11-22",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.7237431485833292,
+        "oiRatio": 0.7226945979508969,
         "alert": "normal"
       },
       "PP": {
         "code": "PP",
         "name": "聚丙烯",
         "exchange": "DCE",
-        "currentOI": 655786,
+        "currentOI": 659472,
         "historicalMaxOI": 721628,
         "historicalMaxDate": "2023-05-23",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.9087590836275754,
+        "oiRatio": 0.9138669785540472,
         "alert": "near_high"
       },
       "EG": {
         "code": "EG",
         "name": "乙二醇",
         "exchange": "DCE",
-        "currentOI": 381508,
+        "currentOI": 362269,
         "historicalMaxOI": 549566,
         "historicalMaxDate": "2023-06-27",
         "dataStart": "2018-12-10",
-        "oiRatio": 0.6941986949702128,
+        "oiRatio": 0.6591910707722094,
         "alert": "normal"
       },
       "PG": {
         "code": "PG",
         "name": "液化气",
         "exchange": "DCE",
-        "currentOI": 99502,
+        "currentOI": 97743,
         "historicalMaxOI": 159226,
         "historicalMaxDate": "2023-07-06",
         "dataStart": "2020-03-30",
-        "oiRatio": 0.6249105045658372,
+        "oiRatio": 0.6138633137804127,
         "alert": "normal"
       },
       "JD": {
@@ -391,22 +391,22 @@
         "code": "RR",
         "name": "粳米",
         "exchange": "DCE",
-        "currentOI": 26666,
+        "currentOI": 26689,
         "historicalMaxOI": 49845,
         "historicalMaxDate": "2023-12-29",
         "dataStart": "2019-08-16",
-        "oiRatio": 0.5349784331427425,
+        "oiRatio": 0.535439863577089,
         "alert": "normal"
       },
       "B": {
         "code": "B",
         "name": "豆二",
         "exchange": "DCE",
-        "currentOI": 210959,
+        "currentOI": 208824,
         "historicalMaxOI": 240350,
         "historicalMaxDate": "2026-03-16",
         "dataStart": "2016-01-06",
-        "oiRatio": 0.8777158310796754,
+        "oiRatio": 0.8688329519450801,
         "alert": "normal"
       },
       "FB": {
@@ -424,88 +424,88 @@
         "code": "SR",
         "name": "白糖",
         "exchange": "CZCE",
-        "currentOI": 663745,
+        "currentOI": 651034,
         "historicalMaxOI": 785079,
         "historicalMaxDate": "2026-07-16",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.845449948349147,
+        "oiRatio": 0.8292592210465444,
         "alert": "normal"
       },
       "CF": {
         "code": "CF",
         "name": "棉花",
         "exchange": "CZCE",
-        "currentOI": 534383,
+        "currentOI": 531960,
         "historicalMaxOI": 925465,
         "historicalMaxDate": "2026-01-07",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.5774210802137304,
+        "oiRatio": 0.5748029369019898,
         "alert": "normal"
       },
       "TA": {
         "code": "TA",
         "name": "PTA",
         "exchange": "CZCE",
-        "currentOI": 1141650,
+        "currentOI": 1133349,
         "historicalMaxOI": 2784649,
         "historicalMaxDate": "2020-12-17",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.40997985742547804,
+        "oiRatio": 0.4069988713119679,
         "alert": "normal"
       },
       "MA": {
         "code": "MA",
         "name": "甲醇",
         "exchange": "CZCE",
-        "currentOI": 627162,
+        "currentOI": 634492,
         "historicalMaxOI": 2021781,
         "historicalMaxDate": "2023-05-26",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.3102027370917028,
+        "oiRatio": 0.3138282534062789,
         "alert": "normal"
       },
       "FG": {
         "code": "FG",
         "name": "玻璃",
         "exchange": "CZCE",
-        "currentOI": 1226187,
+        "currentOI": 1216161,
         "historicalMaxOI": 2097295,
         "historicalMaxDate": "2026-07-16",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.58465165844576,
+        "oiRatio": 0.5798712150651196,
         "alert": "normal"
       },
       "OI": {
         "code": "OI",
         "name": "菜油",
         "exchange": "CZCE",
-        "currentOI": 314898,
+        "currentOI": 307506,
         "historicalMaxOI": 471405,
         "historicalMaxDate": "2026-06-04",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.667998854488179,
+        "oiRatio": 0.6523180704489769,
         "alert": "normal"
       },
       "RM": {
         "code": "RM",
         "name": "菜粕",
         "exchange": "CZCE",
-        "currentOI": 609889,
+        "currentOI": 604443,
         "historicalMaxOI": 1239807,
         "historicalMaxDate": "2024-07-17",
         "dataStart": "2016-01-05",
-        "oiRatio": 0.4919225331039428,
+        "oiRatio": 0.48752991393015205,
         "alert": "normal"
       },
       "SA": {
         "code": "SA",
         "name": "纯碱",
         "exchange": "CZCE",
-        "currentOI": 1323641,
+        "currentOI": 1315468,
         "historicalMaxOI": 1801178,
         "historicalMaxDate": "2025-07-07",
         "dataStart": "2019-12-06",
-        "oiRatio": 0.7348751761347296,
+        "oiRatio": 0.7303375901770952,
         "alert": "normal"
       },
       "ZC": {
@@ -589,33 +589,33 @@
         "code": "PX",
         "name": "对二甲苯",
         "exchange": "CZCE",
-        "currentOI": 169698,
+        "currentOI": 166660,
         "historicalMaxOI": 284299,
         "historicalMaxDate": "2025-12-22",
         "dataStart": "2023-09-15",
-        "oiRatio": 0.596899742876338,
+        "oiRatio": 0.5862138101083718,
         "alert": "normal"
       },
       "SH": {
         "code": "SH",
         "name": "烧碱",
         "exchange": "CZCE",
-        "currentOI": 236643,
+        "currentOI": 236496,
         "historicalMaxOI": 335940,
         "historicalMaxDate": "2026-07-01",
         "dataStart": "2023-09-15",
-        "oiRatio": 0.7044204322200392,
+        "oiRatio": 0.703982854081086,
         "alert": "normal"
       },
       "PR": {
         "code": "PR",
         "name": "瓶片",
         "exchange": "CZCE",
-        "currentOI": 60492,
+        "currentOI": 60324,
         "historicalMaxOI": 63054,
         "historicalMaxDate": "2024-09-11",
         "dataStart": "2024-08-30",
-        "oiRatio": 0.9593681606242268,
+        "oiRatio": 0.9567037777143401,
         "alert": "near_high"
       },
       "RS": {
@@ -677,66 +677,66 @@
         "code": "CY",
         "name": "棉纱",
         "exchange": "CZCE",
-        "currentOI": 13492,
+        "currentOI": 13384,
         "historicalMaxOI": 25788,
         "historicalMaxDate": "2025-02-20",
         "dataStart": "2017-08-21",
-        "oiRatio": 0.5231890801923376,
+        "oiRatio": 0.5190010857763301,
         "alert": "normal"
       },
       "PF": {
         "code": "PF",
         "name": "短纤",
         "exchange": "CZCE",
-        "currentOI": 215834,
+        "currentOI": 216532,
         "historicalMaxOI": 588713,
         "historicalMaxDate": "2023-09-12",
         "dataStart": "2020-10-12",
-        "oiRatio": 0.3666200678429048,
+        "oiRatio": 0.36780570498698006,
         "alert": "normal"
       },
       "SC": {
         "code": "SC",
         "name": "原油",
         "exchange": "INE",
-        "currentOI": 40353,
+        "currentOI": 38153,
         "historicalMaxOI": 70909,
         "historicalMaxDate": "2020-05-21",
         "dataStart": "2018-03-27",
-        "oiRatio": 0.5690814988224344,
+        "oiRatio": 0.5380558180202795,
         "alert": "normal"
       },
       "LU": {
         "code": "LU",
         "name": "低硫油",
         "exchange": "INE",
-        "currentOI": 71452,
+        "currentOI": 72034,
         "historicalMaxOI": 222362,
         "historicalMaxDate": "2023-08-10",
         "dataStart": "2020-06-22",
-        "oiRatio": 0.32133188224606724,
+        "oiRatio": 0.32394923593059965,
         "alert": "normal"
       },
       "NR": {
         "code": "NR",
         "name": "20号胶",
         "exchange": "INE",
-        "currentOI": 83289,
+        "currentOI": 83200,
         "historicalMaxOI": 110747,
         "historicalMaxDate": "2025-02-14",
         "dataStart": "2019-08-12",
-        "oiRatio": 0.7520655187047957,
+        "oiRatio": 0.7512618851977931,
         "alert": "normal"
       },
       "BC": {
         "code": "BC",
         "name": "国际铜",
         "exchange": "INE",
-        "currentOI": 16482,
+        "currentOI": 16462,
         "historicalMaxOI": 55687,
         "historicalMaxDate": "2023-07-26",
         "dataStart": "2020-11-19",
-        "oiRatio": 0.2959757214430657,
+        "oiRatio": 0.2956165711925584,
         "alert": "normal"
       },
       "EC": {
@@ -785,17 +785,17 @@
         "marginPerLotLong": 3595.2,
         "marginPerLotShort": 3595.2,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 372420,
-        "latestPrice": 5111.0,
+        "openInterest": 370878,
+        "latestPrice": 5128.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 372456,
+          "currentOI": 370878,
           "historicalMaxOI": 416645,
           "historicalMaxDate": "2026-08-20",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.8939408849260162,
+          "oiRatio": 0.8901534879813751,
           "alert": "normal"
         }
       },
@@ -810,17 +810,17 @@
         "marginPerLotLong": 53265.3,
         "marginPerLotShort": 53265.3,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "千克",
-        "openInterest": 207590,
-        "latestPrice": 16528.0,
+        "openInterest": 199422,
+        "latestPrice": 16529.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 207589,
+          "currentOI": 199422,
           "historicalMaxOI": 711182,
           "historicalMaxDate": "2019-08-29",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.2918929331732243,
+          "oiRatio": 0.28040923420446523,
           "alert": "normal"
         }
       },
@@ -835,17 +835,17 @@
         "marginPerLotLong": 13508.0,
         "marginPerLotShort": 13508.0,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 244913,
-        "latestPrice": 24615.0,
+        "openInterest": 244790,
+        "latestPrice": 24650.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 244929,
+          "currentOI": 244790,
           "historicalMaxOI": 446659,
           "historicalMaxDate": "2025-11-13",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.5483579195762315,
+          "oiRatio": 0.5480467202048991,
           "alert": "normal"
         }
       },
@@ -860,17 +860,17 @@
         "marginPerLotLong": 6140.2,
         "marginPerLotShort": 6140.2,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 189283,
-        "latestPrice": 2766.0,
+        "openInterest": 189745,
+        "latestPrice": 2771.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 189273,
+          "currentOI": 189745,
           "historicalMaxOI": 555607,
           "historicalMaxDate": "2026-01-08",
           "dataStart": "2023-06-19",
-          "oiRatio": 0.3406598548974365,
+          "oiRatio": 0.3415093762317609,
           "alert": "normal"
         }
       },
@@ -885,7 +885,7 @@
         "marginPerLotLong": 6799.5,
         "marginPerLotShort": 6799.5,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
         "openInterest": 115811,
         "latestPrice": 7546.0,
@@ -910,17 +910,17 @@
         "marginPerLotLong": 152022.4,
         "marginPerLotShort": 152022.4,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "克",
-        "openInterest": 153220,
-        "latestPrice": 957.16,
+        "openInterest": 150321,
+        "latestPrice": 956.04,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 153220,
+          "currentOI": 150321,
           "historicalMaxOI": 304793,
           "historicalMaxDate": "2019-08-29",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.5027018337035299,
+          "oiRatio": 0.4931904604108362,
           "alert": "normal"
         }
       },
@@ -935,17 +935,17 @@
         "marginPerLotLong": 2901.5,
         "marginPerLotShort": 2901.5,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 210945,
-        "latestPrice": 4122.0,
+        "openInterest": 208824,
+        "latestPrice": 4131.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 210959,
+          "currentOI": 208824,
           "historicalMaxOI": 240350,
           "historicalMaxDate": "2026-03-16",
           "dataStart": "2016-01-06",
-          "oiRatio": 0.8777158310796754,
+          "oiRatio": 0.8688329519450801,
           "alert": "normal"
         }
       },
@@ -960,17 +960,17 @@
         "marginPerLotLong": 54653.5,
         "marginPerLotShort": 54653.5,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 16484,
-        "latestPrice": 99640.0,
+        "openInterest": 16462,
+        "latestPrice": 100170.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 16482,
+          "currentOI": 16462,
           "historicalMaxOI": 55687,
           "historicalMaxDate": "2023-07-26",
           "dataStart": "2020-11-19",
-          "oiRatio": 0.2959757214430657,
+          "oiRatio": 0.2956165711925584,
           "alert": "normal"
         }
       },
@@ -985,17 +985,17 @@
         "marginPerLotLong": 9516.0,
         "marginPerLotShort": 9516.0,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 42513,
-        "latestPrice": 15820.0,
+        "openInterest": 41397,
+        "latestPrice": 15860.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 42522,
+          "currentOI": 41397,
           "historicalMaxOI": 136399,
           "historicalMaxDate": "2023-09-07",
           "dataStart": "2023-07-28",
-          "oiRatio": 0.3117471535715071,
+          "oiRatio": 0.3034992925168073,
           "alert": "normal"
         }
       },
@@ -1010,17 +1010,17 @@
         "marginPerLotLong": 6170.4,
         "marginPerLotShort": 6170.4,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 186915,
-        "latestPrice": 5278.0,
+        "openInterest": 184141,
+        "latestPrice": 5288.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 186921,
+          "currentOI": 184141,
           "historicalMaxOI": 668607,
           "historicalMaxDate": "2016-09-27",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.2795678178661007,
+          "oiRatio": 0.27540991942950044,
           "alert": "normal"
         }
       },
@@ -1035,17 +1035,17 @@
         "marginPerLotLong": 1599.5,
         "marginPerLotShort": 1599.5,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 1200234,
-        "latestPrice": 2269.0,
+        "openInterest": 1195017,
+        "latestPrice": 2272.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 1200252,
+          "currentOI": 1195017,
           "historicalMaxOI": 1760261,
           "historicalMaxDate": "2017-02-08",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.6818602468611189,
+          "oiRatio": 0.678886256072253,
           "alert": "normal"
         }
       },
@@ -1060,17 +1060,17 @@
         "marginPerLotLong": 5857.25,
         "marginPerLotShort": 5857.25,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 534267,
-        "latestPrice": 16615.0,
+        "openInterest": 531960,
+        "latestPrice": 16585.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 534383,
+          "currentOI": 531960,
           "historicalMaxOI": 925465,
           "historicalMaxDate": "2026-01-07",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.5774210802137304,
+          "oiRatio": 0.5748029369019898,
           "alert": "normal"
         }
       },
@@ -1085,7 +1085,7 @@
         "marginPerLotLong": 3162.0,
         "marginPerLotShort": 3162.0,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
         "openInterest": 201446,
         "latestPrice": 7945.0,
@@ -1110,17 +1110,17 @@
         "marginPerLotLong": 1532.4,
         "marginPerLotShort": 1532.4,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 288887,
-        "latestPrice": 2532.0,
+        "openInterest": 288248,
+        "latestPrice": 2535.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 288889,
+          "currentOI": 288248,
           "historicalMaxOI": 638868,
           "historicalMaxDate": "2017-02-14",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.4521888715665834,
+          "oiRatio": 0.4511855344139947,
           "alert": "normal"
         }
       },
@@ -1135,17 +1135,17 @@
         "marginPerLotLong": 61116.0,
         "marginPerLotShort": 61116.0,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 228774,
-        "latestPrice": 111400.0,
+        "openInterest": 231822,
+        "latestPrice": 111910.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 228777,
+          "currentOI": 231822,
           "historicalMaxOI": 293384,
           "historicalMaxDate": "2025-10-27",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.7797869004444686,
+          "oiRatio": 0.7901657895454421,
           "alert": "normal"
         }
       },
@@ -1160,17 +1160,17 @@
         "marginPerLotLong": 5706.25,
         "marginPerLotShort": 5706.25,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 13490,
-        "latestPrice": 22710.0,
+        "openInterest": 13384,
+        "latestPrice": 22725.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 13492,
+          "currentOI": 13384,
           "historicalMaxOI": 25788,
           "historicalMaxDate": "2025-02-20",
           "dataStart": "2017-08-21",
-          "oiRatio": 0.5231890801923376,
+          "oiRatio": 0.5190010857763301,
           "alert": "normal"
         }
       },
@@ -1185,17 +1185,17 @@
         "marginPerLotLong": 3425.1,
         "marginPerLotShort": 3425.1,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 333337,
-        "latestPrice": 10228.0,
+        "openInterest": 342944,
+        "latestPrice": 10329.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 333367,
+          "currentOI": 342944,
           "historicalMaxOI": 469636,
           "historicalMaxDate": "2026-06-26",
           "dataStart": "2019-09-26",
-          "oiRatio": 0.7098412387466038,
+          "oiRatio": 0.7302336277457435,
           "alert": "normal"
         }
       },
@@ -1210,7 +1210,7 @@
         "marginPerLotLong": 32844.0,
         "marginPerLotShort": 32844.0,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "点",
         "openInterest": 23423,
         "latestPrice": 1919.0,
@@ -1235,17 +1235,17 @@
         "marginPerLotLong": 4062.8,
         "marginPerLotShort": 4062.8,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 381772,
-        "latestPrice": 6024.0,
+        "openInterest": 362269,
+        "latestPrice": 6020.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 381508,
+          "currentOI": 362269,
           "historicalMaxOI": 549566,
           "historicalMaxDate": "2023-06-27",
           "dataStart": "2018-12-10",
-          "oiRatio": 0.6941986949702128,
+          "oiRatio": 0.6591910707722094,
           "alert": "normal"
         }
       },
@@ -1260,7 +1260,7 @@
         "marginPerLotLong": 1272.5,
         "marginPerLotShort": 1272.5,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "立方米",
         "openInterest": 9932,
         "latestPrice": 1275.0,
@@ -1285,17 +1285,17 @@
         "marginPerLotLong": 1746.0,
         "marginPerLotShort": 1746.0,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 1226222,
-        "latestPrice": 954.0,
+        "openInterest": 1216161,
+        "latestPrice": 956.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 1226187,
+          "currentOI": 1216161,
           "historicalMaxOI": 2097295,
           "historicalMaxDate": "2026-07-16",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.58465165844576,
+          "oiRatio": 0.5798712150651196,
           "alert": "normal"
         }
       },
@@ -1310,17 +1310,17 @@
         "marginPerLotLong": 6294.4,
         "marginPerLotShort": 6294.4,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 231998,
-        "latestPrice": 4080.0,
+        "openInterest": 227565,
+        "latestPrice": 4119.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 232157,
+          "currentOI": 227565,
           "historicalMaxOI": 880157,
           "historicalMaxDate": "2020-04-27",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.26376771416917666,
+          "oiRatio": 0.2585504631560051,
           "alert": "normal"
         }
       },
@@ -1335,17 +1335,17 @@
         "marginPerLotLong": 2366.7,
         "marginPerLotShort": 2366.7,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 1361885,
-        "latestPrice": 3361.0,
+        "openInterest": 1355292,
+        "latestPrice": 3359.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 1361917,
+          "currentOI": 1355292,
           "historicalMaxOI": 2107115,
           "historicalMaxDate": "2026-05-11",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.6463420363862438,
+          "oiRatio": 0.643197927023442,
           "alert": "normal"
         }
       },
@@ -1360,17 +1360,17 @@
         "marginPerLotLong": 8112.5,
         "marginPerLotShort": 8112.5,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 615609,
-        "latestPrice": 733.0,
+        "openInterest": 612487,
+        "latestPrice": 732.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 615429,
+          "currentOI": 612487,
           "historicalMaxOI": 1096584,
           "historicalMaxDate": "2017-06-08",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.5612237639797772,
+          "oiRatio": 0.558540886972635,
           "alert": "normal"
         }
       },
@@ -1385,17 +1385,17 @@
         "marginPerLotLong": 25968.0,
         "marginPerLotShort": 25968.0,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 62609,
-        "latestPrice": 2110.5,
+        "openInterest": 62292,
+        "latestPrice": 2118.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 62540,
+          "currentOI": 62292,
           "historicalMaxOI": 223080,
           "historicalMaxDate": "2016-10-31",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.2803478572709342,
+          "oiRatio": 0.2792361484669177,
           "alert": "normal"
         }
       },
@@ -1410,7 +1410,7 @@
         "marginPerLotLong": 2673.3,
         "marginPerLotShort": 2673.3,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "500kg",
         "openInterest": 270019,
         "latestPrice": 3825.0,
@@ -1435,17 +1435,17 @@
         "marginPerLotLong": 11966.4,
         "marginPerLotShort": 11966.4,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 538830,
-        "latestPrice": 1625.5,
+        "openInterest": 524948,
+        "latestPrice": 1630.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 538501,
+          "currentOI": 524948,
           "historicalMaxOI": 763605,
           "historicalMaxDate": "2025-09-16",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.7052088448870817,
+          "oiRatio": 0.6874601397319294,
           "alert": "normal"
         }
       },
@@ -1460,7 +1460,7 @@
         "marginPerLotLong": 7986.0,
         "marginPerLotShort": 7986.0,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
         "openInterest": 0,
         "latestPrice": 2758.0,
@@ -1485,17 +1485,17 @@
         "marginPerLotLong": 2950.15,
         "marginPerLotShort": 2950.15,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 449317,
-        "latestPrice": 8558.0,
+        "openInterest": 448690,
+        "latestPrice": 8608.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 449341,
+          "currentOI": 448690,
           "historicalMaxOI": 620857,
           "historicalMaxDate": "2024-11-22",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.7237431485833292,
+          "oiRatio": 0.7226945979508969,
           "alert": "normal"
         }
       },
@@ -1510,7 +1510,7 @@
         "marginPerLotLong": 21447.0,
         "marginPerLotShort": 21447.0,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
         "openInterest": 405436,
         "latestPrice": 142000.0,
@@ -1535,7 +1535,7 @@
         "marginPerLotLong": 15059.2,
         "marginPerLotShort": 15059.2,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
         "openInterest": 224001,
         "latestPrice": 11730.0,
@@ -1560,7 +1560,7 @@
         "marginPerLotLong": 2360.0,
         "marginPerLotShort": 2360.0,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
         "openInterest": 0,
         "latestPrice": 2535.0,
@@ -1585,17 +1585,17 @@
         "marginPerLotLong": 8267.2,
         "marginPerLotShort": 8267.2,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 71442,
-        "latestPrice": 5240.0,
+        "openInterest": 72034,
+        "latestPrice": 5286.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 71452,
+          "currentOI": 72034,
           "historicalMaxOI": 222362,
           "historicalMaxDate": "2023-08-10",
           "dataStart": "2020-06-22",
-          "oiRatio": 0.32133188224606724,
+          "oiRatio": 0.32394923593059965,
           "alert": "normal"
         }
       },
@@ -1610,17 +1610,17 @@
         "marginPerLotLong": 2377.9,
         "marginPerLotShort": 2377.9,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 2807249,
-        "latestPrice": 3390.0,
+        "openInterest": 2787889,
+        "latestPrice": 3397.0,
         "isAnomaly": true,
         "oiAnalysis": {
-          "currentOI": 2807056,
+          "currentOI": 2787889,
           "historicalMaxOI": 2900282,
           "historicalMaxDate": "2026-09-04",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.9678562291528893,
+          "oiRatio": 0.9612475614440251,
           "alert": "near_high"
         }
       },
@@ -1635,17 +1635,17 @@
         "marginPerLotLong": 2381.4,
         "marginPerLotShort": 2381.4,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 627335,
-        "latestPrice": 3460.0,
+        "openInterest": 634492,
+        "latestPrice": 3494.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 627162,
+          "currentOI": 634492,
           "historicalMaxOI": 2021781,
           "historicalMaxDate": "2023-05-26",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.3102027370917028,
+          "oiRatio": 0.3138282534062789,
           "alert": "normal"
         }
       },
@@ -1660,17 +1660,17 @@
         "marginPerLotLong": 15285.6,
         "marginPerLotShort": 15285.6,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 118179,
-        "latestPrice": 128330.0,
+        "openInterest": 115753,
+        "latestPrice": 128700.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 118171,
+          "currentOI": 115753,
           "historicalMaxOI": 358806,
           "historicalMaxDate": "2017-01-25",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.32934510571172165,
+          "oiRatio": 0.32260608796954343,
           "alert": "normal"
         }
       },
@@ -1685,17 +1685,17 @@
         "marginPerLotLong": 15106.5,
         "marginPerLotShort": 15106.5,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 83297,
-        "latestPrice": 16720.0,
+        "openInterest": 83200,
+        "latestPrice": 16790.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 83289,
+          "currentOI": 83200,
           "historicalMaxOI": 110747,
           "historicalMaxDate": "2025-02-14",
           "dataStart": "2019-08-12",
-          "oiRatio": 0.7520655187047957,
+          "oiRatio": 0.7512618851977931,
           "alert": "normal"
         }
       },
@@ -1710,17 +1710,17 @@
         "marginPerLotLong": 7274.4,
         "marginPerLotShort": 7274.4,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 314828,
-        "latestPrice": 10253.0,
+        "openInterest": 307506,
+        "latestPrice": 10264.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 314898,
+          "currentOI": 307506,
           "historicalMaxOI": 471405,
           "historicalMaxDate": "2026-06-04",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.667998854488179,
+          "oiRatio": 0.6523180704489769,
           "alert": "normal"
         }
       },
@@ -1735,17 +1735,17 @@
         "marginPerLotLong": 8244.8,
         "marginPerLotShort": 8244.8,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 608280,
-        "latestPrice": 10152.0,
+        "openInterest": 598922,
+        "latestPrice": 10196.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 608402,
+          "currentOI": 598922,
           "historicalMaxOI": 845921,
           "historicalMaxDate": "2020-01-10",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.7192184612983955,
+          "oiRatio": 0.708011741049105,
           "alert": "normal"
         }
       },
@@ -1760,17 +1760,17 @@
         "marginPerLotLong": 8888.0,
         "marginPerLotShort": 8888.0,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 64757,
-        "latestPrice": 16065.0,
+        "openInterest": 64287,
+        "latestPrice": 16105.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 64758,
+          "currentOI": 64287,
           "historicalMaxOI": 137369,
           "historicalMaxDate": "2024-06-19",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.4714164039921671,
+          "oiRatio": 0.4679876828105322,
           "alert": "normal"
         }
       },
@@ -1785,17 +1785,17 @@
         "marginPerLotLong": 2823.8,
         "marginPerLotShort": 2823.8,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 215810,
-        "latestPrice": 8248.0,
+        "openInterest": 216532,
+        "latestPrice": 8282.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 215834,
+          "currentOI": 216532,
           "historicalMaxOI": 588713,
           "historicalMaxDate": "2023-09-12",
           "dataStart": "2020-10-12",
-          "oiRatio": 0.3666200678429048,
+          "oiRatio": 0.36780570498698006,
           "alert": "normal"
         }
       },
@@ -1810,17 +1810,17 @@
         "marginPerLotLong": 14891.8,
         "marginPerLotShort": 14891.8,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 99538,
-        "latestPrice": 6862.0,
+        "openInterest": 97743,
+        "latestPrice": 6897.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 99502,
+          "currentOI": 97743,
           "historicalMaxOI": 159226,
           "historicalMaxDate": "2023-07-06",
           "dataStart": "2020-03-30",
-          "oiRatio": 0.6249105045658372,
+          "oiRatio": 0.6138633137804127,
           "alert": "normal"
         }
       },
@@ -1835,7 +1835,7 @@
         "marginPerLotLong": 2830.1,
         "marginPerLotShort": 2830.1,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
         "openInterest": 205996,
         "latestPrice": 8048.0,
@@ -1860,17 +1860,17 @@
         "marginPerLotLong": 3058.65,
         "marginPerLotShort": 3058.65,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 655764,
-        "latestPrice": 8890.0,
+        "openInterest": 659472,
+        "latestPrice": 8960.0,
         "isAnomaly": true,
         "oiAnalysis": {
-          "currentOI": 655786,
+          "currentOI": 659472,
           "historicalMaxOI": 721628,
           "historicalMaxDate": "2023-05-23",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.9087590836275754,
+          "oiRatio": 0.9138669785540472,
           "alert": "near_high"
         }
       },
@@ -1885,17 +1885,17 @@
         "marginPerLotLong": 8305.5,
         "marginPerLotShort": 8305.5,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 60508,
-        "latestPrice": 8066.0,
+        "openInterest": 60324,
+        "latestPrice": 8106.0,
         "isAnomaly": true,
         "oiAnalysis": {
-          "currentOI": 60492,
+          "currentOI": 60324,
           "historicalMaxOI": 63054,
           "historicalMaxDate": "2024-09-11",
           "dataStart": "2024-08-30",
-          "oiRatio": 0.9593681606242268,
+          "oiRatio": 0.9567037777143401,
           "alert": "near_high"
         }
       },
@@ -1910,17 +1910,17 @@
         "marginPerLotLong": 3167.5,
         "marginPerLotShort": 3167.5,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 169615,
-        "latestPrice": 9266.0,
+        "openInterest": 166660,
+        "latestPrice": 9252.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 169698,
+          "currentOI": 166660,
           "historicalMaxOI": 284299,
           "historicalMaxDate": "2025-12-22",
           "dataStart": "2023-09-15",
-          "oiRatio": 0.596899742876338,
+          "oiRatio": 0.5862138101083718,
           "alert": "normal"
         }
       },
@@ -1935,17 +1935,17 @@
         "marginPerLotLong": 2214.8,
         "marginPerLotShort": 2214.8,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 1567871,
-        "latestPrice": 3144.0,
+        "openInterest": 1579033,
+        "latestPrice": 3142.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 1568170,
+          "currentOI": 1579033,
           "historicalMaxOI": 2441388,
           "historicalMaxDate": "2025-05-28",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.642327233524536,
+          "oiRatio": 0.6467767515855735,
           "alert": "normal"
         }
       },
@@ -1960,7 +1960,7 @@
         "marginPerLotLong": 7437.0,
         "marginPerLotShort": 7437.0,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
         "openInterest": 0,
         "latestPrice": 2500.0,
@@ -1985,17 +1985,17 @@
         "marginPerLotLong": 1640.8,
         "marginPerLotShort": 1640.8,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 609982,
+        "openInterest": 604443,
         "latestPrice": 2326.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 609889,
+          "currentOI": 604443,
           "historicalMaxOI": 1239807,
           "historicalMaxDate": "2024-07-17",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.4919225331039428,
+          "oiRatio": 0.48752991393015205,
           "alert": "normal"
         }
       },
@@ -2010,17 +2010,17 @@
         "marginPerLotLong": 2157.6,
         "marginPerLotShort": 2157.6,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 26666,
-        "latestPrice": 3598.0,
+        "openInterest": 26689,
+        "latestPrice": 3596.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 26666,
+          "currentOI": 26689,
           "historicalMaxOI": 49845,
           "historicalMaxDate": "2023-12-29",
           "dataStart": "2019-08-16",
-          "oiRatio": 0.5349784331427425,
+          "oiRatio": 0.535439863577089,
           "alert": "normal"
         }
       },
@@ -2035,7 +2035,7 @@
         "marginPerLotLong": 10308.0,
         "marginPerLotShort": 10308.0,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
         "openInterest": 21,
         "latestPrice": 5200.0,
@@ -2060,17 +2060,17 @@
         "marginPerLotLong": 17658.0,
         "marginPerLotShort": 17658.0,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 168504,
-        "latestPrice": 19560.0,
+        "openInterest": 167484,
+        "latestPrice": 19620.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 168528,
+          "currentOI": 167484,
           "historicalMaxOI": 300869,
           "historicalMaxDate": "2023-05-08",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.5601374684663425,
+          "oiRatio": 0.5566675197511209,
           "alert": "normal"
         }
       },
@@ -2085,17 +2085,17 @@
         "marginPerLotLong": 1720.0,
         "marginPerLotShort": 1720.0,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 1323062,
-        "latestPrice": 1064.0,
+        "openInterest": 1315468,
+        "latestPrice": 1067.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 1323641,
+          "currentOI": 1315468,
           "historicalMaxOI": 1801178,
           "historicalMaxDate": "2025-07-07",
           "dataStart": "2019-12-06",
-          "oiRatio": 0.7348751761347296,
+          "oiRatio": 0.7303375901770952,
           "alert": "normal"
         }
       },
@@ -2110,17 +2110,17 @@
         "marginPerLotLong": 115600.0,
         "marginPerLotShort": 115600.0,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "桶",
-        "openInterest": 40350,
-        "latestPrice": 760.0,
+        "openInterest": 38153,
+        "latestPrice": 773.1,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 40353,
+          "currentOI": 38153,
           "historicalMaxOI": 70909,
           "historicalMaxDate": "2020-05-21",
           "dataStart": "2018-03-27",
-          "oiRatio": 0.5690814988224344,
+          "oiRatio": 0.5380558180202795,
           "alert": "normal"
         }
       },
@@ -2135,7 +2135,7 @@
         "marginPerLotLong": 2189.6,
         "marginPerLotShort": 2189.6,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
         "openInterest": 388801,
         "latestPrice": 6230.0,
@@ -2160,17 +2160,17 @@
         "marginPerLotLong": 4735.2,
         "marginPerLotShort": 4735.2,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 236630,
-        "latestPrice": 1959.0,
+        "openInterest": 236496,
+        "latestPrice": 1968.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 236643,
+          "currentOI": 236496,
           "historicalMaxOI": 335940,
           "historicalMaxDate": "2026-07-01",
           "dataStart": "2023-09-15",
-          "oiRatio": 0.7044204322200392,
+          "oiRatio": 0.703982854081086,
           "alert": "normal"
         }
       },
@@ -2185,7 +2185,7 @@
         "marginPerLotLong": 4405.0,
         "marginPerLotShort": 4405.0,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
         "openInterest": 318231,
         "latestPrice": 8865.0,
@@ -2210,7 +2210,7 @@
         "marginPerLotLong": 2083.2,
         "marginPerLotShort": 2083.2,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
         "openInterest": 296976,
         "latestPrice": 5940.0,
@@ -2235,17 +2235,17 @@
         "marginPerLotLong": 58513.0,
         "marginPerLotShort": 58513.0,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 36995,
-        "latestPrice": 420860.0,
+        "openInterest": 37290,
+        "latestPrice": 424330.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 37007,
+          "currentOI": 37290,
           "historicalMaxOI": 77521,
           "historicalMaxDate": "2023-03-13",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.47738032275125447,
+          "oiRatio": 0.48103094645321914,
           "alert": "normal"
         }
       },
@@ -2260,17 +2260,17 @@
         "marginPerLotLong": 3413.2,
         "marginPerLotShort": 3413.2,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 222173,
-        "latestPrice": 4828.0,
+        "openInterest": 220694,
+        "latestPrice": 4834.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 222160,
+          "currentOI": 220694,
           "historicalMaxOI": 450995,
           "historicalMaxDate": "2026-06-04",
           "dataStart": "2018-11-27",
-          "oiRatio": 0.4925996962272309,
+          "oiRatio": 0.4893491058659187,
           "alert": "normal"
         }
       },
@@ -2285,17 +2285,17 @@
         "marginPerLotLong": 3291.6,
         "marginPerLotShort": 3291.6,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 663580,
-        "latestPrice": 5465.0,
+        "openInterest": 651034,
+        "latestPrice": 5468.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 663745,
+          "currentOI": 651034,
           "historicalMaxOI": 785079,
           "historicalMaxDate": "2026-07-16",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.845449948349147,
+          "oiRatio": 0.8292592210465444,
           "alert": "normal"
         }
       },
@@ -2310,17 +2310,17 @@
         "marginPerLotLong": 4826.5,
         "marginPerLotShort": 4826.5,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 94040,
-        "latestPrice": 13810.0,
+        "openInterest": 92183,
+        "latestPrice": 13850.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 94040,
+          "currentOI": 92183,
           "historicalMaxOI": 201245,
           "historicalMaxDate": "2025-10-16",
           "dataStart": "2019-09-25",
-          "oiRatio": 0.4672911128226788,
+          "oiRatio": 0.45806355437402174,
           "alert": "normal"
         }
       },
@@ -2335,17 +2335,17 @@
         "marginPerLotLong": 2151.1,
         "marginPerLotShort": 2151.1,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 1141635,
-        "latestPrice": 6240.0,
+        "openInterest": 1133349,
+        "latestPrice": 6238.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 1141650,
+          "currentOI": 1133349,
           "historicalMaxOI": 2784649,
           "historicalMaxDate": "2020-12-17",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.40997985742547804,
+          "oiRatio": 0.4069988713119679,
           "alert": "normal"
         }
       },
@@ -2360,7 +2360,7 @@
         "marginPerLotLong": 2891.2,
         "marginPerLotShort": 2891.2,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
         "openInterest": 268281,
         "latestPrice": 1802.0,
@@ -2385,17 +2385,17 @@
         "marginPerLotLong": 1777.65,
         "marginPerLotShort": 1777.65,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 1205852,
-        "latestPrice": 5050.0,
+        "openInterest": 1189246,
+        "latestPrice": 5071.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 1206056,
+          "currentOI": 1189246,
           "historicalMaxOI": 1462620,
           "historicalMaxDate": "2025-11-18",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.8245860168738292,
+          "oiRatio": 0.8130929428012744,
           "alert": "normal"
         }
       },
@@ -2410,7 +2410,7 @@
         "marginPerLotLong": 9594.0,
         "marginPerLotShort": 9594.0,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
         "openInterest": 0,
         "latestPrice": 3050.0,
@@ -2435,17 +2435,17 @@
         "marginPerLotLong": 6385.4,
         "marginPerLotShort": 6385.4,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 734097,
-        "latestPrice": 9035.0,
+        "openInterest": 720573,
+        "latestPrice": 9053.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 734218,
+          "currentOI": 720573,
           "historicalMaxOI": 839796,
           "historicalMaxDate": "2026-01-29",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.8742813730953708,
+          "oiRatio": 0.8580333795350299,
           "alert": "normal"
         }
       },
@@ -2460,7 +2460,7 @@
         "marginPerLotLong": 40070.0,
         "marginPerLotShort": 40070.0,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
         "openInterest": 0,
         "latestPrice": 921.0,
@@ -2485,17 +2485,17 @@
         "marginPerLotLong": 15116.75,
         "marginPerLotShort": 15116.75,
         "marginRateSource": "tqsdk.quote.margin",
-        "marginRateAsOf": "2026-09-09 22:08:41",
+        "marginRateAsOf": "2026-09-10 05:59:55",
         "unit": "吨",
-        "openInterest": 158260,
-        "latestPrice": 27770.0,
+        "openInterest": 157529,
+        "latestPrice": 27820.0,
         "isAnomaly": false,
         "oiAnalysis": {
-          "currentOI": 158257,
+          "currentOI": 157529,
           "historicalMaxOI": 189286,
           "historicalMaxDate": "2017-04-19",
           "dataStart": "2016-01-05",
-          "oiRatio": 0.8360734549834642,
+          "oiRatio": 0.8322274230529463,
           "alert": "normal"
         }
       }
@@ -68356,445 +68356,13 @@
         "date": "2026-09-10",
         "open": 3420.0,
         "high": 3432.0,
-        "low": 3386.0,
-        "close": 3390.0,
-        "volume": 549390,
-        "hold": 2807210
+        "low": 3375.0,
+        "close": 3397.0,
+        "volume": 818590,
+        "hold": 2787889
       }
     ],
     "min1": [
-      {
-        "datetime": "2026-09-03 14:12:00",
-        "open": 3379.0,
-        "high": 3382.0,
-        "low": 3378.0,
-        "close": 3379.0,
-        "volume": 5566,
-        "hold": 2816671
-      },
-      {
-        "datetime": "2026-09-03 14:13:00",
-        "open": 3379.0,
-        "high": 3381.0,
-        "low": 3378.0,
-        "close": 3378.0,
-        "volume": 5836,
-        "hold": 2814903
-      },
-      {
-        "datetime": "2026-09-03 14:14:00",
-        "open": 3378.0,
-        "high": 3380.0,
-        "low": 3377.0,
-        "close": 3377.0,
-        "volume": 3323,
-        "hold": 2814401
-      },
-      {
-        "datetime": "2026-09-03 14:15:00",
-        "open": 3377.0,
-        "high": 3379.0,
-        "low": 3377.0,
-        "close": 3377.0,
-        "volume": 4281,
-        "hold": 2814621
-      },
-      {
-        "datetime": "2026-09-03 14:16:00",
-        "open": 3377.0,
-        "high": 3378.0,
-        "low": 3374.0,
-        "close": 3374.0,
-        "volume": 5298,
-        "hold": 2814446
-      },
-      {
-        "datetime": "2026-09-03 14:17:00",
-        "open": 3374.0,
-        "high": 3376.0,
-        "low": 3373.0,
-        "close": 3373.0,
-        "volume": 5853,
-        "hold": 2813381
-      },
-      {
-        "datetime": "2026-09-03 14:18:00",
-        "open": 3373.0,
-        "high": 3375.0,
-        "low": 3370.0,
-        "close": 3370.0,
-        "volume": 14255,
-        "hold": 2810190
-      },
-      {
-        "datetime": "2026-09-03 14:19:00",
-        "open": 3370.0,
-        "high": 3375.0,
-        "low": 3369.0,
-        "close": 3374.0,
-        "volume": 7170,
-        "hold": 2809155
-      },
-      {
-        "datetime": "2026-09-03 14:20:00",
-        "open": 3374.0,
-        "high": 3375.0,
-        "low": 3370.0,
-        "close": 3371.0,
-        "volume": 6133,
-        "hold": 2807376
-      },
-      {
-        "datetime": "2026-09-03 14:21:00",
-        "open": 3371.0,
-        "high": 3376.0,
-        "low": 3370.0,
-        "close": 3375.0,
-        "volume": 5350,
-        "hold": 2806827
-      },
-      {
-        "datetime": "2026-09-03 14:22:00",
-        "open": 3375.0,
-        "high": 3376.0,
-        "low": 3372.0,
-        "close": 3372.0,
-        "volume": 3097,
-        "hold": 2806991
-      },
-      {
-        "datetime": "2026-09-03 14:23:00",
-        "open": 3372.0,
-        "high": 3373.0,
-        "low": 3368.0,
-        "close": 3372.0,
-        "volume": 6593,
-        "hold": 2805673
-      },
-      {
-        "datetime": "2026-09-03 14:24:00",
-        "open": 3372.0,
-        "high": 3375.0,
-        "low": 3371.0,
-        "close": 3375.0,
-        "volume": 4084,
-        "hold": 2803950
-      },
-      {
-        "datetime": "2026-09-03 14:25:00",
-        "open": 3375.0,
-        "high": 3377.0,
-        "low": 3374.0,
-        "close": 3376.0,
-        "volume": 5242,
-        "hold": 2804117
-      },
-      {
-        "datetime": "2026-09-03 14:26:00",
-        "open": 3376.0,
-        "high": 3379.0,
-        "low": 3374.0,
-        "close": 3379.0,
-        "volume": 7854,
-        "hold": 2804122
-      },
-      {
-        "datetime": "2026-09-03 14:27:00",
-        "open": 3379.0,
-        "high": 3379.0,
-        "low": 3377.0,
-        "close": 3378.0,
-        "volume": 4169,
-        "hold": 2804236
-      },
-      {
-        "datetime": "2026-09-03 14:28:00",
-        "open": 3378.0,
-        "high": 3382.0,
-        "low": 3377.0,
-        "close": 3381.0,
-        "volume": 6855,
-        "hold": 2803853
-      },
-      {
-        "datetime": "2026-09-03 14:29:00",
-        "open": 3381.0,
-        "high": 3382.0,
-        "low": 3379.0,
-        "close": 3380.0,
-        "volume": 6314,
-        "hold": 2804417
-      },
-      {
-        "datetime": "2026-09-03 14:30:00",
-        "open": 3380.0,
-        "high": 3382.0,
-        "low": 3380.0,
-        "close": 3380.0,
-        "volume": 2534,
-        "hold": 2804650
-      },
-      {
-        "datetime": "2026-09-03 14:31:00",
-        "open": 3380.0,
-        "high": 3384.0,
-        "low": 3380.0,
-        "close": 3383.0,
-        "volume": 5806,
-        "hold": 2805762
-      },
-      {
-        "datetime": "2026-09-03 14:32:00",
-        "open": 3383.0,
-        "high": 3385.0,
-        "low": 3383.0,
-        "close": 3384.0,
-        "volume": 6138,
-        "hold": 2806442
-      },
-      {
-        "datetime": "2026-09-03 14:33:00",
-        "open": 3384.0,
-        "high": 3385.0,
-        "low": 3382.0,
-        "close": 3382.0,
-        "volume": 3108,
-        "hold": 2806953
-      },
-      {
-        "datetime": "2026-09-03 14:34:00",
-        "open": 3382.0,
-        "high": 3386.0,
-        "low": 3382.0,
-        "close": 3382.0,
-        "volume": 4195,
-        "hold": 2807895
-      },
-      {
-        "datetime": "2026-09-03 14:35:00",
-        "open": 3382.0,
-        "high": 3384.0,
-        "low": 3381.0,
-        "close": 3383.0,
-        "volume": 2707,
-        "hold": 2807902
-      },
-      {
-        "datetime": "2026-09-03 14:36:00",
-        "open": 3383.0,
-        "high": 3385.0,
-        "low": 3383.0,
-        "close": 3385.0,
-        "volume": 2837,
-        "hold": 2808183
-      },
-      {
-        "datetime": "2026-09-03 14:37:00",
-        "open": 3385.0,
-        "high": 3385.0,
-        "low": 3384.0,
-        "close": 3385.0,
-        "volume": 1742,
-        "hold": 2808055
-      },
-      {
-        "datetime": "2026-09-03 14:38:00",
-        "open": 3385.0,
-        "high": 3386.0,
-        "low": 3384.0,
-        "close": 3386.0,
-        "volume": 2595,
-        "hold": 2809188
-      },
-      {
-        "datetime": "2026-09-03 14:39:00",
-        "open": 3386.0,
-        "high": 3389.0,
-        "low": 3385.0,
-        "close": 3389.0,
-        "volume": 4459,
-        "hold": 2809702
-      },
-      {
-        "datetime": "2026-09-03 14:40:00",
-        "open": 3389.0,
-        "high": 3389.0,
-        "low": 3386.0,
-        "close": 3387.0,
-        "volume": 3365,
-        "hold": 2809839
-      },
-      {
-        "datetime": "2026-09-03 14:41:00",
-        "open": 3387.0,
-        "high": 3388.0,
-        "low": 3385.0,
-        "close": 3387.0,
-        "volume": 3557,
-        "hold": 2809983
-      },
-      {
-        "datetime": "2026-09-03 14:42:00",
-        "open": 3387.0,
-        "high": 3389.0,
-        "low": 3385.0,
-        "close": 3386.0,
-        "volume": 3447,
-        "hold": 2810586
-      },
-      {
-        "datetime": "2026-09-03 14:43:00",
-        "open": 3386.0,
-        "high": 3388.0,
-        "low": 3385.0,
-        "close": 3387.0,
-        "volume": 2156,
-        "hold": 2810868
-      },
-      {
-        "datetime": "2026-09-03 14:44:00",
-        "open": 3387.0,
-        "high": 3387.0,
-        "low": 3384.0,
-        "close": 3385.0,
-        "volume": 2880,
-        "hold": 2810345
-      },
-      {
-        "datetime": "2026-09-03 14:45:00",
-        "open": 3385.0,
-        "high": 3387.0,
-        "low": 3383.0,
-        "close": 3386.0,
-        "volume": 2721,
-        "hold": 2810805
-      },
-      {
-        "datetime": "2026-09-03 14:46:00",
-        "open": 3386.0,
-        "high": 3389.0,
-        "low": 3386.0,
-        "close": 3386.0,
-        "volume": 6450,
-        "hold": 2810170
-      },
-      {
-        "datetime": "2026-09-03 14:47:00",
-        "open": 3386.0,
-        "high": 3388.0,
-        "low": 3386.0,
-        "close": 3387.0,
-        "volume": 1479,
-        "hold": 2809905
-      },
-      {
-        "datetime": "2026-09-03 14:48:00",
-        "open": 3387.0,
-        "high": 3388.0,
-        "low": 3385.0,
-        "close": 3386.0,
-        "volume": 3188,
-        "hold": 2810324
-      },
-      {
-        "datetime": "2026-09-03 14:49:00",
-        "open": 3386.0,
-        "high": 3389.0,
-        "low": 3386.0,
-        "close": 3387.0,
-        "volume": 2661,
-        "hold": 2810647
-      },
-      {
-        "datetime": "2026-09-03 14:50:00",
-        "open": 3387.0,
-        "high": 3388.0,
-        "low": 3386.0,
-        "close": 3386.0,
-        "volume": 3235,
-        "hold": 2811763
-      },
-      {
-        "datetime": "2026-09-03 14:51:00",
-        "open": 3386.0,
-        "high": 3387.0,
-        "low": 3384.0,
-        "close": 3385.0,
-        "volume": 7732,
-        "hold": 2810421
-      },
-      {
-        "datetime": "2026-09-03 14:52:00",
-        "open": 3385.0,
-        "high": 3385.0,
-        "low": 3380.0,
-        "close": 3382.0,
-        "volume": 8343,
-        "hold": 2807484
-      },
-      {
-        "datetime": "2026-09-03 14:53:00",
-        "open": 3382.0,
-        "high": 3384.0,
-        "low": 3381.0,
-        "close": 3384.0,
-        "volume": 5636,
-        "hold": 2806485
-      },
-      {
-        "datetime": "2026-09-03 14:54:00",
-        "open": 3384.0,
-        "high": 3384.0,
-        "low": 3381.0,
-        "close": 3382.0,
-        "volume": 2239,
-        "hold": 2806230
-      },
-      {
-        "datetime": "2026-09-03 14:55:00",
-        "open": 3382.0,
-        "high": 3382.0,
-        "low": 3380.0,
-        "close": 3380.0,
-        "volume": 4350,
-        "hold": 2805610
-      },
-      {
-        "datetime": "2026-09-03 14:56:00",
-        "open": 3380.0,
-        "high": 3381.0,
-        "low": 3379.0,
-        "close": 3381.0,
-        "volume": 4338,
-        "hold": 2804089
-      },
-      {
-        "datetime": "2026-09-03 14:57:00",
-        "open": 3381.0,
-        "high": 3382.0,
-        "low": 3380.0,
-        "close": 3381.0,
-        "volume": 3752,
-        "hold": 2803636
-      },
-      {
-        "datetime": "2026-09-03 14:58:00",
-        "open": 3381.0,
-        "high": 3382.0,
-        "low": 3380.0,
-        "close": 3381.0,
-        "volume": 3089,
-        "hold": 2802949
-      },
-      {
-        "datetime": "2026-09-03 14:59:00",
-        "open": 3381.0,
-        "high": 3382.0,
-        "low": 3380.0,
-        "close": 3382.0,
-        "volume": 5134,
-        "hold": 2801405
-      },
       {
         "datetime": "2026-09-03 21:00:00",
         "open": 3361.0,
@@ -81858,94 +81426,445 @@
         "datetime": "2026-09-09 22:11:00",
         "open": 3389.0,
         "high": 3391.0,
+        "low": 3388.0,
+        "close": 3389.0,
+        "volume": 5777,
+        "hold": 2807205
+      },
+      {
+        "datetime": "2026-09-09 22:12:00",
+        "open": 3389.0,
+        "high": 3389.0,
+        "low": 3386.0,
+        "close": 3386.0,
+        "volume": 5891,
+        "hold": 2806948
+      },
+      {
+        "datetime": "2026-09-09 22:13:00",
+        "open": 3386.0,
+        "high": 3386.0,
+        "low": 3375.0,
+        "close": 3375.0,
+        "volume": 57145,
+        "hold": 2797560
+      },
+      {
+        "datetime": "2026-09-09 22:14:00",
+        "open": 3375.0,
+        "high": 3381.0,
+        "low": 3375.0,
+        "close": 3380.0,
+        "volume": 12678,
+        "hold": 2796007
+      },
+      {
+        "datetime": "2026-09-09 22:15:00",
+        "open": 3380.0,
+        "high": 3384.0,
+        "low": 3380.0,
+        "close": 3382.0,
+        "volume": 12428,
+        "hold": 2792905
+      },
+      {
+        "datetime": "2026-09-09 22:16:00",
+        "open": 3382.0,
+        "high": 3383.0,
+        "low": 3381.0,
+        "close": 3381.0,
+        "volume": 5958,
+        "hold": 2794193
+      },
+      {
+        "datetime": "2026-09-09 22:17:00",
+        "open": 3381.0,
+        "high": 3384.0,
+        "low": 3380.0,
+        "close": 3383.0,
+        "volume": 9705,
+        "hold": 2792135
+      },
+      {
+        "datetime": "2026-09-09 22:18:00",
+        "open": 3383.0,
+        "high": 3384.0,
+        "low": 3382.0,
+        "close": 3384.0,
+        "volume": 5235,
+        "hold": 2791521
+      },
+      {
+        "datetime": "2026-09-09 22:19:00",
+        "open": 3384.0,
+        "high": 3387.0,
+        "low": 3383.0,
+        "close": 3386.0,
+        "volume": 9524,
+        "hold": 2788927
+      },
+      {
+        "datetime": "2026-09-09 22:20:00",
+        "open": 3386.0,
+        "high": 3391.0,
+        "low": 3386.0,
+        "close": 3389.0,
+        "volume": 10544,
+        "hold": 2788876
+      },
+      {
+        "datetime": "2026-09-09 22:21:00",
+        "open": 3389.0,
+        "high": 3392.0,
         "low": 3389.0,
         "close": 3390.0,
-        "volume": 2642,
-        "hold": 2807210
+        "volume": 9575,
+        "hold": 2787864
+      },
+      {
+        "datetime": "2026-09-09 22:22:00",
+        "open": 3390.0,
+        "high": 3392.0,
+        "low": 3390.0,
+        "close": 3391.0,
+        "volume": 5298,
+        "hold": 2788020
+      },
+      {
+        "datetime": "2026-09-09 22:23:00",
+        "open": 3391.0,
+        "high": 3392.0,
+        "low": 3388.0,
+        "close": 3390.0,
+        "volume": 4763,
+        "hold": 2787633
+      },
+      {
+        "datetime": "2026-09-09 22:24:00",
+        "open": 3390.0,
+        "high": 3392.0,
+        "low": 3390.0,
+        "close": 3391.0,
+        "volume": 2708,
+        "hold": 2787580
+      },
+      {
+        "datetime": "2026-09-09 22:25:00",
+        "open": 3391.0,
+        "high": 3392.0,
+        "low": 3390.0,
+        "close": 3391.0,
+        "volume": 4951,
+        "hold": 2788182
+      },
+      {
+        "datetime": "2026-09-09 22:26:00",
+        "open": 3391.0,
+        "high": 3393.0,
+        "low": 3390.0,
+        "close": 3391.0,
+        "volume": 3455,
+        "hold": 2788492
+      },
+      {
+        "datetime": "2026-09-09 22:27:00",
+        "open": 3391.0,
+        "high": 3392.0,
+        "low": 3390.0,
+        "close": 3391.0,
+        "volume": 4355,
+        "hold": 2788788
+      },
+      {
+        "datetime": "2026-09-09 22:28:00",
+        "open": 3391.0,
+        "high": 3392.0,
+        "low": 3389.0,
+        "close": 3389.0,
+        "volume": 4702,
+        "hold": 2788125
+      },
+      {
+        "datetime": "2026-09-09 22:29:00",
+        "open": 3389.0,
+        "high": 3389.0,
+        "low": 3386.0,
+        "close": 3388.0,
+        "volume": 5728,
+        "hold": 2787140
+      },
+      {
+        "datetime": "2026-09-09 22:30:00",
+        "open": 3388.0,
+        "high": 3390.0,
+        "low": 3387.0,
+        "close": 3388.0,
+        "volume": 3216,
+        "hold": 2787299
+      },
+      {
+        "datetime": "2026-09-09 22:31:00",
+        "open": 3388.0,
+        "high": 3388.0,
+        "low": 3386.0,
+        "close": 3387.0,
+        "volume": 3011,
+        "hold": 2787474
+      },
+      {
+        "datetime": "2026-09-09 22:32:00",
+        "open": 3387.0,
+        "high": 3388.0,
+        "low": 3385.0,
+        "close": 3386.0,
+        "volume": 3908,
+        "hold": 2786991
+      },
+      {
+        "datetime": "2026-09-09 22:33:00",
+        "open": 3386.0,
+        "high": 3387.0,
+        "low": 3385.0,
+        "close": 3386.0,
+        "volume": 3119,
+        "hold": 2786979
+      },
+      {
+        "datetime": "2026-09-09 22:34:00",
+        "open": 3386.0,
+        "high": 3389.0,
+        "low": 3386.0,
+        "close": 3388.0,
+        "volume": 3111,
+        "hold": 2787111
+      },
+      {
+        "datetime": "2026-09-09 22:35:00",
+        "open": 3388.0,
+        "high": 3392.0,
+        "low": 3388.0,
+        "close": 3390.0,
+        "volume": 3429,
+        "hold": 2787812
+      },
+      {
+        "datetime": "2026-09-09 22:36:00",
+        "open": 3390.0,
+        "high": 3391.0,
+        "low": 3389.0,
+        "close": 3391.0,
+        "volume": 2699,
+        "hold": 2787276
+      },
+      {
+        "datetime": "2026-09-09 22:37:00",
+        "open": 3391.0,
+        "high": 3394.0,
+        "low": 3390.0,
+        "close": 3393.0,
+        "volume": 3834,
+        "hold": 2787776
+      },
+      {
+        "datetime": "2026-09-09 22:38:00",
+        "open": 3393.0,
+        "high": 3394.0,
+        "low": 3393.0,
+        "close": 3393.0,
+        "volume": 3309,
+        "hold": 2787867
+      },
+      {
+        "datetime": "2026-09-09 22:39:00",
+        "open": 3393.0,
+        "high": 3394.0,
+        "low": 3393.0,
+        "close": 3394.0,
+        "volume": 2175,
+        "hold": 2787905
+      },
+      {
+        "datetime": "2026-09-09 22:40:00",
+        "open": 3394.0,
+        "high": 3395.0,
+        "low": 3393.0,
+        "close": 3394.0,
+        "volume": 2289,
+        "hold": 2787869
+      },
+      {
+        "datetime": "2026-09-09 22:41:00",
+        "open": 3394.0,
+        "high": 3395.0,
+        "low": 3393.0,
+        "close": 3394.0,
+        "volume": 2954,
+        "hold": 2788577
+      },
+      {
+        "datetime": "2026-09-09 22:42:00",
+        "open": 3394.0,
+        "high": 3394.0,
+        "low": 3392.0,
+        "close": 3393.0,
+        "volume": 1540,
+        "hold": 2788955
+      },
+      {
+        "datetime": "2026-09-09 22:43:00",
+        "open": 3393.0,
+        "high": 3396.0,
+        "low": 3393.0,
+        "close": 3395.0,
+        "volume": 5101,
+        "hold": 2789598
+      },
+      {
+        "datetime": "2026-09-09 22:44:00",
+        "open": 3395.0,
+        "high": 3396.0,
+        "low": 3394.0,
+        "close": 3395.0,
+        "volume": 2135,
+        "hold": 2789930
+      },
+      {
+        "datetime": "2026-09-09 22:45:00",
+        "open": 3395.0,
+        "high": 3397.0,
+        "low": 3395.0,
+        "close": 3395.0,
+        "volume": 1475,
+        "hold": 2789854
+      },
+      {
+        "datetime": "2026-09-09 22:46:00",
+        "open": 3395.0,
+        "high": 3396.0,
+        "low": 3395.0,
+        "close": 3396.0,
+        "volume": 1225,
+        "hold": 2789763
+      },
+      {
+        "datetime": "2026-09-09 22:47:00",
+        "open": 3396.0,
+        "high": 3397.0,
+        "low": 3395.0,
+        "close": 3397.0,
+        "volume": 2998,
+        "hold": 2790325
+      },
+      {
+        "datetime": "2026-09-09 22:48:00",
+        "open": 3397.0,
+        "high": 3397.0,
+        "low": 3396.0,
+        "close": 3396.0,
+        "volume": 2082,
+        "hold": 2790415
+      },
+      {
+        "datetime": "2026-09-09 22:49:00",
+        "open": 3396.0,
+        "high": 3398.0,
+        "low": 3396.0,
+        "close": 3397.0,
+        "volume": 3994,
+        "hold": 2790731
+      },
+      {
+        "datetime": "2026-09-09 22:50:00",
+        "open": 3397.0,
+        "high": 3398.0,
+        "low": 3397.0,
+        "close": 3398.0,
+        "volume": 2021,
+        "hold": 2791252
+      },
+      {
+        "datetime": "2026-09-09 22:51:00",
+        "open": 3398.0,
+        "high": 3399.0,
+        "low": 3397.0,
+        "close": 3399.0,
+        "volume": 3009,
+        "hold": 2790366
+      },
+      {
+        "datetime": "2026-09-09 22:52:00",
+        "open": 3399.0,
+        "high": 3400.0,
+        "low": 3398.0,
+        "close": 3398.0,
+        "volume": 6125,
+        "hold": 2790211
+      },
+      {
+        "datetime": "2026-09-09 22:53:00",
+        "open": 3398.0,
+        "high": 3400.0,
+        "low": 3397.0,
+        "close": 3397.0,
+        "volume": 3599,
+        "hold": 2789901
+      },
+      {
+        "datetime": "2026-09-09 22:54:00",
+        "open": 3397.0,
+        "high": 3399.0,
+        "low": 3397.0,
+        "close": 3399.0,
+        "volume": 1688,
+        "hold": 2790189
+      },
+      {
+        "datetime": "2026-09-09 22:55:00",
+        "open": 3399.0,
+        "high": 3399.0,
+        "low": 3398.0,
+        "close": 3399.0,
+        "volume": 2373,
+        "hold": 2790530
+      },
+      {
+        "datetime": "2026-09-09 22:56:00",
+        "open": 3399.0,
+        "high": 3399.0,
+        "low": 3397.0,
+        "close": 3398.0,
+        "volume": 3567,
+        "hold": 2790934
+      },
+      {
+        "datetime": "2026-09-09 22:57:00",
+        "open": 3398.0,
+        "high": 3398.0,
+        "low": 3397.0,
+        "close": 3397.0,
+        "volume": 814,
+        "hold": 2790596
+      },
+      {
+        "datetime": "2026-09-09 22:58:00",
+        "open": 3397.0,
+        "high": 3399.0,
+        "low": 3397.0,
+        "close": 3399.0,
+        "volume": 4410,
+        "hold": 2790245
+      },
+      {
+        "datetime": "2026-09-09 22:59:00",
+        "open": 3399.0,
+        "high": 3399.0,
+        "low": 3397.0,
+        "close": 3397.0,
+        "volume": 6212,
+        "hold": 2787889
       }
     ],
     "min5": [
-      {
-        "datetime": "2026-08-11 09:45:00",
-        "open": 3143.0,
-        "high": 3144.0,
-        "low": 3139.0,
-        "close": 3140.0,
-        "volume": 5299,
-        "hold": 2190172
-      },
-      {
-        "datetime": "2026-08-11 09:50:00",
-        "open": 3140.0,
-        "high": 3142.0,
-        "low": 3139.0,
-        "close": 3142.0,
-        "volume": 9165,
-        "hold": 2192493
-      },
-      {
-        "datetime": "2026-08-11 09:55:00",
-        "open": 3142.0,
-        "high": 3143.0,
-        "low": 3140.0,
-        "close": 3142.0,
-        "volume": 6174,
-        "hold": 2194155
-      },
-      {
-        "datetime": "2026-08-11 10:00:00",
-        "open": 3142.0,
-        "high": 3143.0,
-        "low": 3141.0,
-        "close": 3142.0,
-        "volume": 7391,
-        "hold": 2194332
-      },
-      {
-        "datetime": "2026-08-11 10:05:00",
-        "open": 3142.0,
-        "high": 3142.0,
-        "low": 3137.0,
-        "close": 3138.0,
-        "volume": 12291,
-        "hold": 2195618
-      },
-      {
-        "datetime": "2026-08-11 10:10:00",
-        "open": 3138.0,
-        "high": 3140.0,
-        "low": 3137.0,
-        "close": 3138.0,
-        "volume": 6008,
-        "hold": 2196625
-      },
-      {
-        "datetime": "2026-08-11 10:30:00",
-        "open": 3139.0,
-        "high": 3139.0,
-        "low": 3127.0,
-        "close": 3130.0,
-        "volume": 43801,
-        "hold": 2200044
-      },
-      {
-        "datetime": "2026-08-11 10:35:00",
-        "open": 3130.0,
-        "high": 3132.0,
-        "low": 3128.0,
-        "close": 3132.0,
-        "volume": 20383,
-        "hold": 2199809
-      },
-      {
-        "datetime": "2026-08-11 10:40:00",
-        "open": 3132.0,
-        "high": 3132.0,
-        "low": 3129.0,
-        "close": 3130.0,
-        "volume": 8610,
-        "hold": 2201076
-      },
       {
         "datetime": "2026-08-11 10:45:00",
         "open": 3130.0,
@@ -95360,40 +95279,94 @@
         "datetime": "2026-09-09 22:10:00",
         "open": 3387.0,
         "high": 3391.0,
+        "low": 3375.0,
+        "close": 3380.0,
+        "volume": 90819,
+        "hold": 2796007
+      },
+      {
+        "datetime": "2026-09-09 22:15:00",
+        "open": 3380.0,
+        "high": 3387.0,
+        "low": 3380.0,
+        "close": 3386.0,
+        "volume": 42850,
+        "hold": 2788927
+      },
+      {
+        "datetime": "2026-09-09 22:20:00",
+        "open": 3386.0,
+        "high": 3392.0,
         "low": 3386.0,
-        "close": 3390.0,
-        "volume": 11970,
-        "hold": 2807210
+        "close": 3391.0,
+        "volume": 32888,
+        "hold": 2787580
+      },
+      {
+        "datetime": "2026-09-09 22:25:00",
+        "open": 3391.0,
+        "high": 3393.0,
+        "low": 3386.0,
+        "close": 3388.0,
+        "volume": 23191,
+        "hold": 2787140
+      },
+      {
+        "datetime": "2026-09-09 22:30:00",
+        "open": 3388.0,
+        "high": 3390.0,
+        "low": 3385.0,
+        "close": 3388.0,
+        "volume": 16365,
+        "hold": 2787111
+      },
+      {
+        "datetime": "2026-09-09 22:35:00",
+        "open": 3388.0,
+        "high": 3394.0,
+        "low": 3388.0,
+        "close": 3394.0,
+        "volume": 15446,
+        "hold": 2787905
+      },
+      {
+        "datetime": "2026-09-09 22:40:00",
+        "open": 3394.0,
+        "high": 3396.0,
+        "low": 3392.0,
+        "close": 3395.0,
+        "volume": 14019,
+        "hold": 2789930
+      },
+      {
+        "datetime": "2026-09-09 22:45:00",
+        "open": 3395.0,
+        "high": 3398.0,
+        "low": 3395.0,
+        "close": 3397.0,
+        "volume": 11774,
+        "hold": 2790731
+      },
+      {
+        "datetime": "2026-09-09 22:50:00",
+        "open": 3397.0,
+        "high": 3400.0,
+        "low": 3397.0,
+        "close": 3399.0,
+        "volume": 16442,
+        "hold": 2790189
+      },
+      {
+        "datetime": "2026-09-09 22:55:00",
+        "open": 3399.0,
+        "high": 3399.0,
+        "low": 3397.0,
+        "close": 3397.0,
+        "volume": 17376,
+        "hold": 2787889
       }
     ],
     "min15": [
-      {
-        "datetime": "2026-06-09 11:00:00",
-        "open": 2977.0,
-        "high": 2977.0,
-        "low": 2974.0,
-        "close": 2975.0,
-        "volume": 4420,
-        "hold": 896794
-      },
-      {
-        "datetime": "2026-06-09 11:15:00",
-        "open": 2975.0,
-        "high": 2977.0,
-        "low": 2973.0,
-        "close": 2974.0,
-        "volume": 5065,
-        "hold": 896542
-      },
-      {
-        "datetime": "2026-06-09 13:30:00",
-        "open": 2974.0,
-        "high": 2977.0,
-        "low": 2971.0,
-        "close": 2972.0,
-        "volume": 21241,
-        "hold": 901467
-      },
       {
         "datetime": "2026-06-09 13:45:00",
         "open": 2972.0,
@@ -108862,22 +108835,40 @@
         "datetime": "2026-09-09 22:00:00",
         "open": 3394.0,
         "high": 3397.0,
-        "low": 3386.0,
-        "close": 3390.0,
-        "volume": 94939,
-        "hold": 2807210
+        "low": 3375.0,
+        "close": 3380.0,
+        "volume": 173788,
+        "hold": 2796007
+      },
+      {
+        "datetime": "2026-09-09 22:15:00",
+        "open": 3380.0,
+        "high": 3393.0,
+        "low": 3380.0,
+        "close": 3388.0,
+        "volume": 98929,
+        "hold": 2787140
+      },
+      {
+        "datetime": "2026-09-09 22:30:00",
+        "open": 3388.0,
+        "high": 3396.0,
+        "low": 3385.0,
+        "close": 3395.0,
+        "volume": 45830,
+        "hold": 2789930
+      },
+      {
+        "datetime": "2026-09-09 22:45:00",
+        "open": 3395.0,
+        "high": 3400.0,
+        "low": 3395.0,
+        "close": 3397.0,
+        "volume": 45592,
+        "hold": 2787889
       }
     ],
     "min30": [
-      {
-        "datetime": "2026-03-10 22:30:00",
-        "open": 3100.0,
-        "high": 3100.0,
-        "low": 3060.0,
-        "close": 3071.0,
-        "volume": 4890,
-        "hold": 79556
-      },
       {
         "datetime": "2026-03-11 09:00:00",
         "open": 3078.0,
@@ -122364,10 +122355,19 @@
         "datetime": "2026-09-09 22:00:00",
         "open": 3394.0,
         "high": 3397.0,
-        "low": 3386.0,
-        "close": 3390.0,
-        "volume": 94939,
-        "hold": 2807210
+        "low": 3375.0,
+        "close": 3388.0,
+        "volume": 272717,
+        "hold": 2787140
+      },
+      {
+        "datetime": "2026-09-09 22:30:00",
+        "open": 3388.0,
+        "high": 3400.0,
+        "low": 3385.0,
+        "close": 3397.0,
+        "volume": 91422,
+        "hold": 2787889
       }
     ],
     "min60": [
@@ -132202,11 +132202,11 @@
       {
         "datetime": "2026-09-09 22:00:00",
         "open": 3394.0,
-        "high": 3397.0,
-        "low": 3386.0,
-        "close": 3390.0,
-        "volume": 94939,
-        "hold": 2807210
+        "high": 3400.0,
+        "low": 3375.0,
+        "close": 3397.0,
+        "volume": 364139,
+        "hold": 2787889
       }
     ]
   },
@@ -133628,446 +133628,14 @@
       {
         "date": "2026-09-10",
         "open": 8880.0,
-        "high": 8933.0,
+        "high": 8966.0,
         "low": 8845.0,
-        "close": 8891.0,
-        "volume": 239598,
-        "hold": 655765
+        "close": 8960.0,
+        "volume": 320178,
+        "hold": 659472
       }
     ],
     "min1": [
-      {
-        "datetime": "2026-09-03 14:12:00",
-        "open": 8442.0,
-        "high": 8448.0,
-        "low": 8433.0,
-        "close": 8433.0,
-        "volume": 2267,
-        "hold": 604588
-      },
-      {
-        "datetime": "2026-09-03 14:13:00",
-        "open": 8433.0,
-        "high": 8440.0,
-        "low": 8433.0,
-        "close": 8433.0,
-        "volume": 1792,
-        "hold": 604813
-      },
-      {
-        "datetime": "2026-09-03 14:14:00",
-        "open": 8433.0,
-        "high": 8442.0,
-        "low": 8433.0,
-        "close": 8441.0,
-        "volume": 1120,
-        "hold": 604633
-      },
-      {
-        "datetime": "2026-09-03 14:15:00",
-        "open": 8441.0,
-        "high": 8448.0,
-        "low": 8435.0,
-        "close": 8435.0,
-        "volume": 2210,
-        "hold": 604540
-      },
-      {
-        "datetime": "2026-09-03 14:16:00",
-        "open": 8435.0,
-        "high": 8435.0,
-        "low": 8421.0,
-        "close": 8424.0,
-        "volume": 3307,
-        "hold": 605099
-      },
-      {
-        "datetime": "2026-09-03 14:17:00",
-        "open": 8424.0,
-        "high": 8429.0,
-        "low": 8420.0,
-        "close": 8421.0,
-        "volume": 3446,
-        "hold": 605331
-      },
-      {
-        "datetime": "2026-09-03 14:18:00",
-        "open": 8421.0,
-        "high": 8421.0,
-        "low": 8402.0,
-        "close": 8405.0,
-        "volume": 6543,
-        "hold": 605373
-      },
-      {
-        "datetime": "2026-09-03 14:19:00",
-        "open": 8405.0,
-        "high": 8412.0,
-        "low": 8405.0,
-        "close": 8409.0,
-        "volume": 3351,
-        "hold": 605032
-      },
-      {
-        "datetime": "2026-09-03 14:20:00",
-        "open": 8409.0,
-        "high": 8414.0,
-        "low": 8408.0,
-        "close": 8411.0,
-        "volume": 2534,
-        "hold": 605033
-      },
-      {
-        "datetime": "2026-09-03 14:21:00",
-        "open": 8411.0,
-        "high": 8424.0,
-        "low": 8410.0,
-        "close": 8413.0,
-        "volume": 3177,
-        "hold": 605094
-      },
-      {
-        "datetime": "2026-09-03 14:22:00",
-        "open": 8413.0,
-        "high": 8414.0,
-        "low": 8403.0,
-        "close": 8406.0,
-        "volume": 2539,
-        "hold": 605005
-      },
-      {
-        "datetime": "2026-09-03 14:23:00",
-        "open": 8406.0,
-        "high": 8412.0,
-        "low": 8405.0,
-        "close": 8409.0,
-        "volume": 2040,
-        "hold": 605424
-      },
-      {
-        "datetime": "2026-09-03 14:24:00",
-        "open": 8409.0,
-        "high": 8413.0,
-        "low": 8403.0,
-        "close": 8413.0,
-        "volume": 2237,
-        "hold": 605580
-      },
-      {
-        "datetime": "2026-09-03 14:25:00",
-        "open": 8413.0,
-        "high": 8423.0,
-        "low": 8412.0,
-        "close": 8418.0,
-        "volume": 1809,
-        "hold": 605830
-      },
-      {
-        "datetime": "2026-09-03 14:26:00",
-        "open": 8418.0,
-        "high": 8430.0,
-        "low": 8418.0,
-        "close": 8429.0,
-        "volume": 2119,
-        "hold": 605760
-      },
-      {
-        "datetime": "2026-09-03 14:27:00",
-        "open": 8429.0,
-        "high": 8441.0,
-        "low": 8427.0,
-        "close": 8441.0,
-        "volume": 2686,
-        "hold": 605695
-      },
-      {
-        "datetime": "2026-09-03 14:28:00",
-        "open": 8441.0,
-        "high": 8441.0,
-        "low": 8433.0,
-        "close": 8440.0,
-        "volume": 1785,
-        "hold": 605821
-      },
-      {
-        "datetime": "2026-09-03 14:29:00",
-        "open": 8440.0,
-        "high": 8443.0,
-        "low": 8435.0,
-        "close": 8443.0,
-        "volume": 1844,
-        "hold": 605116
-      },
-      {
-        "datetime": "2026-09-03 14:30:00",
-        "open": 8443.0,
-        "high": 8446.0,
-        "low": 8441.0,
-        "close": 8444.0,
-        "volume": 1550,
-        "hold": 605261
-      },
-      {
-        "datetime": "2026-09-03 14:31:00",
-        "open": 8444.0,
-        "high": 8454.0,
-        "low": 8443.0,
-        "close": 8448.0,
-        "volume": 3182,
-        "hold": 605435
-      },
-      {
-        "datetime": "2026-09-03 14:32:00",
-        "open": 8448.0,
-        "high": 8452.0,
-        "low": 8446.0,
-        "close": 8448.0,
-        "volume": 1740,
-        "hold": 605718
-      },
-      {
-        "datetime": "2026-09-03 14:33:00",
-        "open": 8448.0,
-        "high": 8453.0,
-        "low": 8443.0,
-        "close": 8448.0,
-        "volume": 1426,
-        "hold": 605637
-      },
-      {
-        "datetime": "2026-09-03 14:34:00",
-        "open": 8448.0,
-        "high": 8455.0,
-        "low": 8448.0,
-        "close": 8448.0,
-        "volume": 1270,
-        "hold": 605801
-      },
-      {
-        "datetime": "2026-09-03 14:35:00",
-        "open": 8448.0,
-        "high": 8448.0,
-        "low": 8439.0,
-        "close": 8447.0,
-        "volume": 1722,
-        "hold": 605673
-      },
-      {
-        "datetime": "2026-09-03 14:36:00",
-        "open": 8447.0,
-        "high": 8452.0,
-        "low": 8447.0,
-        "close": 8451.0,
-        "volume": 1529,
-        "hold": 606180
-      },
-      {
-        "datetime": "2026-09-03 14:37:00",
-        "open": 8451.0,
-        "high": 8456.0,
-        "low": 8447.0,
-        "close": 8455.0,
-        "volume": 1410,
-        "hold": 606178
-      },
-      {
-        "datetime": "2026-09-03 14:38:00",
-        "open": 8455.0,
-        "high": 8459.0,
-        "low": 8453.0,
-        "close": 8456.0,
-        "volume": 1267,
-        "hold": 606113
-      },
-      {
-        "datetime": "2026-09-03 14:39:00",
-        "open": 8456.0,
-        "high": 8468.0,
-        "low": 8456.0,
-        "close": 8468.0,
-        "volume": 2589,
-        "hold": 606179
-      },
-      {
-        "datetime": "2026-09-03 14:40:00",
-        "open": 8468.0,
-        "high": 8468.0,
-        "low": 8462.0,
-        "close": 8468.0,
-        "volume": 3121,
-        "hold": 606470
-      },
-      {
-        "datetime": "2026-09-03 14:41:00",
-        "open": 8468.0,
-        "high": 8469.0,
-        "low": 8460.0,
-        "close": 8465.0,
-        "volume": 1675,
-        "hold": 606558
-      },
-      {
-        "datetime": "2026-09-03 14:42:00",
-        "open": 8465.0,
-        "high": 8466.0,
-        "low": 8456.0,
-        "close": 8458.0,
-        "volume": 1490,
-        "hold": 606459
-      },
-      {
-        "datetime": "2026-09-03 14:43:00",
-        "open": 8458.0,
-        "high": 8461.0,
-        "low": 8453.0,
-        "close": 8456.0,
-        "volume": 1432,
-        "hold": 606308
-      },
-      {
-        "datetime": "2026-09-03 14:44:00",
-        "open": 8456.0,
-        "high": 8461.0,
-        "low": 8454.0,
-        "close": 8457.0,
-        "volume": 913,
-        "hold": 606508
-      },
-      {
-        "datetime": "2026-09-03 14:45:00",
-        "open": 8457.0,
-        "high": 8459.0,
-        "low": 8450.0,
-        "close": 8453.0,
-        "volume": 1583,
-        "hold": 606290
-      },
-      {
-        "datetime": "2026-09-03 14:46:00",
-        "open": 8453.0,
-        "high": 8453.0,
-        "low": 8444.0,
-        "close": 8447.0,
-        "volume": 2590,
-        "hold": 606703
-      },
-      {
-        "datetime": "2026-09-03 14:47:00",
-        "open": 8447.0,
-        "high": 8454.0,
-        "low": 8447.0,
-        "close": 8453.0,
-        "volume": 1444,
-        "hold": 606945
-      },
-      {
-        "datetime": "2026-09-03 14:48:00",
-        "open": 8453.0,
-        "high": 8456.0,
-        "low": 8447.0,
-        "close": 8454.0,
-        "volume": 848,
-        "hold": 606923
-      },
-      {
-        "datetime": "2026-09-03 14:49:00",
-        "open": 8454.0,
-        "high": 8455.0,
-        "low": 8450.0,
-        "close": 8452.0,
-        "volume": 859,
-        "hold": 606657
-      },
-      {
-        "datetime": "2026-09-03 14:50:00",
-        "open": 8452.0,
-        "high": 8462.0,
-        "low": 8452.0,
-        "close": 8455.0,
-        "volume": 1968,
-        "hold": 606838
-      },
-      {
-        "datetime": "2026-09-03 14:51:00",
-        "open": 8455.0,
-        "high": 8455.0,
-        "low": 8451.0,
-        "close": 8452.0,
-        "volume": 835,
-        "hold": 606766
-      },
-      {
-        "datetime": "2026-09-03 14:52:00",
-        "open": 8452.0,
-        "high": 8454.0,
-        "low": 8450.0,
-        "close": 8450.0,
-        "volume": 1032,
-        "hold": 606806
-      },
-      {
-        "datetime": "2026-09-03 14:53:00",
-        "open": 8450.0,
-        "high": 8457.0,
-        "low": 8446.0,
-        "close": 8455.0,
-        "volume": 1763,
-        "hold": 606641
-      },
-      {
-        "datetime": "2026-09-03 14:54:00",
-        "open": 8455.0,
-        "high": 8457.0,
-        "low": 8453.0,
-        "close": 8455.0,
-        "volume": 865,
-        "hold": 606313
-      },
-      {
-        "datetime": "2026-09-03 14:55:00",
-        "open": 8455.0,
-        "high": 8455.0,
-        "low": 8450.0,
-        "close": 8450.0,
-        "volume": 1759,
-        "hold": 605591
-      },
-      {
-        "datetime": "2026-09-03 14:56:00",
-        "open": 8450.0,
-        "high": 8452.0,
-        "low": 8449.0,
-        "close": 8450.0,
-        "volume": 870,
-        "hold": 605469
-      },
-      {
-        "datetime": "2026-09-03 14:57:00",
-        "open": 8450.0,
-        "high": 8452.0,
-        "low": 8449.0,
-        "close": 8451.0,
-        "volume": 743,
-        "hold": 605260
-      },
-      {
-        "datetime": "2026-09-03 14:58:00",
-        "open": 8451.0,
-        "high": 8457.0,
-        "low": 8451.0,
-        "close": 8457.0,
-        "volume": 1473,
-        "hold": 605049
-      },
-      {
-        "datetime": "2026-09-03 14:59:00",
-        "open": 8457.0,
-        "high": 8460.0,
-        "low": 8446.0,
-        "close": 8448.0,
-        "volume": 3100,
-        "hold": 604492
-      },
       {
         "datetime": "2026-09-03 21:00:00",
         "open": 8505.0,
@@ -147130,95 +146698,446 @@
       {
         "datetime": "2026-09-09 22:11:00",
         "open": 8885.0,
-        "high": 8891.0,
+        "high": 8894.0,
         "low": 8884.0,
-        "close": 8891.0,
-        "volume": 830,
-        "hold": 655765
+        "close": 8888.0,
+        "volume": 1299,
+        "hold": 655844
+      },
+      {
+        "datetime": "2026-09-09 22:12:00",
+        "open": 8888.0,
+        "high": 8894.0,
+        "low": 8887.0,
+        "close": 8887.0,
+        "volume": 1158,
+        "hold": 656078
+      },
+      {
+        "datetime": "2026-09-09 22:13:00",
+        "open": 8887.0,
+        "high": 8890.0,
+        "low": 8885.0,
+        "close": 8888.0,
+        "volume": 854,
+        "hold": 656094
+      },
+      {
+        "datetime": "2026-09-09 22:14:00",
+        "open": 8888.0,
+        "high": 8889.0,
+        "low": 8882.0,
+        "close": 8885.0,
+        "volume": 1034,
+        "hold": 656033
+      },
+      {
+        "datetime": "2026-09-09 22:15:00",
+        "open": 8885.0,
+        "high": 8893.0,
+        "low": 8881.0,
+        "close": 8892.0,
+        "volume": 1838,
+        "hold": 656142
+      },
+      {
+        "datetime": "2026-09-09 22:16:00",
+        "open": 8892.0,
+        "high": 8909.0,
+        "low": 8891.0,
+        "close": 8907.0,
+        "volume": 2966,
+        "hold": 656150
+      },
+      {
+        "datetime": "2026-09-09 22:17:00",
+        "open": 8907.0,
+        "high": 8909.0,
+        "low": 8900.0,
+        "close": 8900.0,
+        "volume": 1965,
+        "hold": 656132
+      },
+      {
+        "datetime": "2026-09-09 22:18:00",
+        "open": 8900.0,
+        "high": 8905.0,
+        "low": 8899.0,
+        "close": 8904.0,
+        "volume": 1093,
+        "hold": 656240
+      },
+      {
+        "datetime": "2026-09-09 22:19:00",
+        "open": 8904.0,
+        "high": 8918.0,
+        "low": 8903.0,
+        "close": 8916.0,
+        "volume": 2958,
+        "hold": 655948
+      },
+      {
+        "datetime": "2026-09-09 22:20:00",
+        "open": 8916.0,
+        "high": 8926.0,
+        "low": 8915.0,
+        "close": 8925.0,
+        "volume": 3518,
+        "hold": 656366
+      },
+      {
+        "datetime": "2026-09-09 22:21:00",
+        "open": 8925.0,
+        "high": 8936.0,
+        "low": 8921.0,
+        "close": 8923.0,
+        "volume": 4265,
+        "hold": 656093
+      },
+      {
+        "datetime": "2026-09-09 22:22:00",
+        "open": 8923.0,
+        "high": 8931.0,
+        "low": 8921.0,
+        "close": 8931.0,
+        "volume": 1738,
+        "hold": 656289
+      },
+      {
+        "datetime": "2026-09-09 22:23:00",
+        "open": 8931.0,
+        "high": 8933.0,
+        "low": 8926.0,
+        "close": 8929.0,
+        "volume": 2724,
+        "hold": 656600
+      },
+      {
+        "datetime": "2026-09-09 22:24:00",
+        "open": 8929.0,
+        "high": 8939.0,
+        "low": 8926.0,
+        "close": 8938.0,
+        "volume": 2899,
+        "hold": 656869
+      },
+      {
+        "datetime": "2026-09-09 22:25:00",
+        "open": 8938.0,
+        "high": 8939.0,
+        "low": 8927.0,
+        "close": 8927.0,
+        "volume": 2516,
+        "hold": 656553
+      },
+      {
+        "datetime": "2026-09-09 22:26:00",
+        "open": 8927.0,
+        "high": 8929.0,
+        "low": 8914.0,
+        "close": 8914.0,
+        "volume": 2076,
+        "hold": 656089
+      },
+      {
+        "datetime": "2026-09-09 22:27:00",
+        "open": 8914.0,
+        "high": 8922.0,
+        "low": 8914.0,
+        "close": 8921.0,
+        "volume": 1787,
+        "hold": 655960
+      },
+      {
+        "datetime": "2026-09-09 22:28:00",
+        "open": 8921.0,
+        "high": 8923.0,
+        "low": 8917.0,
+        "close": 8918.0,
+        "volume": 1114,
+        "hold": 656153
+      },
+      {
+        "datetime": "2026-09-09 22:29:00",
+        "open": 8918.0,
+        "high": 8918.0,
+        "low": 8908.0,
+        "close": 8908.0,
+        "volume": 1850,
+        "hold": 656124
+      },
+      {
+        "datetime": "2026-09-09 22:30:00",
+        "open": 8908.0,
+        "high": 8914.0,
+        "low": 8907.0,
+        "close": 8913.0,
+        "volume": 1842,
+        "hold": 656245
+      },
+      {
+        "datetime": "2026-09-09 22:31:00",
+        "open": 8913.0,
+        "high": 8915.0,
+        "low": 8910.0,
+        "close": 8913.0,
+        "volume": 1046,
+        "hold": 656319
+      },
+      {
+        "datetime": "2026-09-09 22:32:00",
+        "open": 8913.0,
+        "high": 8920.0,
+        "low": 8912.0,
+        "close": 8917.0,
+        "volume": 842,
+        "hold": 656489
+      },
+      {
+        "datetime": "2026-09-09 22:33:00",
+        "open": 8917.0,
+        "high": 8921.0,
+        "low": 8917.0,
+        "close": 8919.0,
+        "volume": 1094,
+        "hold": 656741
+      },
+      {
+        "datetime": "2026-09-09 22:34:00",
+        "open": 8919.0,
+        "high": 8921.0,
+        "low": 8917.0,
+        "close": 8920.0,
+        "volume": 1053,
+        "hold": 657218
+      },
+      {
+        "datetime": "2026-09-09 22:35:00",
+        "open": 8920.0,
+        "high": 8921.0,
+        "low": 8915.0,
+        "close": 8919.0,
+        "volume": 848,
+        "hold": 657352
+      },
+      {
+        "datetime": "2026-09-09 22:36:00",
+        "open": 8919.0,
+        "high": 8925.0,
+        "low": 8919.0,
+        "close": 8922.0,
+        "volume": 960,
+        "hold": 657440
+      },
+      {
+        "datetime": "2026-09-09 22:37:00",
+        "open": 8922.0,
+        "high": 8922.0,
+        "low": 8917.0,
+        "close": 8921.0,
+        "volume": 918,
+        "hold": 657445
+      },
+      {
+        "datetime": "2026-09-09 22:38:00",
+        "open": 8921.0,
+        "high": 8922.0,
+        "low": 8915.0,
+        "close": 8921.0,
+        "volume": 851,
+        "hold": 657567
+      },
+      {
+        "datetime": "2026-09-09 22:39:00",
+        "open": 8921.0,
+        "high": 8922.0,
+        "low": 8918.0,
+        "close": 8920.0,
+        "volume": 740,
+        "hold": 657684
+      },
+      {
+        "datetime": "2026-09-09 22:40:00",
+        "open": 8920.0,
+        "high": 8928.0,
+        "low": 8920.0,
+        "close": 8927.0,
+        "volume": 1164,
+        "hold": 657863
+      },
+      {
+        "datetime": "2026-09-09 22:41:00",
+        "open": 8927.0,
+        "high": 8929.0,
+        "low": 8925.0,
+        "close": 8926.0,
+        "volume": 1290,
+        "hold": 657655
+      },
+      {
+        "datetime": "2026-09-09 22:42:00",
+        "open": 8926.0,
+        "high": 8931.0,
+        "low": 8926.0,
+        "close": 8929.0,
+        "volume": 884,
+        "hold": 657665
+      },
+      {
+        "datetime": "2026-09-09 22:43:00",
+        "open": 8929.0,
+        "high": 8933.0,
+        "low": 8927.0,
+        "close": 8931.0,
+        "volume": 1243,
+        "hold": 657583
+      },
+      {
+        "datetime": "2026-09-09 22:44:00",
+        "open": 8931.0,
+        "high": 8934.0,
+        "low": 8925.0,
+        "close": 8933.0,
+        "volume": 1397,
+        "hold": 657441
+      },
+      {
+        "datetime": "2026-09-09 22:45:00",
+        "open": 8933.0,
+        "high": 8938.0,
+        "low": 8932.0,
+        "close": 8936.0,
+        "volume": 1421,
+        "hold": 657554
+      },
+      {
+        "datetime": "2026-09-09 22:46:00",
+        "open": 8936.0,
+        "high": 8939.0,
+        "low": 8933.0,
+        "close": 8939.0,
+        "volume": 1226,
+        "hold": 657630
+      },
+      {
+        "datetime": "2026-09-09 22:47:00",
+        "open": 8939.0,
+        "high": 8943.0,
+        "low": 8938.0,
+        "close": 8940.0,
+        "volume": 1809,
+        "hold": 657947
+      },
+      {
+        "datetime": "2026-09-09 22:48:00",
+        "open": 8940.0,
+        "high": 8943.0,
+        "low": 8937.0,
+        "close": 8937.0,
+        "volume": 1625,
+        "hold": 658265
+      },
+      {
+        "datetime": "2026-09-09 22:49:00",
+        "open": 8937.0,
+        "high": 8938.0,
+        "low": 8933.0,
+        "close": 8937.0,
+        "volume": 1323,
+        "hold": 658509
+      },
+      {
+        "datetime": "2026-09-09 22:50:00",
+        "open": 8937.0,
+        "high": 8938.0,
+        "low": 8935.0,
+        "close": 8936.0,
+        "volume": 574,
+        "hold": 658530
+      },
+      {
+        "datetime": "2026-09-09 22:51:00",
+        "open": 8936.0,
+        "high": 8939.0,
+        "low": 8935.0,
+        "close": 8938.0,
+        "volume": 698,
+        "hold": 658570
+      },
+      {
+        "datetime": "2026-09-09 22:52:00",
+        "open": 8938.0,
+        "high": 8944.0,
+        "low": 8938.0,
+        "close": 8943.0,
+        "volume": 1108,
+        "hold": 658526
+      },
+      {
+        "datetime": "2026-09-09 22:53:00",
+        "open": 8943.0,
+        "high": 8943.0,
+        "low": 8934.0,
+        "close": 8940.0,
+        "volume": 1904,
+        "hold": 658247
+      },
+      {
+        "datetime": "2026-09-09 22:54:00",
+        "open": 8940.0,
+        "high": 8942.0,
+        "low": 8937.0,
+        "close": 8941.0,
+        "volume": 931,
+        "hold": 658354
+      },
+      {
+        "datetime": "2026-09-09 22:55:00",
+        "open": 8941.0,
+        "high": 8948.0,
+        "low": 8939.0,
+        "close": 8947.0,
+        "volume": 1671,
+        "hold": 658400
+      },
+      {
+        "datetime": "2026-09-09 22:56:00",
+        "open": 8947.0,
+        "high": 8958.0,
+        "low": 8947.0,
+        "close": 8954.0,
+        "volume": 3719,
+        "hold": 659628
+      },
+      {
+        "datetime": "2026-09-09 22:57:00",
+        "open": 8954.0,
+        "high": 8958.0,
+        "low": 8951.0,
+        "close": 8956.0,
+        "volume": 1947,
+        "hold": 659799
+      },
+      {
+        "datetime": "2026-09-09 22:58:00",
+        "open": 8956.0,
+        "high": 8966.0,
+        "low": 8956.0,
+        "close": 8959.0,
+        "volume": 3024,
+        "hold": 660101
+      },
+      {
+        "datetime": "2026-09-09 22:59:00",
+        "open": 8959.0,
+        "high": 8961.0,
+        "low": 8955.0,
+        "close": 8960.0,
+        "volume": 2606,
+        "hold": 659472
       }
     ],
     "min5": [
-      {
-        "datetime": "2026-08-11 09:45:00",
-        "open": 7491.0,
-        "high": 7510.0,
-        "low": 7491.0,
-        "close": 7508.0,
-        "volume": 4550,
-        "hold": 280060
-      },
-      {
-        "datetime": "2026-08-11 09:50:00",
-        "open": 7508.0,
-        "high": 7514.0,
-        "low": 7500.0,
-        "close": 7501.0,
-        "volume": 2600,
-        "hold": 280490
-      },
-      {
-        "datetime": "2026-08-11 09:55:00",
-        "open": 7501.0,
-        "high": 7505.0,
-        "low": 7496.0,
-        "close": 7505.0,
-        "volume": 1450,
-        "hold": 280523
-      },
-      {
-        "datetime": "2026-08-11 10:00:00",
-        "open": 7505.0,
-        "high": 7505.0,
-        "low": 7494.0,
-        "close": 7497.0,
-        "volume": 1538,
-        "hold": 280462
-      },
-      {
-        "datetime": "2026-08-11 10:05:00",
-        "open": 7497.0,
-        "high": 7503.0,
-        "low": 7493.0,
-        "close": 7499.0,
-        "volume": 1581,
-        "hold": 280819
-      },
-      {
-        "datetime": "2026-08-11 10:10:00",
-        "open": 7499.0,
-        "high": 7506.0,
-        "low": 7497.0,
-        "close": 7504.0,
-        "volume": 2041,
-        "hold": 281307
-      },
-      {
-        "datetime": "2026-08-11 10:30:00",
-        "open": 7501.0,
-        "high": 7501.0,
-        "low": 7486.0,
-        "close": 7492.0,
-        "volume": 3558,
-        "hold": 281595
-      },
-      {
-        "datetime": "2026-08-11 10:35:00",
-        "open": 7492.0,
-        "high": 7497.0,
-        "low": 7490.0,
-        "close": 7491.0,
-        "volume": 1449,
-        "hold": 281670
-      },
-      {
-        "datetime": "2026-08-11 10:40:00",
-        "open": 7491.0,
-        "high": 7508.0,
-        "low": 7491.0,
-        "close": 7504.0,
-        "volume": 1324,
-        "hold": 281724
-      },
       {
         "datetime": "2026-08-11 10:45:00",
         "open": 7504.0,
@@ -160633,40 +160552,94 @@
         "datetime": "2026-09-09 22:10:00",
         "open": 8897.0,
         "high": 8898.0,
-        "low": 8884.0,
-        "close": 8891.0,
-        "volume": 2255,
-        "hold": 655765
+        "low": 8882.0,
+        "close": 8885.0,
+        "volume": 5770,
+        "hold": 656033
+      },
+      {
+        "datetime": "2026-09-09 22:15:00",
+        "open": 8885.0,
+        "high": 8918.0,
+        "low": 8881.0,
+        "close": 8916.0,
+        "volume": 10820,
+        "hold": 655948
+      },
+      {
+        "datetime": "2026-09-09 22:20:00",
+        "open": 8916.0,
+        "high": 8939.0,
+        "low": 8915.0,
+        "close": 8938.0,
+        "volume": 15144,
+        "hold": 656869
+      },
+      {
+        "datetime": "2026-09-09 22:25:00",
+        "open": 8938.0,
+        "high": 8939.0,
+        "low": 8908.0,
+        "close": 8908.0,
+        "volume": 9343,
+        "hold": 656124
+      },
+      {
+        "datetime": "2026-09-09 22:30:00",
+        "open": 8908.0,
+        "high": 8921.0,
+        "low": 8907.0,
+        "close": 8920.0,
+        "volume": 5877,
+        "hold": 657218
+      },
+      {
+        "datetime": "2026-09-09 22:35:00",
+        "open": 8920.0,
+        "high": 8925.0,
+        "low": 8915.0,
+        "close": 8920.0,
+        "volume": 4317,
+        "hold": 657684
+      },
+      {
+        "datetime": "2026-09-09 22:40:00",
+        "open": 8920.0,
+        "high": 8934.0,
+        "low": 8920.0,
+        "close": 8933.0,
+        "volume": 5978,
+        "hold": 657441
+      },
+      {
+        "datetime": "2026-09-09 22:45:00",
+        "open": 8933.0,
+        "high": 8943.0,
+        "low": 8932.0,
+        "close": 8937.0,
+        "volume": 7404,
+        "hold": 658509
+      },
+      {
+        "datetime": "2026-09-09 22:50:00",
+        "open": 8937.0,
+        "high": 8944.0,
+        "low": 8934.0,
+        "close": 8941.0,
+        "volume": 5215,
+        "hold": 658354
+      },
+      {
+        "datetime": "2026-09-09 22:55:00",
+        "open": 8941.0,
+        "high": 8966.0,
+        "low": 8939.0,
+        "close": 8960.0,
+        "volume": 12967,
+        "hold": 659472
       }
     ],
     "min15": [
-      {
-        "datetime": "2026-06-09 11:00:00",
-        "open": 8094.0,
-        "high": 8102.0,
-        "low": 8083.0,
-        "close": 8100.0,
-        "volume": 1137,
-        "hold": 152592
-      },
-      {
-        "datetime": "2026-06-09 11:15:00",
-        "open": 8100.0,
-        "high": 8104.0,
-        "low": 8071.0,
-        "close": 8081.0,
-        "volume": 1213,
-        "hold": 152565
-      },
-      {
-        "datetime": "2026-06-09 13:30:00",
-        "open": 8069.0,
-        "high": 8069.0,
-        "low": 8027.0,
-        "close": 8036.0,
-        "volume": 4827,
-        "hold": 152466
-      },
       {
         "datetime": "2026-06-09 13:45:00",
         "open": 8036.0,
@@ -174136,21 +174109,39 @@
         "open": 8893.0,
         "high": 8901.0,
         "low": 8876.0,
-        "close": 8891.0,
-        "volume": 23154,
-        "hold": 655765
+        "close": 8885.0,
+        "volume": 26669,
+        "hold": 656033
+      },
+      {
+        "datetime": "2026-09-09 22:15:00",
+        "open": 8885.0,
+        "high": 8939.0,
+        "low": 8881.0,
+        "close": 8908.0,
+        "volume": 35307,
+        "hold": 656124
+      },
+      {
+        "datetime": "2026-09-09 22:30:00",
+        "open": 8908.0,
+        "high": 8934.0,
+        "low": 8907.0,
+        "close": 8933.0,
+        "volume": 16172,
+        "hold": 657441
+      },
+      {
+        "datetime": "2026-09-09 22:45:00",
+        "open": 8933.0,
+        "high": 8966.0,
+        "low": 8932.0,
+        "close": 8960.0,
+        "volume": 25586,
+        "hold": 659472
       }
     ],
     "min30": [
-      {
-        "datetime": "2026-03-10 22:30:00",
-        "open": 7124.0,
-        "high": 7124.0,
-        "low": 7070.0,
-        "close": 7093.0,
-        "volume": 175,
-        "hold": 9807
-      },
       {
         "datetime": "2026-03-11 09:00:00",
         "open": 7050.0,
@@ -187636,11 +187627,20 @@
       {
         "datetime": "2026-09-09 22:00:00",
         "open": 8893.0,
-        "high": 8901.0,
+        "high": 8939.0,
         "low": 8876.0,
-        "close": 8891.0,
-        "volume": 23154,
-        "hold": 655765
+        "close": 8908.0,
+        "volume": 61976,
+        "hold": 656124
+      },
+      {
+        "datetime": "2026-09-09 22:30:00",
+        "open": 8908.0,
+        "high": 8966.0,
+        "low": 8907.0,
+        "close": 8960.0,
+        "volume": 41758,
+        "hold": 659472
       }
     ],
     "min60": [
@@ -197475,11 +197475,11 @@
       {
         "datetime": "2026-09-09 22:00:00",
         "open": 8893.0,
-        "high": 8901.0,
+        "high": 8966.0,
         "low": 8876.0,
-        "close": 8891.0,
-        "volume": 23154,
-        "hold": 655765
+        "close": 8960.0,
+        "volume": 103734,
+        "hold": 659472
       }
     ]
   },
@@ -199164,444 +199164,12 @@
         "open": 7990.0,
         "high": 8126.0,
         "low": 7990.0,
-        "close": 8066.0,
-        "volume": 20666,
-        "hold": 60508
+        "close": 8106.0,
+        "volume": 26619,
+        "hold": 60324
       }
     ],
     "min1": [
-      {
-        "datetime": "2026-09-03 14:12:00",
-        "open": 7724.0,
-        "high": 7724.0,
-        "low": 7708.0,
-        "close": 7714.0,
-        "volume": 577,
-        "hold": 60401
-      },
-      {
-        "datetime": "2026-09-03 14:13:00",
-        "open": 7714.0,
-        "high": 7718.0,
-        "low": 7710.0,
-        "close": 7712.0,
-        "volume": 253,
-        "hold": 60432
-      },
-      {
-        "datetime": "2026-09-03 14:14:00",
-        "open": 7712.0,
-        "high": 7718.0,
-        "low": 7710.0,
-        "close": 7710.0,
-        "volume": 1292,
-        "hold": 60410
-      },
-      {
-        "datetime": "2026-09-03 14:15:00",
-        "open": 7710.0,
-        "high": 7722.0,
-        "low": 7706.0,
-        "close": 7706.0,
-        "volume": 1317,
-        "hold": 60456
-      },
-      {
-        "datetime": "2026-09-03 14:16:00",
-        "open": 7706.0,
-        "high": 7714.0,
-        "low": 7704.0,
-        "close": 7706.0,
-        "volume": 825,
-        "hold": 60484
-      },
-      {
-        "datetime": "2026-09-03 14:17:00",
-        "open": 7706.0,
-        "high": 7706.0,
-        "low": 7692.0,
-        "close": 7698.0,
-        "volume": 394,
-        "hold": 60515
-      },
-      {
-        "datetime": "2026-09-03 14:18:00",
-        "open": 7698.0,
-        "high": 7698.0,
-        "low": 7680.0,
-        "close": 7684.0,
-        "volume": 596,
-        "hold": 60584
-      },
-      {
-        "datetime": "2026-09-03 14:19:00",
-        "open": 7684.0,
-        "high": 7690.0,
-        "low": 7680.0,
-        "close": 7684.0,
-        "volume": 298,
-        "hold": 60577
-      },
-      {
-        "datetime": "2026-09-03 14:20:00",
-        "open": 7684.0,
-        "high": 7686.0,
-        "low": 7676.0,
-        "close": 7680.0,
-        "volume": 852,
-        "hold": 60572
-      },
-      {
-        "datetime": "2026-09-03 14:21:00",
-        "open": 7680.0,
-        "high": 7694.0,
-        "low": 7680.0,
-        "close": 7680.0,
-        "volume": 235,
-        "hold": 60590
-      },
-      {
-        "datetime": "2026-09-03 14:22:00",
-        "open": 7680.0,
-        "high": 7682.0,
-        "low": 7674.0,
-        "close": 7676.0,
-        "volume": 150,
-        "hold": 60585
-      },
-      {
-        "datetime": "2026-09-03 14:23:00",
-        "open": 7676.0,
-        "high": 7684.0,
-        "low": 7674.0,
-        "close": 7684.0,
-        "volume": 180,
-        "hold": 60616
-      },
-      {
-        "datetime": "2026-09-03 14:24:00",
-        "open": 7684.0,
-        "high": 7684.0,
-        "low": 7666.0,
-        "close": 7682.0,
-        "volume": 1738,
-        "hold": 60777
-      },
-      {
-        "datetime": "2026-09-03 14:25:00",
-        "open": 7682.0,
-        "high": 7690.0,
-        "low": 7680.0,
-        "close": 7684.0,
-        "volume": 3312,
-        "hold": 60767
-      },
-      {
-        "datetime": "2026-09-03 14:26:00",
-        "open": 7684.0,
-        "high": 7696.0,
-        "low": 7684.0,
-        "close": 7692.0,
-        "volume": 317,
-        "hold": 60787
-      },
-      {
-        "datetime": "2026-09-03 14:27:00",
-        "open": 7692.0,
-        "high": 7706.0,
-        "low": 7692.0,
-        "close": 7704.0,
-        "volume": 195,
-        "hold": 60758
-      },
-      {
-        "datetime": "2026-09-03 14:28:00",
-        "open": 7704.0,
-        "high": 7706.0,
-        "low": 7696.0,
-        "close": 7706.0,
-        "volume": 279,
-        "hold": 60695
-      },
-      {
-        "datetime": "2026-09-03 14:29:00",
-        "open": 7706.0,
-        "high": 7706.0,
-        "low": 7696.0,
-        "close": 7700.0,
-        "volume": 97,
-        "hold": 60639
-      },
-      {
-        "datetime": "2026-09-03 14:30:00",
-        "open": 7700.0,
-        "high": 7706.0,
-        "low": 7700.0,
-        "close": 7706.0,
-        "volume": 129,
-        "hold": 60616
-      },
-      {
-        "datetime": "2026-09-03 14:31:00",
-        "open": 7706.0,
-        "high": 7714.0,
-        "low": 7706.0,
-        "close": 7706.0,
-        "volume": 159,
-        "hold": 60573
-      },
-      {
-        "datetime": "2026-09-03 14:32:00",
-        "open": 7706.0,
-        "high": 7712.0,
-        "low": 7706.0,
-        "close": 7708.0,
-        "volume": 45,
-        "hold": 60572
-      },
-      {
-        "datetime": "2026-09-03 14:33:00",
-        "open": 7708.0,
-        "high": 7712.0,
-        "low": 7702.0,
-        "close": 7702.0,
-        "volume": 89,
-        "hold": 60572
-      },
-      {
-        "datetime": "2026-09-03 14:34:00",
-        "open": 7702.0,
-        "high": 7714.0,
-        "low": 7702.0,
-        "close": 7710.0,
-        "volume": 131,
-        "hold": 60549
-      },
-      {
-        "datetime": "2026-09-03 14:35:00",
-        "open": 7710.0,
-        "high": 7712.0,
-        "low": 7702.0,
-        "close": 7712.0,
-        "volume": 61,
-        "hold": 60551
-      },
-      {
-        "datetime": "2026-09-03 14:36:00",
-        "open": 7712.0,
-        "high": 7714.0,
-        "low": 7708.0,
-        "close": 7708.0,
-        "volume": 58,
-        "hold": 60544
-      },
-      {
-        "datetime": "2026-09-03 14:37:00",
-        "open": 7708.0,
-        "high": 7712.0,
-        "low": 7708.0,
-        "close": 7710.0,
-        "volume": 41,
-        "hold": 60543
-      },
-      {
-        "datetime": "2026-09-03 14:38:00",
-        "open": 7710.0,
-        "high": 7716.0,
-        "low": 7710.0,
-        "close": 7712.0,
-        "volume": 89,
-        "hold": 60551
-      },
-      {
-        "datetime": "2026-09-03 14:39:00",
-        "open": 7712.0,
-        "high": 7724.0,
-        "low": 7712.0,
-        "close": 7722.0,
-        "volume": 141,
-        "hold": 60509
-      },
-      {
-        "datetime": "2026-09-03 14:40:00",
-        "open": 7722.0,
-        "high": 7724.0,
-        "low": 7714.0,
-        "close": 7718.0,
-        "volume": 241,
-        "hold": 60512
-      },
-      {
-        "datetime": "2026-09-03 14:41:00",
-        "open": 7718.0,
-        "high": 7720.0,
-        "low": 7716.0,
-        "close": 7720.0,
-        "volume": 133,
-        "hold": 60522
-      },
-      {
-        "datetime": "2026-09-03 14:42:00",
-        "open": 7720.0,
-        "high": 7720.0,
-        "low": 7710.0,
-        "close": 7710.0,
-        "volume": 43,
-        "hold": 60500
-      },
-      {
-        "datetime": "2026-09-03 14:43:00",
-        "open": 7710.0,
-        "high": 7710.0,
-        "low": 7700.0,
-        "close": 7704.0,
-        "volume": 138,
-        "hold": 60502
-      },
-      {
-        "datetime": "2026-09-03 14:44:00",
-        "open": 7704.0,
-        "high": 7706.0,
-        "low": 7698.0,
-        "close": 7702.0,
-        "volume": 216,
-        "hold": 60485
-      },
-      {
-        "datetime": "2026-09-03 14:45:00",
-        "open": 7702.0,
-        "high": 7704.0,
-        "low": 7696.0,
-        "close": 7698.0,
-        "volume": 93,
-        "hold": 60443
-      },
-      {
-        "datetime": "2026-09-03 14:46:00",
-        "open": 7698.0,
-        "high": 7700.0,
-        "low": 7692.0,
-        "close": 7698.0,
-        "volume": 177,
-        "hold": 60453
-      },
-      {
-        "datetime": "2026-09-03 14:47:00",
-        "open": 7698.0,
-        "high": 7706.0,
-        "low": 7696.0,
-        "close": 7704.0,
-        "volume": 128,
-        "hold": 60479
-      },
-      {
-        "datetime": "2026-09-03 14:48:00",
-        "open": 7704.0,
-        "high": 7706.0,
-        "low": 7700.0,
-        "close": 7706.0,
-        "volume": 54,
-        "hold": 60482
-      },
-      {
-        "datetime": "2026-09-03 14:49:00",
-        "open": 7706.0,
-        "high": 7708.0,
-        "low": 7702.0,
-        "close": 7706.0,
-        "volume": 106,
-        "hold": 60473
-      },
-      {
-        "datetime": "2026-09-03 14:50:00",
-        "open": 7706.0,
-        "high": 7712.0,
-        "low": 7706.0,
-        "close": 7708.0,
-        "volume": 166,
-        "hold": 60462
-      },
-      {
-        "datetime": "2026-09-03 14:51:00",
-        "open": 7708.0,
-        "high": 7710.0,
-        "low": 7704.0,
-        "close": 7706.0,
-        "volume": 58,
-        "hold": 60452
-      },
-      {
-        "datetime": "2026-09-03 14:52:00",
-        "open": 7706.0,
-        "high": 7710.0,
-        "low": 7704.0,
-        "close": 7708.0,
-        "volume": 103,
-        "hold": 60459
-      },
-      {
-        "datetime": "2026-09-03 14:53:00",
-        "open": 7708.0,
-        "high": 7718.0,
-        "low": 7706.0,
-        "close": 7718.0,
-        "volume": 74,
-        "hold": 60452
-      },
-      {
-        "datetime": "2026-09-03 14:54:00",
-        "open": 7718.0,
-        "high": 7718.0,
-        "low": 7708.0,
-        "close": 7710.0,
-        "volume": 155,
-        "hold": 60453
-      },
-      {
-        "datetime": "2026-09-03 14:55:00",
-        "open": 7710.0,
-        "high": 7714.0,
-        "low": 7708.0,
-        "close": 7712.0,
-        "volume": 126,
-        "hold": 60408
-      },
-      {
-        "datetime": "2026-09-03 14:56:00",
-        "open": 7712.0,
-        "high": 7712.0,
-        "low": 7708.0,
-        "close": 7712.0,
-        "volume": 73,
-        "hold": 60386
-      },
-      {
-        "datetime": "2026-09-03 14:57:00",
-        "open": 7712.0,
-        "high": 7714.0,
-        "low": 7710.0,
-        "close": 7710.0,
-        "volume": 48,
-        "hold": 60381
-      },
-      {
-        "datetime": "2026-09-03 14:58:00",
-        "open": 7710.0,
-        "high": 7718.0,
-        "low": 7708.0,
-        "close": 7718.0,
-        "volume": 201,
-        "hold": 60345
-      },
-      {
-        "datetime": "2026-09-03 14:59:00",
-        "open": 7718.0,
-        "high": 7720.0,
-        "low": 7708.0,
-        "close": 7712.0,
-        "volume": 289,
-        "hold": 60362
-      },
       {
         "datetime": "2026-09-03 21:00:00",
         "open": 7796.0,
@@ -212667,92 +212235,443 @@
         "high": 8070.0,
         "low": 8062.0,
         "close": 8066.0,
+        "volume": 114,
+        "hold": 60504
+      },
+      {
+        "datetime": "2026-09-09 22:12:00",
+        "open": 8066.0,
+        "high": 8072.0,
+        "low": 8062.0,
+        "close": 8070.0,
+        "volume": 280,
+        "hold": 60476
+      },
+      {
+        "datetime": "2026-09-09 22:13:00",
+        "open": 8070.0,
+        "high": 8072.0,
+        "low": 8066.0,
+        "close": 8068.0,
+        "volume": 94,
+        "hold": 60472
+      },
+      {
+        "datetime": "2026-09-09 22:14:00",
+        "open": 8068.0,
+        "high": 8070.0,
+        "low": 8064.0,
+        "close": 8064.0,
+        "volume": 337,
+        "hold": 60440
+      },
+      {
+        "datetime": "2026-09-09 22:15:00",
+        "open": 8064.0,
+        "high": 8074.0,
+        "low": 8060.0,
+        "close": 8072.0,
+        "volume": 104,
+        "hold": 60434
+      },
+      {
+        "datetime": "2026-09-09 22:16:00",
+        "open": 8072.0,
+        "high": 8092.0,
+        "low": 8070.0,
+        "close": 8090.0,
+        "volume": 197,
+        "hold": 60419
+      },
+      {
+        "datetime": "2026-09-09 22:17:00",
+        "open": 8090.0,
+        "high": 8092.0,
+        "low": 8080.0,
+        "close": 8082.0,
+        "volume": 137,
+        "hold": 60397
+      },
+      {
+        "datetime": "2026-09-09 22:18:00",
+        "open": 8082.0,
+        "high": 8086.0,
+        "low": 8080.0,
+        "close": 8086.0,
+        "volume": 66,
+        "hold": 60392
+      },
+      {
+        "datetime": "2026-09-09 22:19:00",
+        "open": 8086.0,
+        "high": 8100.0,
+        "low": 8084.0,
+        "close": 8098.0,
+        "volume": 183,
+        "hold": 60410
+      },
+      {
+        "datetime": "2026-09-09 22:20:00",
+        "open": 8098.0,
+        "high": 8108.0,
+        "low": 8094.0,
+        "close": 8108.0,
+        "volume": 182,
+        "hold": 60440
+      },
+      {
+        "datetime": "2026-09-09 22:21:00",
+        "open": 8108.0,
+        "high": 8114.0,
+        "low": 8100.0,
+        "close": 8102.0,
+        "volume": 252,
+        "hold": 60382
+      },
+      {
+        "datetime": "2026-09-09 22:22:00",
+        "open": 8102.0,
+        "high": 8110.0,
+        "low": 8098.0,
+        "close": 8110.0,
+        "volume": 172,
+        "hold": 60391
+      },
+      {
+        "datetime": "2026-09-09 22:23:00",
+        "open": 8110.0,
+        "high": 8114.0,
+        "low": 8106.0,
+        "close": 8110.0,
+        "volume": 147,
+        "hold": 60436
+      },
+      {
+        "datetime": "2026-09-09 22:24:00",
+        "open": 8110.0,
+        "high": 8118.0,
+        "low": 8104.0,
+        "close": 8116.0,
+        "volume": 312,
+        "hold": 60413
+      },
+      {
+        "datetime": "2026-09-09 22:25:00",
+        "open": 8116.0,
+        "high": 8116.0,
+        "low": 8108.0,
+        "close": 8108.0,
+        "volume": 121,
+        "hold": 60400
+      },
+      {
+        "datetime": "2026-09-09 22:26:00",
+        "open": 8108.0,
+        "high": 8108.0,
+        "low": 8094.0,
+        "close": 8094.0,
+        "volume": 289,
+        "hold": 60361
+      },
+      {
+        "datetime": "2026-09-09 22:27:00",
+        "open": 8094.0,
+        "high": 8098.0,
+        "low": 8090.0,
+        "close": 8096.0,
         "volume": 91,
-        "hold": 60508
+        "hold": 60349
+      },
+      {
+        "datetime": "2026-09-09 22:28:00",
+        "open": 8096.0,
+        "high": 8096.0,
+        "low": 8090.0,
+        "close": 8090.0,
+        "volume": 194,
+        "hold": 60400
+      },
+      {
+        "datetime": "2026-09-09 22:29:00",
+        "open": 8090.0,
+        "high": 8090.0,
+        "low": 8078.0,
+        "close": 8080.0,
+        "volume": 178,
+        "hold": 60381
+      },
+      {
+        "datetime": "2026-09-09 22:30:00",
+        "open": 8080.0,
+        "high": 8084.0,
+        "low": 8072.0,
+        "close": 8080.0,
+        "volume": 232,
+        "hold": 60360
+      },
+      {
+        "datetime": "2026-09-09 22:31:00",
+        "open": 8080.0,
+        "high": 8084.0,
+        "low": 8080.0,
+        "close": 8080.0,
+        "volume": 58,
+        "hold": 60374
+      },
+      {
+        "datetime": "2026-09-09 22:32:00",
+        "open": 8080.0,
+        "high": 8090.0,
+        "low": 8080.0,
+        "close": 8088.0,
+        "volume": 71,
+        "hold": 60372
+      },
+      {
+        "datetime": "2026-09-09 22:33:00",
+        "open": 8088.0,
+        "high": 8090.0,
+        "low": 8084.0,
+        "close": 8084.0,
+        "volume": 46,
+        "hold": 60373
+      },
+      {
+        "datetime": "2026-09-09 22:34:00",
+        "open": 8084.0,
+        "high": 8088.0,
+        "low": 8084.0,
+        "close": 8088.0,
+        "volume": 21,
+        "hold": 60370
+      },
+      {
+        "datetime": "2026-09-09 22:35:00",
+        "open": 8088.0,
+        "high": 8088.0,
+        "low": 8076.0,
+        "close": 8082.0,
+        "volume": 62,
+        "hold": 60378
+      },
+      {
+        "datetime": "2026-09-09 22:36:00",
+        "open": 8082.0,
+        "high": 8088.0,
+        "low": 8082.0,
+        "close": 8086.0,
+        "volume": 36,
+        "hold": 60377
+      },
+      {
+        "datetime": "2026-09-09 22:37:00",
+        "open": 8086.0,
+        "high": 8086.0,
+        "low": 8080.0,
+        "close": 8082.0,
+        "volume": 62,
+        "hold": 60364
+      },
+      {
+        "datetime": "2026-09-09 22:38:00",
+        "open": 8082.0,
+        "high": 8084.0,
+        "low": 8080.0,
+        "close": 8084.0,
+        "volume": 26,
+        "hold": 60379
+      },
+      {
+        "datetime": "2026-09-09 22:39:00",
+        "open": 8084.0,
+        "high": 8086.0,
+        "low": 8082.0,
+        "close": 8082.0,
+        "volume": 79,
+        "hold": 60366
+      },
+      {
+        "datetime": "2026-09-09 22:40:00",
+        "open": 8082.0,
+        "high": 8090.0,
+        "low": 8082.0,
+        "close": 8088.0,
+        "volume": 34,
+        "hold": 60357
+      },
+      {
+        "datetime": "2026-09-09 22:41:00",
+        "open": 8088.0,
+        "high": 8094.0,
+        "low": 8084.0,
+        "close": 8092.0,
+        "volume": 94,
+        "hold": 60378
+      },
+      {
+        "datetime": "2026-09-09 22:42:00",
+        "open": 8092.0,
+        "high": 8096.0,
+        "low": 8092.0,
+        "close": 8094.0,
+        "volume": 78,
+        "hold": 60375
+      },
+      {
+        "datetime": "2026-09-09 22:43:00",
+        "open": 8094.0,
+        "high": 8100.0,
+        "low": 8092.0,
+        "close": 8098.0,
+        "volume": 74,
+        "hold": 60395
+      },
+      {
+        "datetime": "2026-09-09 22:44:00",
+        "open": 8098.0,
+        "high": 8102.0,
+        "low": 8094.0,
+        "close": 8102.0,
+        "volume": 144,
+        "hold": 60397
+      },
+      {
+        "datetime": "2026-09-09 22:45:00",
+        "open": 8102.0,
+        "high": 8106.0,
+        "low": 8098.0,
+        "close": 8106.0,
+        "volume": 75,
+        "hold": 60409
+      },
+      {
+        "datetime": "2026-09-09 22:46:00",
+        "open": 8106.0,
+        "high": 8110.0,
+        "low": 8094.0,
+        "close": 8100.0,
+        "volume": 249,
+        "hold": 60430
+      },
+      {
+        "datetime": "2026-09-09 22:47:00",
+        "open": 8100.0,
+        "high": 8102.0,
+        "low": 8098.0,
+        "close": 8098.0,
+        "volume": 79,
+        "hold": 60416
+      },
+      {
+        "datetime": "2026-09-09 22:48:00",
+        "open": 8098.0,
+        "high": 8104.0,
+        "low": 8098.0,
+        "close": 8102.0,
+        "volume": 43,
+        "hold": 60419
+      },
+      {
+        "datetime": "2026-09-09 22:49:00",
+        "open": 8102.0,
+        "high": 8102.0,
+        "low": 8096.0,
+        "close": 8098.0,
+        "volume": 91,
+        "hold": 60400
+      },
+      {
+        "datetime": "2026-09-09 22:50:00",
+        "open": 8098.0,
+        "high": 8100.0,
+        "low": 8096.0,
+        "close": 8098.0,
+        "volume": 55,
+        "hold": 60407
+      },
+      {
+        "datetime": "2026-09-09 22:51:00",
+        "open": 8098.0,
+        "high": 8102.0,
+        "low": 8098.0,
+        "close": 8102.0,
+        "volume": 74,
+        "hold": 60402
+      },
+      {
+        "datetime": "2026-09-09 22:52:00",
+        "open": 8102.0,
+        "high": 8104.0,
+        "low": 8098.0,
+        "close": 8098.0,
+        "volume": 42,
+        "hold": 60397
+      },
+      {
+        "datetime": "2026-09-09 22:53:00",
+        "open": 8098.0,
+        "high": 8104.0,
+        "low": 8094.0,
+        "close": 8104.0,
+        "volume": 39,
+        "hold": 60391
+      },
+      {
+        "datetime": "2026-09-09 22:54:00",
+        "open": 8104.0,
+        "high": 8104.0,
+        "low": 8100.0,
+        "close": 8102.0,
+        "volume": 72,
+        "hold": 60388
+      },
+      {
+        "datetime": "2026-09-09 22:55:00",
+        "open": 8102.0,
+        "high": 8106.0,
+        "low": 8102.0,
+        "close": 8102.0,
+        "volume": 74,
+        "hold": 60368
+      },
+      {
+        "datetime": "2026-09-09 22:56:00",
+        "open": 8102.0,
+        "high": 8108.0,
+        "low": 8102.0,
+        "close": 8106.0,
+        "volume": 67,
+        "hold": 60388
+      },
+      {
+        "datetime": "2026-09-09 22:57:00",
+        "open": 8106.0,
+        "high": 8110.0,
+        "low": 8106.0,
+        "close": 8108.0,
+        "volume": 70,
+        "hold": 60386
+      },
+      {
+        "datetime": "2026-09-09 22:58:00",
+        "open": 8108.0,
+        "high": 8112.0,
+        "low": 8102.0,
+        "close": 8104.0,
+        "volume": 177,
+        "hold": 60376
+      },
+      {
+        "datetime": "2026-09-09 22:59:00",
+        "open": 8104.0,
+        "high": 8110.0,
+        "low": 8094.0,
+        "close": 8106.0,
+        "volume": 270,
+        "hold": 60324
       }
     ],
     "min5": [
-      {
-        "datetime": "2026-08-11 09:45:00",
-        "open": 7026.0,
-        "high": 7038.0,
-        "low": 7026.0,
-        "close": 7036.0,
-        "volume": 162,
-        "hold": 34404
-      },
-      {
-        "datetime": "2026-08-11 09:50:00",
-        "open": 7036.0,
-        "high": 7042.0,
-        "low": 7028.0,
-        "close": 7028.0,
-        "volume": 592,
-        "hold": 34500
-      },
-      {
-        "datetime": "2026-08-11 09:55:00",
-        "open": 7028.0,
-        "high": 7034.0,
-        "low": 7024.0,
-        "close": 7030.0,
-        "volume": 365,
-        "hold": 34497
-      },
-      {
-        "datetime": "2026-08-11 10:00:00",
-        "open": 7030.0,
-        "high": 7034.0,
-        "low": 7020.0,
-        "close": 7020.0,
-        "volume": 3091,
-        "hold": 34505
-      },
-      {
-        "datetime": "2026-08-11 10:05:00",
-        "open": 7020.0,
-        "high": 7028.0,
-        "low": 7018.0,
-        "close": 7022.0,
-        "volume": 1690,
-        "hold": 34529
-      },
-      {
-        "datetime": "2026-08-11 10:10:00",
-        "open": 7022.0,
-        "high": 7028.0,
-        "low": 7016.0,
-        "close": 7026.0,
-        "volume": 301,
-        "hold": 34535
-      },
-      {
-        "datetime": "2026-08-11 10:30:00",
-        "open": 7018.0,
-        "high": 7018.0,
-        "low": 7002.0,
-        "close": 7008.0,
-        "volume": 442,
-        "hold": 34531
-      },
-      {
-        "datetime": "2026-08-11 10:35:00",
-        "open": 7008.0,
-        "high": 7014.0,
-        "low": 7004.0,
-        "close": 7006.0,
-        "volume": 241,
-        "hold": 34560
-      },
-      {
-        "datetime": "2026-08-11 10:40:00",
-        "open": 7006.0,
-        "high": 7020.0,
-        "low": 7006.0,
-        "close": 7010.0,
-        "volume": 318,
-        "hold": 34640
-      },
       {
         "datetime": "2026-08-11 10:45:00",
         "open": 7010.0,
@@ -226168,39 +226087,93 @@
         "open": 8074.0,
         "high": 8074.0,
         "low": 8062.0,
-        "close": 8066.0,
-        "volume": 176,
-        "hold": 60508
+        "close": 8064.0,
+        "volume": 910,
+        "hold": 60440
+      },
+      {
+        "datetime": "2026-09-09 22:15:00",
+        "open": 8064.0,
+        "high": 8100.0,
+        "low": 8060.0,
+        "close": 8098.0,
+        "volume": 687,
+        "hold": 60410
+      },
+      {
+        "datetime": "2026-09-09 22:20:00",
+        "open": 8098.0,
+        "high": 8118.0,
+        "low": 8094.0,
+        "close": 8116.0,
+        "volume": 1065,
+        "hold": 60413
+      },
+      {
+        "datetime": "2026-09-09 22:25:00",
+        "open": 8116.0,
+        "high": 8116.0,
+        "low": 8078.0,
+        "close": 8080.0,
+        "volume": 873,
+        "hold": 60381
+      },
+      {
+        "datetime": "2026-09-09 22:30:00",
+        "open": 8080.0,
+        "high": 8090.0,
+        "low": 8072.0,
+        "close": 8088.0,
+        "volume": 428,
+        "hold": 60370
+      },
+      {
+        "datetime": "2026-09-09 22:35:00",
+        "open": 8088.0,
+        "high": 8088.0,
+        "low": 8076.0,
+        "close": 8082.0,
+        "volume": 265,
+        "hold": 60366
+      },
+      {
+        "datetime": "2026-09-09 22:40:00",
+        "open": 8082.0,
+        "high": 8102.0,
+        "low": 8082.0,
+        "close": 8102.0,
+        "volume": 424,
+        "hold": 60397
+      },
+      {
+        "datetime": "2026-09-09 22:45:00",
+        "open": 8102.0,
+        "high": 8110.0,
+        "low": 8094.0,
+        "close": 8098.0,
+        "volume": 537,
+        "hold": 60400
+      },
+      {
+        "datetime": "2026-09-09 22:50:00",
+        "open": 8098.0,
+        "high": 8104.0,
+        "low": 8094.0,
+        "close": 8102.0,
+        "volume": 282,
+        "hold": 60388
+      },
+      {
+        "datetime": "2026-09-09 22:55:00",
+        "open": 8102.0,
+        "high": 8112.0,
+        "low": 8094.0,
+        "close": 8106.0,
+        "volume": 658,
+        "hold": 60324
       }
     ],
     "min15": [
-      {
-        "datetime": "2026-06-09 11:00:00",
-        "open": 7522.0,
-        "high": 7522.0,
-        "low": 7522.0,
-        "close": 7522.0,
-        "volume": 0,
-        "hold": 240
-      },
-      {
-        "datetime": "2026-06-09 11:15:00",
-        "open": 7522.0,
-        "high": 7522.0,
-        "low": 7522.0,
-        "close": 7522.0,
-        "volume": 0,
-        "hold": 240
-      },
-      {
-        "datetime": "2026-06-09 13:30:00",
-        "open": 7522.0,
-        "high": 7522.0,
-        "low": 7430.0,
-        "close": 7430.0,
-        "volume": 3,
-        "hold": 241
-      },
       {
         "datetime": "2026-06-09 13:45:00",
         "open": 7430.0,
@@ -239670,21 +239643,39 @@
         "open": 8064.0,
         "high": 8074.0,
         "low": 8042.0,
-        "close": 8066.0,
-        "volume": 2084,
-        "hold": 60508
+        "close": 8064.0,
+        "volume": 2818,
+        "hold": 60440
+      },
+      {
+        "datetime": "2026-09-09 22:15:00",
+        "open": 8064.0,
+        "high": 8118.0,
+        "low": 8060.0,
+        "close": 8080.0,
+        "volume": 2625,
+        "hold": 60381
+      },
+      {
+        "datetime": "2026-09-09 22:30:00",
+        "open": 8080.0,
+        "high": 8102.0,
+        "low": 8072.0,
+        "close": 8102.0,
+        "volume": 1117,
+        "hold": 60397
+      },
+      {
+        "datetime": "2026-09-09 22:45:00",
+        "open": 8102.0,
+        "high": 8112.0,
+        "low": 8094.0,
+        "close": 8106.0,
+        "volume": 1477,
+        "hold": 60324
       }
     ],
     "min30": [
-      {
-        "datetime": "2026-03-10 22:30:00",
-        "open": 6954.0,
-        "high": 6954.0,
-        "low": 6954.0,
-        "close": 6954.0,
-        "volume": 0,
-        "hold": 8
-      },
       {
         "datetime": "2026-03-11 09:00:00",
         "open": 6954.0,
@@ -253170,11 +253161,20 @@
       {
         "datetime": "2026-09-09 22:00:00",
         "open": 8064.0,
-        "high": 8074.0,
+        "high": 8118.0,
         "low": 8042.0,
-        "close": 8066.0,
-        "volume": 2084,
-        "hold": 60508
+        "close": 8080.0,
+        "volume": 5443,
+        "hold": 60381
+      },
+      {
+        "datetime": "2026-09-09 22:30:00",
+        "open": 8080.0,
+        "high": 8112.0,
+        "low": 8072.0,
+        "close": 8106.0,
+        "volume": 2594,
+        "hold": 60324
       }
     ],
     "min60": [
@@ -264764,11 +264764,11 @@
       {
         "datetime": "2026-09-09 22:00:00",
         "open": 8064.0,
-        "high": 8074.0,
+        "high": 8118.0,
         "low": 8042.0,
-        "close": 8066.0,
-        "volume": 2084,
-        "hold": 60508
+        "close": 8106.0,
+        "volume": 8037,
+        "hold": 60324
       }
     ]
   }
